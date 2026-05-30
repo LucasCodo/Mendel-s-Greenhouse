@@ -12,11 +12,12 @@ updated: 2026-05-30
 
 ## Still Open
 
-- What save data format will be used later?
-- What packaging and distribution workflow will be used later?
-- What code architecture and module layout will be used later?
-- How will Pyxel be embedded or delivered in the future web experience?
-- What account/authentication model will NiceGUI use later?
+- Hosting provider.
+- Database technology.
+- Deployment workflow.
+- Final NiceGUI routing structure.
+- Exact save synchronization protocol between NiceGUI and the Pyxel game.
+- Whether HTML export is needed after the first release.
 
 ## Resolved On 2026-05-30
 
@@ -90,3 +91,37 @@ Species progression:
 | Corn | 4 | Full Mendel's Second Law |
 | Tomato | 5 | Advanced planning |
 | Orchid | 6 | Endgame and collection |
+
+### Future Platform Decisions
+
+Future save data will use versioned JSON. Local Pyxel saves should live under Pyxel's user data directory. Pyxel `.pyxres` remains for resources, not player saves.
+
+Future packaging follows Pyxel's native flow: run the main Python entrypoint directly during development and package as `.pyxapp` for distribution. Do not export HTML during the MVP implementation phase.
+
+Future code architecture should keep core gameplay logic independent from Pyxel rendering and future NiceGUI infrastructure.
+
+Future NiceGUI integration should wrap the selected Pyxel delivery artifact after the first release. NiceGUI will initially use simple username and password authentication for accounts.
+
+### Implementation Readiness
+
+Use Poe the Poet for automation, not Taskipy.
+
+Initial development dependencies are `pytest`, `pytest-cov`, `hypothesis`, `ruff`, `poethepoet`, and `Babel`. Add `pytest-playwright` later only when a runnable web build exists.
+
+Configure Ruff to follow PEP 8 line length with `line-length = 79`.
+
+Ruff lint should include PEP 8 style and naming checks (`E`, `W`, `N`), core correctness checks (`F`), import sorting (`I`), modernization (`UP`), and pragmatic quality rules (`B`, `SIM`, `C4`, `RET`, `PT`, `PTH`, `RUF`).
+
+Extend Ruff with the relevant NSIDC-inspired rules `ARG`, `EM`, `ERA`, `EXE`, `ISC`, `PIE`, `PL`, `T20`, and `YTT`. Do not enable scientific/data rules such as `NPY` or `PD` unless those dependencies are added later.
+
+Configure pytest and coverage in `pyproject.toml`; keep coverage `fail_under = 0` until meaningful implementation tests exist.
+
+Use Babel through Poe tasks for i18n extraction, update, and compile.
+
+Use Pyxel palette indexes through human-readable enums and central UI color mappings.
+
+Use scene management for screen architecture. The MVP starts with `0` credits, one autosave slot using local versioned JSON saves, and `.pyxres` as the production asset source.
+
+Use Python 3.11 as the local development baseline. The project metadata should use `>=3.11,<4.0`. The first MVP screen set is Main Game, Greenhouse, Contracts, and Collection. Tutorial delivery happens through the first contract with minimal popups.
+
+Do not build a documentation site now; revisit GitHub Pages/MkDocs after the first release.

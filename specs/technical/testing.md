@@ -37,7 +37,7 @@ Do not add a game-specific pytest plugin unless it is actively maintained, relev
 When implementation starts, add the initial test dependencies as development dependencies:
 
 ```powershell
-poetry add --group dev pytest pytest-cov hypothesis
+poetry add --group dev pytest pytest-cov hypothesis ruff poethepoet Babel
 ```
 
 Future browser tests may add:
@@ -96,12 +96,29 @@ markers = [
   "browser: web/canvas tests for the future browser target",
   "slow: tests that are too slow for the default local loop",
 ]
+
+[tool.coverage.run]
+branch = true
+source = ["mendels_greenhouse"]
+omit = [
+  "tests/*",
+]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 0
+exclude_lines = [
+  "pragma: no cover",
+  "if TYPE_CHECKING:",
+  "if __name__ == .__main__.:",
+]
 ```
 
 Coverage may be run with:
 
 ```powershell
-poetry run pytest --cov=mendels_greenhouse --cov-report=term-missing
+poe test-cov
 ```
 
 ## Testability Rules

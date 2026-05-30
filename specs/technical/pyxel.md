@@ -28,6 +28,19 @@ Use Pyxel's retro constraints as design guidance:
 - Keep UI layouts compact and grid-based.
 - Use simple animation loops and concise visual effects.
 
+## Palette Mapping
+
+Use Pyxel's palette indexes through human-readable enums.
+
+Rules:
+
+- UI code must not scatter raw integer color indexes.
+- Design-system color roles must map to Pyxel palette indexes in `mendels_greenhouse/ui/palette.py`.
+- The MVP should use Pyxel's palette directly.
+- If the palette is customized later, update the enum/mapping in one place.
+
+See [implementation-readiness.md](implementation-readiness.md).
+
 ## Asset Format
 
 Use Pyxel's native resource format:
