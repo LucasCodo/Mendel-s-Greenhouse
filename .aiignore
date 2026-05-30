@@ -1,0 +1,16 @@
+# Local editor and vault settings
+.obsidian/
+
+# Common local environment files
+.env
+.env.*
+*.pem
+*.key
+
+# Generated or dependency outputs
+build/
+dist/
+coverage/
+node_modules/
+.venv/
+venv/

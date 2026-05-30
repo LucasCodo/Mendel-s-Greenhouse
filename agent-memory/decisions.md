@@ -1,0 +1,119 @@
+---
+title: Decisions
+tags:
+  - agent-memory/decision
+type: decision
+project: mendels-greenhouse
+status: active
+updated: 2026-05-30
+---
+
+# Decisions
+
+## 2026-05-30: Specs Are Source Of Truth
+
+Detailed game rules belong in `specs/`. Root documentation should stay high-level and point humans and agents to the specs.
+
+## 2026-05-30: Official Genetic Analyzer Progression
+
+The official analyzer progression has exactly 4 levels:
+
+1. Phenotypic Observation
+2. Genetic Sequencing
+3. Probabilistic Analysis
+4. Genetic Simulator
+
+The learning progression is:
+
+```text
+Phenotype
+->
+Genotype
+->
+Probability
+->
+Genetic Planning
+```
+
+## 2026-05-30: Artifact Naming
+
+Use simple document names. Detailed artifacts live under `specs/`, such as `specs/GDD.md` and `specs/GBD.md`, rather than repeating the project name in filenames.
+
+## 2026-05-30: Keep Agent Memory
+
+Keep `agent-memory/` in the repository as Obsidian-friendly durable memory for agents. It records stable decisions, project state, validated commands, and open questions.
+
+## 2026-05-30: Keep MIT License And .aiignore
+
+The repository uses the MIT License. Keep `LICENSE` as the existing MIT license file.
+
+Keep `.aiignore` in the repository to hide local vault settings, secrets, generated outputs, and dependency folders from agent context.
+
+## 2026-05-30: UI Specs Location
+
+Detailed UI/UX documentation lives in `specs/ui/`. The older `specs/UI_FLOW.md` and `specs/SCREEN_SPEC.md` files are high-level pointers to the detailed UI specs.
+
+## 2026-05-30: MVP Scope And Contract Consumption
+
+The first playable prototype should validate the core loop using Mendel Pea only, 2 independent genes, analyzer level 1, phenotypic contracts, limited greenhouse space, collection, and progression.
+
+Delivery contracts consume delivered plants. Statistical contracts validate the generated batch and do not consume plants automatically.
+
+## 2026-05-30: Analyzer Use Is Free
+
+The genetic analyzer has unlimited use and no per-use credit, time, or energy cost. Progression comes from analyzer levels, not usage friction.
+
+## 2026-05-30: Plant Sale Value
+
+Plant sale values should stay low: common sale should be roughly 5% to 10% of comparable contract value. Selling exists to avoid waste and free storage, not as the main source of income.
+
+## 2026-05-30: Species Naming Progression
+
+The final species naming scheme is:
+
+1. Mendel Pea - 2 genes.
+2. Snapdragon - 3 genes.
+3. Corn - 4 genes.
+4. Tomato - 5 genes.
+5. Orchid - 6 genes.
+
+## 2026-05-30: Specs Directory Grouping
+
+Mechanics are grouped under `specs/mechanics/` to make Obsidian navigation and agent context loading more focused.
+
+Related grouping:
+
+- `specs/mechanics/` for gameplay systems.
+- `specs/content/` for species, genes, alleles, and phenotypes.
+- `specs/education/` for learning objectives.
+- `specs/ui/` for interface, assets, and accessibility.
+
+## 2026-05-30: Engine And Art Direction
+
+Mendel's Greenhouse will use Pyxel as its game engine and pixel art as its visual style.
+
+Implementation-specific details such as persistence, packaging, and code architecture remain open until documented in `specs/technical/`.
+
+## 2026-05-30: Web Target And Future NiceGUI Layer
+
+Mendel's Greenhouse is intended to be a web game.
+
+Current scope is only the game implementation. NiceGUI is planned for a future web application layer that manages user accounts and saves.
+
+Do not implement account management, authentication, or hosted save management in the MVP unless future specs explicitly change scope.
+
+## 2026-05-30: Poetry Flat Package And Pyxel Assets
+
+The implementation should be scaffolded with Poetry flat layout using package name `mendels_greenhouse`.
+
+Runtime assets belong inside the package under `mendels_greenhouse/assets/`.
+
+Use Pyxel's native `.pyxres` format, with primary resource file `mendels_greenhouse/assets/mendels_greenhouse.pyxres`.
+
+Target internal game resolution is `256 x 144`; the browser view should fill the page, preserve aspect ratio, keep pixel art crisp, and provide fullscreen.
+
+## 2026-05-30: AI Contribution Governance
+
+Meaningful AI assistance must be disclosed with an `Assisted-by:` trailer or PR metadata.
+
+AI tools must not be listed as authors, signers, reviewers, approvers, or DCO signers. Human contributors remain responsible for reviewing, understanding, testing, and licensing their contributions.
