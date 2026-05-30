@@ -26,33 +26,45 @@ If the command is run inside an already initialized repository, verify the gener
 
 ## Package Layout
 
-The game package should own the runtime code and game assets.
+The game package should own the runtime code, game assets, and localization catalogs.
 
 Recommended structure:
 
 ```text
 mendels_greenhouse/
-├── __init__.py
-├── __main__.py
-├── app.py
-├── assets/
-│   ├── mendels_greenhouse.pyxres
-│   └── README.md
-├── core/
-│   ├── genetics.py
-│   ├── contracts.py
-│   ├── greenhouse.py
-│   └── progression.py
-├── scenes/
-│   ├── main_game.py
-│   ├── contracts.py
-│   ├── greenhouse.py
-│   ├── analyzer.py
-│   └── collection.py
-└── ui/
-    ├── components.py
-    ├── layout.py
-    └── palette.py
+|-- __init__.py
+|-- __main__.py
+|-- app.py
+|-- assets/
+|   |-- mendels_greenhouse.pyxres
+|   `-- README.md
+|-- locale/
+|   |-- en/
+|   |   `-- LC_MESSAGES/
+|   `-- pt_BR/
+|       `-- LC_MESSAGES/
+|-- core/
+|   |-- genetics.py
+|   |-- contracts.py
+|   |-- greenhouse.py
+|   |-- progression.py
+|   `-- i18n.py
+|-- scenes/
+|   |-- main_game.py
+|   |-- contracts.py
+|   |-- greenhouse.py
+|   |-- analyzer.py
+|   `-- collection.py
+`-- ui/
+    |-- components.py
+    |-- layout.py
+    `-- palette.py
+tests/
+|-- conftest.py
+|-- unit/
+|-- property/
+|-- integration/
+`-- browser/
 ```
 
 ## Asset Location
@@ -71,6 +83,16 @@ mendels_greenhouse/assets/mendels_greenhouse.pyxres
 
 Do not place runtime assets only at repository root. Keeping assets inside the package makes imports, packaging, and future web delivery easier to reason about.
 
+## Localization Location
+
+Localization catalogs must live inside the game package:
+
+```text
+mendels_greenhouse/locale/
+```
+
+Rules are defined in [localization.md](localization.md).
+
 ## Entrypoint
 
 The package should be runnable as a module:
@@ -80,6 +102,12 @@ poetry run python -m mendels_greenhouse
 ```
 
 `__main__.py` should call the game startup entrypoint.
+
+## Test Location
+
+Automated tests must live in the repository-level `tests/` directory.
+
+Testing rules are defined in [testing.md](testing.md).
 
 ## Current Scope
 

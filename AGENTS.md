@@ -27,6 +27,8 @@ Before implementing or modifying any gameplay system, consult the relevant spec:
 - [specs/ui/README.md](specs/ui/README.md) for detailed UI/UX, components, screens, accessibility, and visual assets.
 - [specs/technical/README.md](specs/technical/README.md) for approved implementation direction.
 - [specs/technical/platform-roadmap.md](specs/technical/platform-roadmap.md) for web and future NiceGUI scope.
+- [specs/technical/localization.md](specs/technical/localization.md) for English and Brazilian Portuguese support.
+- [specs/technical/testing.md](specs/technical/testing.md) for pytest-based automated testing expectations.
 - [specs/mechanics/collection.md](specs/mechanics/collection.md) for discovery and completion rules.
 - [specs/education/learning-objectives.md](specs/education/learning-objectives.md) for educational intent.
 - [specs/mechanics/data-model.md](specs/mechanics/data-model.md) for conceptual entities and relationships.
@@ -34,6 +36,10 @@ Before implementing or modifying any gameplay system, consult the relevant spec:
 ## Do Not Invent Rules
 
 Do not create or change species, genes, alleles, phenotypes, genotypes, contracts, progression gates, rewards, analyzer behavior, core mechanics, engine constraints, platform scope, account/save scope, or art direction without checking and updating the related specs.
+
+Do not add user-facing text without considering localization.
+
+Use pytest for automated tests. Keep core gameplay rules testable without launching Pyxel windows.
 
 If a rule is missing, document the proposed rule in the relevant spec before treating it as implementation guidance.
 

@@ -28,6 +28,10 @@ The game will use Pyxel as its engine and pixel art as its visual style.
 
 Mendel's Greenhouse is intended to be a web game. For now, implementation focuses only on the game. A future NiceGUI layer is planned for user accounts and save management.
 
+### Initial Localization
+
+The game must support English and Brazilian Portuguese from the initial implementation. Use Python `gettext` for runtime translations and Babel tooling for extraction/catalog management.
+
 ### Project Structure And Asset Direction
 
 The implementation should use Poetry flat layout with package name `mendels_greenhouse`. Runtime assets live inside `mendels_greenhouse/assets/` and use Pyxel's native `.pyxres` format.

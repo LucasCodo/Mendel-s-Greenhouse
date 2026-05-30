@@ -135,6 +135,7 @@ Display requirements:
 - Pixel art remains crisp.
 - A fullscreen action is available from the game UI.
 - UI must remain readable at the internal resolution before browser scaling.
+- UI must fit both English and Brazilian Portuguese labels.
 
 ## Base Visual Components
 

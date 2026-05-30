@@ -14,6 +14,15 @@ Mendel's Greenhouse is an early-stage educational game project about learning Me
 
 The repository is documentation-first. The approved game engine is Pyxel, the approved art direction is pixel art, and the intended platform is web. Current implementation scope is the game only. NiceGUI is planned later for accounts and save management.
 
+Initial language support: English and Brazilian Portuguese.
+
+Automated testing direction: pytest for the main test suite, Hypothesis for property-based genetics/contract invariants, pytest-cov for coverage, and pytest-playwright later for browser smoke tests once a web build exists.
+
+Official domains:
+
+- https://mendelsgreenhouse.com
+- https://mendelsgreenhouse.com.br
+
 Current structure:
 
 - [[README|README]]: public project overview.
@@ -39,3 +48,5 @@ Important specs:
 - [[specs/ui/README|UI/UX Specification]]
 - [[specs/technical/README|Technical Direction]]
 - [[specs/technical/platform-roadmap|Platform Roadmap]]
+- [[specs/technical/localization|Localization]]
+- [[specs/technical/testing|Testing Strategy]]

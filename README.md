@@ -49,6 +49,15 @@ The project is in active design and documentation. Mechanics, balance values, an
 
 The approved visual direction is pixel art, and the approved game engine is [Pyxel](https://github.com/kitao/pyxel). The project is intended to become a web game. For now, implementation should focus only on the game; a future NiceGUI layer is planned for user accounts and save management.
 
+Initial language support will include English and Brazilian Portuguese.
+
+## Domains
+
+Official project domains:
+
+- [mendelsgreenhouse.com](https://mendelsgreenhouse.com)
+- [mendelsgreenhouse.com.br](https://mendelsgreenhouse.com.br)
+
 ## Documentation Structure
 
 Detailed game rules live in [`specs/`](specs/). Those documents are the official source of truth for gameplay, content, progression, UI flow, learning goals, and conceptual data models.

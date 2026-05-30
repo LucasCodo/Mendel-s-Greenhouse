@@ -46,6 +46,13 @@ The Settings Screen controls player preferences without defining implementation 
 - Reset tutorial prompts.
 - Confirmation preferences for selling plants.
 
+### Language
+
+- English.
+- Portugues (Brasil).
+
+Language changes should update visible UI text. Persistence can wait until the future save/preferences system exists.
+
 ## Rules
 
 - Settings must not change game rules.

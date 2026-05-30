@@ -23,4 +23,6 @@ Read the documents in this order:
 - Learning objectives live in `specs/education/`.
 - Detailed interface rules stay in `specs/ui/`.
 - Approved implementation direction lives in `specs/technical/`.
+- Localization rules live in `specs/technical/localization.md`.
+- Automated testing rules live in `specs/technical/testing.md`.
 - If documents disagree, update them before implementation.

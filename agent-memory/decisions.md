@@ -117,3 +117,15 @@ Target internal game resolution is `256 x 144`; the browser view should fill the
 Meaningful AI assistance must be disclosed with an `Assisted-by:` trailer or PR metadata.
 
 AI tools must not be listed as authors, signers, reviewers, approvers, or DCO signers. Human contributors remain responsible for reviewing, understanding, testing, and licensing their contributions.
+
+## 2026-05-30: Initial Localization
+
+Mendel's Greenhouse must support English and Brazilian Portuguese from the initial implementation.
+
+Use Python `gettext` for runtime translations and Babel tooling for extraction/catalog management. Keep localization files inside the game package under `mendels_greenhouse/locale/`.
+
+## 2026-05-30: Testing Strategy
+
+Use `pytest` as the primary automated testing framework.
+
+Core gameplay logic should be testable without launching Pyxel windows. Use `hypothesis` for genetic/property invariants and `pytest-cov` for coverage. Add `pytest-playwright` later only when a runnable web build exists.
