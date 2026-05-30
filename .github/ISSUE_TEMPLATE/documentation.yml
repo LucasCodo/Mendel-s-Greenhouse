@@ -1,0 +1,38 @@
+name: Documentation update
+description: Request a documentation, spec, or agent-memory update.
+title: "docs: "
+labels:
+  - documentation
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What documentation should change?
+    validations:
+      required: true
+  - type: input
+    id: file
+    attributes:
+      label: Relevant file or section
+      placeholder: specs/technical/project-structure.md
+    validations:
+      required: false
+  - type: textarea
+    id: reason
+    attributes:
+      label: Reason
+      description: Why is this change needed?
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: What should be true when this is done?
+      placeholder: |
+        - The relevant spec is updated.
+        - Stale references are removed.
+        - Agent memory is updated if this is a durable decision.
+    validations:
+      required: true

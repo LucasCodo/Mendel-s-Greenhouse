@@ -29,6 +29,9 @@ Before implementing or modifying any gameplay system, consult the relevant spec:
 - [specs/technical/platform-roadmap.md](specs/technical/platform-roadmap.md) for web and future NiceGUI scope.
 - [specs/technical/localization.md](specs/technical/localization.md) for English and Brazilian Portuguese support.
 - [specs/technical/testing.md](specs/technical/testing.md) for pytest-based automated testing expectations.
+- [specs/technical/future-platform.md](specs/technical/future-platform.md) for future save, packaging, web delivery, architecture, and NiceGUI decisions.
+- [specs/technical/development-tooling.md](specs/technical/development-tooling.md) for dev dependencies, Poe tasks, Ruff, Babel automation, and refactoring policy.
+- [specs/technical/implementation-readiness.md](specs/technical/implementation-readiness.md) for resolved MVP readiness decisions.
 - [specs/mechanics/collection.md](specs/mechanics/collection.md) for discovery and completion rules.
 - [specs/education/learning-objectives.md](specs/education/learning-objectives.md) for educational intent.
 - [specs/mechanics/data-model.md](specs/mechanics/data-model.md) for conceptual entities and relationships.
@@ -40,6 +43,12 @@ Do not create or change species, genes, alleles, phenotypes, genotypes, contract
 Do not add user-facing text without considering localization.
 
 Use pytest for automated tests. Keep core gameplay rules testable without launching Pyxel windows.
+
+Keep core gameplay rules independent from Pyxel rendering and future NiceGUI account/save infrastructure.
+
+Use Poe the Poet for automation tasks. Do not introduce Taskipy.
+
+Use human-readable Pyxel color enums instead of raw color indexes in UI code.
 
 If a rule is missing, document the proposed rule in the relevant spec before treating it as implementation guidance.
 

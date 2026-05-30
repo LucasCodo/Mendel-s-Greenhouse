@@ -163,19 +163,19 @@ Rules:
 
 Use ASCII in source files unless the file explicitly requires translated prose. `.po` files may contain accented Portuguese strings.
 
-## Suggested Tooling
+## Tooling
 
-Babel can manage extraction and catalog workflows.
+Babel manages extraction and catalog workflows. Poe the Poet runs the standard project commands.
 
-Suggested future commands:
+Required Poe tasks:
 
 ```powershell
-pybabel extract -o locale/messages.pot mendels_greenhouse
-pybabel init -i locale/messages.pot -d mendels_greenhouse/locale -l pt_BR -D mendels_greenhouse
-pybabel compile -d mendels_greenhouse/locale -D mendels_greenhouse
+poe i18n-extract
+poe i18n-update
+poe i18n-compile
 ```
 
-The exact commands may change once the package exists.
+These tasks should call Babel's `pybabel` CLI. Do not start with a custom translation compiler script.
 
 ## Acceptance Criteria
 

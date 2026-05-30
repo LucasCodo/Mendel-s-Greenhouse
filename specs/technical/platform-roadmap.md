@@ -28,15 +28,30 @@ NiceGUI is the planned future framework for:
 - Player profile screens.
 - Web application shell around the Pyxel game.
 
+The initial future account model will use simple username and password authentication.
+
+The future NiceGUI shell should wrap the selected Pyxel delivery artifact after the first release. Do not export HTML during the MVP implementation phase.
+
 ## Boundaries
 
-Do not define the NiceGUI architecture yet.
+Do not implement NiceGUI in the MVP.
 
-Open future decisions:
+Resolved future direction:
 
-- How Pyxel will be embedded or delivered in the future NiceGUI web shell.
-- Save data format.
-- Account model.
-- Authentication flow.
-- Deployment and hosting.
-- Integration boundary between the Pyxel game and the NiceGUI application shell.
+- Save data format: versioned JSON.
+- Local Pyxel save location: Pyxel user data directory.
+- Packaging: Pyxel `.pyxapp`.
+- Early execution: main Python entrypoint.
+- HTML export: postponed until after the first release, if still needed.
+- Future web shell: NiceGUI custom component around Pyxel web delivery.
+- Authentication: simple username and password initially.
+
+Still open:
+
+- Hosting provider.
+- Database technology.
+- Deployment workflow.
+- Final NiceGUI routing structure.
+- Exact save synchronization protocol between NiceGUI and the Pyxel game.
+
+See [future-platform.md](future-platform.md).

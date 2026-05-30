@@ -170,6 +170,10 @@ cython_debug/
 # Ruff stuff:
 .ruff_cache/
 
+# Game saves
+saves/
+mendels_greenhouse/saves/
+
 # PyPI configuration file
 .pypirc
 

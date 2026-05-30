@@ -25,4 +25,7 @@ Read the documents in this order:
 - Approved implementation direction lives in `specs/technical/`.
 - Localization rules live in `specs/technical/localization.md`.
 - Automated testing rules live in `specs/technical/testing.md`.
+- Future platform decisions live in `specs/technical/future-platform.md`.
+- Development tooling lives in `specs/technical/development-tooling.md`.
+- MVP readiness decisions live in `specs/technical/implementation-readiness.md`.
 - If documents disagree, update them before implementation.

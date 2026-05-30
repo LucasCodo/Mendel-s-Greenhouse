@@ -18,6 +18,10 @@ Initial language support: English and Brazilian Portuguese.
 
 Automated testing direction: pytest for the main test suite, Hypothesis for property-based genetics/contract invariants, pytest-cov for coverage, and pytest-playwright later for browser smoke tests once a web build exists.
 
+Future platform direction: saves use versioned JSON, Pyxel packaging uses `.pyxapp` without HTML export during the MVP, NiceGUI integration is revisited after the first release, and initial NiceGUI authentication uses username and password.
+
+Implementation readiness direction: use Python 3.11, Poe for tasks, Ruff for lint/format with PEP 8 line length, Babel for i18n catalog automation, scene management for screens, Pyxel color enums for palette mapping, one autosave slot, and `0` starting credits for the MVP.
+
 Official domains:
 
 - https://mendelsgreenhouse.com
@@ -50,3 +54,6 @@ Important specs:
 - [[specs/technical/platform-roadmap|Platform Roadmap]]
 - [[specs/technical/localization|Localization]]
 - [[specs/technical/testing|Testing Strategy]]
+- [[specs/technical/future-platform|Future Platform]]
+- [[specs/technical/development-tooling|Development Tooling]]
+- [[specs/technical/implementation-readiness|Implementation Readiness]]

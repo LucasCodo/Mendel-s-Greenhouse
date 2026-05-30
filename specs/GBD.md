@@ -8,6 +8,14 @@ This document defines balance values for Mendel's Greenhouse. It covers costs, r
 
 Credits are the main currency.
 
+Initial player credits:
+
+```text
+0
+```
+
+The first tutorial contract should provide the player's first credits.
+
 Sources:
 
 - Contracts
