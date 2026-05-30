@@ -1,0 +1,52 @@
+# Settings Screen
+
+## Purpose
+
+The Settings Screen controls player preferences without defining implementation technology.
+
+## Layout
+
+```text
++--------------------------------------------+
+| Settings                                   |
++----------------------+---------------------+
+| Audio                | Volume controls      |
+| Visual               | Motion, effects      |
+| Accessibility        | Text, color support  |
+| Gameplay             | Tutorial reset       |
++----------------------+---------------------+
+| [Apply] [Reset Defaults] [Back]            |
++--------------------------------------------+
+```
+
+## Settings Categories
+
+### Audio
+
+- Master volume.
+- Music volume.
+- Effects volume.
+
+### Visual
+
+- Animation intensity.
+- Visual effects intensity.
+- Interface scale if supported.
+- Fullscreen toggle.
+
+### Accessibility
+
+- Color-support mode.
+- Larger text option.
+- Reduced motion.
+- Tooltip persistence.
+
+### Gameplay
+
+- Reset tutorial prompts.
+- Confirmation preferences for selling plants.
+
+## Rules
+
+- Settings must not change game rules.
+- Accessibility settings must preserve phenotype readability.
