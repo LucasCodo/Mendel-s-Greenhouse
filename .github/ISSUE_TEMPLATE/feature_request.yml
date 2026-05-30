@@ -1,0 +1,55 @@
+name: Feature request
+description: Propose a gameplay, tooling, UI, or content addition.
+title: "feat: "
+labels:
+  - enhancement
+body:
+  - type: textarea
+    id: goal
+    attributes:
+      label: Goal
+      description: What outcome should this feature create?
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Gameplay
+        - Genetics
+        - Contracts
+        - Progression
+        - UI/UX
+        - Assets
+        - Localization
+        - Technical tooling
+        - Documentation
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: Describe the proposed change.
+    validations:
+      required: true
+  - type: textarea
+    id: specs
+    attributes:
+      label: Specs to update
+      description: List source-of-truth specs likely affected by this change.
+      placeholder: |
+        - specs/GDD.md
+        - specs/mechanics/gameplay.md
+        - specs/technical/testing.md
+    validations:
+      required: false
+  - type: textarea
+    id: risks
+    attributes:
+      label: Risks or tradeoffs
+      description: What could this complicate or break?
+    validations:
+      required: false
