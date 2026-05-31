@@ -52,7 +52,7 @@ cd "$BUILD_DIR"
 poetry run pyxel package mendels-greenhouse mendels-greenhouse/main.py
 poetry run pyxel app2html "$APP_FILE"
 
-cp "$HTML_FILE" "$WEB_DIR/index.html"
+mv "$HTML_FILE" "$WEB_DIR/index.html"
 printf "ok\n" > "$WEB_DIR/health.html"
 
 echo "Built $WEB_DIR/index.html"
