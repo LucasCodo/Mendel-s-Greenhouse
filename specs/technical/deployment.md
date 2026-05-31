@@ -36,8 +36,9 @@ code to handle this. If the console message appears during local testing, use a
 browser profile without MetaMask or disable MetaMask site access for the local
 game URL.
 
-When changing the web delivery path, verify that the game still loads from
-`http://localhost:8080` and that Pyxel WebAssembly starts correctly.
+When changing the web delivery path, verify that the game still loads through
+the host port assigned to container port `8080` and that Pyxel WebAssembly
+starts correctly.
 
 ## Docker Compose
 
@@ -47,6 +48,7 @@ The repository root `docker-compose.yml` builds `game/Dockerfile` through the
 Runtime expectations:
 
 - Container port: `8080`.
+- Host port: assigned by Docker or the platform.
 - Healthcheck path: `/health.html`.
 - Runtime server: `python -m http.server`.
 - Base image: `python:3.11-slim`.

@@ -60,7 +60,11 @@ generated HTML with Python's built-in HTTP server:
 docker compose up --build
 ```
 
-Open [http://localhost:8080](http://localhost:8080).
+Find the host port assigned by Docker, then open the printed URL:
+
+```powershell
+docker compose port game-web 8080
+```
 
 The generated `.pyxapp`, HTML, and `game/dist/` output are build artifacts and
 must not be committed.
