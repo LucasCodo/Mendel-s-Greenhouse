@@ -167,12 +167,26 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 
+# VS Code
+.vscode/
+
 # Ruff stuff:
 .ruff_cache/
 
 # Game saves
 saves/
 mendels_greenhouse/saves/
+game/mendels_greenhouse/saves/
+
+# Pyxel web/build artifacts
+game/dist/
+game/*.pyxapp
+game/*.html
+*.pyxapp
+game/mendels_greenhouse/assets/*_preview.png
+game/mendels_greenhouse/assets/gear_64.png
+game/mendels_greenhouse/assets/greenhouse_background_512x320.png
+game/mendels_greenhouse/assets/greenhouse_background_source.png
 
 # PyPI configuration file
 .pypirc

@@ -25,7 +25,8 @@ Minimum practical sizes:
 
 - Icons: square source, readable at small UI size.
 - Plant cards: vertical card-friendly composition.
-- Panels: scalable 9-slice-friendly shapes.
+- Panels: generated in runtime with Pyxel drawing primitives unless a future
+  spec explicitly requires a fixed decorative panel asset.
 - Backgrounds: wide layouts that can crop safely.
 
 Recommended size range:
@@ -37,9 +38,31 @@ Recommended size range:
 
 Prefer 64 x 64 or 128 x 128 for important visual elements when it improves readability.
 
+Main screen composition target:
+
+```text
+640 x 360 internal canvas
+```
+
+Required high-polish UI asset groups:
+
+| Asset Group | Recommended Source Size | Notes |
+| ----------- | ----------------------: | ----- |
+| Logo plaque | 96 x 48 | Botanical frame, readable title |
+| Resource frame | 80 x 24 | Supports icon + number |
+| Top navigation icon | 64 x 64 | Guide, Garden, Shop, Settings |
+| Contract panel | Runtime generated | Parchment surface, progress bar area |
+| Parent panel | 128 x 96 | Plant preview plus trait fields |
+| Probability panel | 96 x 128 | Pie chart and allele legend |
+| Conveyor body | Runtime generated | Metal belt with modular ends |
+| Bottom info panel | Runtime generated | Stats, last plant, help |
+| Speed controls | 96 x 64 | Pause, play, fast-forward |
+
 ## Style Rules
 
 - Edges should be clean.
 - Text-bearing areas need low visual noise.
 - Important states must be visible without relying only on color.
 - UI elements should feel botanical-lab, not medieval fantasy or pure sci-fi.
+- Do not pack HUD panel backgrounds into `.pyxres` while the layout is still
+  changing. Generate HUD frames, bars, and panel surfaces in runtime code.

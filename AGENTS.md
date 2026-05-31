@@ -36,6 +36,22 @@ Before implementing or modifying any gameplay system, consult the relevant spec:
 - [specs/education/learning-objectives.md](specs/education/learning-objectives.md) for educational intent.
 - [specs/mechanics/data-model.md](specs/mechanics/data-model.md) for conceptual entities and relationships.
 
+## Approved Developer Tooling
+
+- **pyxel-mcp** ([github.com/kitao/pyxel-mcp](https://github.com/kitao/pyxel-mcp)): Model Context Protocol server for Pyxel, installed as a `game/` development dependency through Poetry.
+- **pyxel-skill** ([github.com/kitao/pyxel-skill](https://github.com/kitao/pyxel-skill)): local Codex skill for Pyxel implementation guidance.
+
+Tooling does not override project specs. If a Pyxel tool or skill conflicts with `specs/`, update the relevant spec before following the new behavior.
+
+When Pyxel MCP tools are exposed, use them for Pyxel visual/audio work:
+
+- Validate scripts before running.
+- Capture screenshots for screen/layout changes.
+- Inspect sprites, banks, tilemaps, palettes, and animations for `.pyxres` work.
+- Render audio when changing music or sound effects.
+
+Follow [specs/technical/pyxel-mcp.md](specs/technical/pyxel-mcp.md). If MCP tools are unavailable in the current session, state that and fall back to `poetry run poe check`, targeted pytest tests, and direct Pyxel smoke checks.
+
 ## Do Not Invent Rules
 
 Do not create or change species, genes, alleles, phenotypes, genotypes, contracts, progression gates, rewards, analyzer behavior, core mechanics, engine constraints, platform scope, account/save scope, or art direction without checking and updating the related specs.
@@ -49,6 +65,8 @@ Keep core gameplay rules independent from Pyxel rendering and future NiceGUI acc
 Use Poe the Poet for automation tasks. Do not introduce Taskipy.
 
 Use human-readable Pyxel color enums instead of raw color indexes in UI code.
+Use the expanded palette defined in [specs/ui/color-palette.md](specs/ui/color-palette.md);
+do not reintroduce a 16-color-only assumption unless the spec changes.
 
 If a rule is missing, document the proposed rule in the relevant spec before treating it as implementation guidance.
 

@@ -1,5 +1,13 @@
 # Navigation Flow
 
+## Input Model
+
+Navigation is mouse-first. The player should primarily move through screens by clicking icon buttons, tabs, cards, and panel controls.
+
+Keyboard navigation must remain available for accessibility and power users. Every screen transition available by mouse must also be reachable through keyboard focus and activation.
+
+Keyboard shortcuts may be added for common actions, but they must not replace visible mouse controls.
+
 ## Hub Structure
 
 ```text

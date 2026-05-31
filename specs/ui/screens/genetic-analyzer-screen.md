@@ -57,6 +57,7 @@ Shows:
 Phenotype
 Genotype
 Simple probabilities
+Read-only Punnett square
 ```
 
 Wireframe:
@@ -67,6 +68,11 @@ Wireframe:
 +----------------------+-------------------------+
 | Parent A: AaBb       | Parent B: AABb          |
 +----------------------+-------------------------+
+| Punnett Square                                 |
+|        | AB     | Ab                         |
+| AB     | AABB   | AABb                       |
+| aB     | AaBB   | AaBb                       |
++------------------------------------------------+
 | Expected Results                               |
 | AABB 25% | AaBB 25% | AABb 25% | AaBb 25%     |
 +------------------------------------------------+
@@ -80,7 +86,7 @@ Shows:
 Phenotype
 Genotype
 Complete probabilities
-Punnett square
+Interactive Punnett square
 Predictions
 ```
 
@@ -102,6 +108,31 @@ Wireframe:
 +------------------------------------------------------------+
 ```
 
+## Punnett Square
+
+The Punnett square is the analyzer's visual bridge between genotype and
+probability.
+
+### Level 3 Behavior
+
+- Show a read-only Punnett square for the selected parent pair.
+- Rows and columns represent the gametes each parent can contribute.
+- Each cell shows the normalized offspring genotype produced by combining the
+  row and column gametes.
+- The result summary must aggregate matching cells into percentages.
+- For the MVP two-gene Mendel Pea scope, support up to a `4 x 4` grid when both
+  parents can produce four gametes.
+- The grid must not allow editing, parent suggestions, or target optimization
+  at level 3.
+
+### Level 4 Behavior
+
+- Allow comparing candidate parent pairs.
+- Allow simulating expected distributions before performing a cross.
+- Highlight cells that match a selected contract target.
+- May show grouped phenotype probabilities in addition to genotype cells.
+- Must never show impossible gametes or impossible offspring genotypes.
+
 ## States
 
 - No plant selected.
@@ -109,9 +140,12 @@ Wireframe:
 - Parent pair selected.
 - Target contract selected.
 - Simulation result available.
+- Punnett square available.
 
 ## Rules
 
 - Never reveal information above the current analyzer level.
 - Probability views must match [../../GBD.md](../../GBD.md) and [../../mechanics/gameplay.md](../../mechanics/gameplay.md).
 - The simulator may suggest options, but it must not create impossible crosses.
+- Punnett square cells must be generated from the same genotype/gamete logic as
+  the breeding probability model.

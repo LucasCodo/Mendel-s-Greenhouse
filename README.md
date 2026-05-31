@@ -51,6 +51,28 @@ The approved visual direction is pixel art, and the approved game engine is [Pyx
 
 Initial language support will include English and Brazilian Portuguese.
 
+## Run The Web Build
+
+The current Docker setup builds the Pyxel game with `app2html` and serves the
+generated HTML with Python's built-in HTTP server:
+
+```powershell
+docker compose up --build
+```
+
+Open [http://localhost:8080](http://localhost:8080).
+
+The generated `.pyxapp`, HTML, and `game/dist/` output are build artifacts and
+must not be committed.
+
+## Deployment
+
+The first deployment path targets Coolify on a VPS. CI runs game checks and a
+Docker image build on pushes and pull requests. CD triggers the Coolify deploy
+webhook after CI succeeds on `main`, or manually from GitHub Actions.
+
+See [VPS Deployment](docs/deployment/vps.md).
+
 ## Domains
 
 Official project domains:

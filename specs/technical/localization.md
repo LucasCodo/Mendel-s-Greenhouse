@@ -139,7 +139,7 @@ Rules:
 - Use compact labels where needed.
 - Prefer icons plus short text for repeated actions.
 - Avoid long tutorial paragraphs.
-- Test both languages in the `256 x 144` internal resolution.
+- Test both languages in the `640 x 360` internal resolution.
 
 ## Initial Glossary
 
@@ -184,7 +184,7 @@ These tasks should call Babel's `pybabel` CLI. Do not start with a custom transl
 - Contract text can render in both languages.
 - Tutorial/onboarding text supports both languages.
 - Missing translations fall back to English.
-- Both languages fit the main game screen at `256 x 144`.
+- Both languages fit the main game screen at `640 x 360`.
 - No gameplay rule depends on the display language.
 
 ## References

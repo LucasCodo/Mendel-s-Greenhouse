@@ -1,0 +1,124 @@
+[project]
+name = "mendels-greenhouse"
+version = "0.1.0"
+description = "Educational genetics game about plant crossbreeding."
+authors = [
+    {name = "Lucas Santos Silva",email = "luss1010@gmail.com"}
+]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.11,<4.0"
+dependencies = ["pyxel (>=2.9.5,<3.0.0)", "hypothesis (>=6.155.1,<7.0.0)"]
+
+[project.scripts]
+mendels-greenhouse = "main:run"
+
+[tool.poe.tasks]
+start = "python ../game/main.py"
+test = "pytest"
+test-cov = "pytest --cov=mendels_greenhouse --cov-report=term-missing"
+lint = "ruff check ."
+lint-fix = "ruff check . --fix"
+format = "ruff format ."
+check-format = "ruff format --check ."
+check = ["lint", "check-format", "test"]
+build-assets = "python tools/build_assets.py"
+i18n-extract = "pybabel extract -o locale/messages.pot mendels_greenhouse"
+i18n-update = "pybabel update -i locale/messages.pot -d mendels_greenhouse/locale -D mendels_greenhouse"
+i18n-compile = "pybabel compile -d mendels_greenhouse/locale -D mendels_greenhouse"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "unit: fast deterministic tests for isolated logic",
+    "property: property-based tests using generated inputs",
+    "integration: tests that combine multiple game systems",
+    "browser: web/canvas tests for the future browser target",
+    "slow: tests that are too slow for the default local loop",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["mendels_greenhouse"]
+omit = ["tests/*"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+fail_under = 0
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+line-length = 79
+target-version = "py311"
+src = ["mendels_greenhouse", "tests"]
+
+
+[tool.ruff.lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "N",
+    "UP",
+    "B",
+    "SIM",
+    "C4",
+    "RET",
+    "PT",
+    "PTH",
+    "RUF",
+    "ARG",
+    "EM",
+    "ERA",
+    "EXE",
+    "ISC",
+    "PIE",
+    "PL",
+    "T20",
+    "YTT",
+]
+ignore = []
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "ARG",
+    "PLR2004",
+]
+"mendels_greenhouse/main.py" = [
+    "PLR6301",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["mendels_greenhouse"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+line-ending = "auto"
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pyxel-mcp (>=0.9.2,<0.10.0)",
+    "ruff (>=0.15.15,<0.16.0)",
+    "pytest (>=9.0.3,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "hypothesis (>=6.155.1,<7.0.0)",
+    "poethepoet (>=0.46.0,<0.47.0)",
+    "babel (>=2.18.0,<3.0.0)",
+    "pillow (>=12.2.0,<13.0.0)"
+]

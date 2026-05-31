@@ -26,6 +26,8 @@ The Settings Screen controls player preferences without defining implementation 
 - Master volume.
 - Music volume.
 - Effects volume.
+- Mute music toggle.
+- Mute effects toggle.
 
 ### Visual
 
@@ -51,7 +53,8 @@ The Settings Screen controls player preferences without defining implementation 
 - English.
 - Portugues (Brasil).
 
-Language changes should update visible UI text. Persistence can wait until the future save/preferences system exists.
+Language changes should update visible UI text. Persistence can wait until the
+future save/preferences system exists.
 
 ## Rules
 

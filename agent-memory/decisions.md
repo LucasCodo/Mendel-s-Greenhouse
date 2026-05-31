@@ -5,7 +5,7 @@ tags:
 type: decision
 project: mendels-greenhouse
 status: active
-updated: 2026-05-30
+updated: 2026-05-31
 ---
 
 # Decisions
@@ -106,11 +106,67 @@ Do not implement account management, authentication, or hosted save management i
 
 The implementation should be scaffolded with Poetry flat layout using package name `mendels_greenhouse`.
 
-Runtime assets belong inside the package under `mendels_greenhouse/assets/`.
+Runtime assets belong inside the game package under `game/mendels_greenhouse/assets/`.
 
-Use Pyxel's native `.pyxres` format, with primary resource file `mendels_greenhouse/assets/mendels_greenhouse.pyxres`.
+Use Pyxel's native `.pyxres` format, with primary resource file `game/mendels_greenhouse/assets/mendels_greenhouse.pyxres`.
 
-Target internal game resolution is `256 x 144`; the browser view should fill the page, preserve aspect ratio, keep pixel art crisp, and provide fullscreen.
+Target internal game resolution is `640 x 360`; the browser view should fill the page, preserve aspect ratio, keep pixel art crisp, and provide fullscreen.
+
+## 2026-05-31: 16:9 Modern Pixel-Art Canvas
+
+The main runtime canvas was raised from the earlier compact prototype target to
+`640 x 360`. This preserves a reference-friendly 16:9 composition, gives more
+space for modern pixel-art UI density, and still keeps Pyxel asset work
+manageable for the MVP.
+
+## 2026-05-31: Expanded Project Palette
+
+The project no longer treats Pyxel's default 16-color palette as a hard visual
+limit. Runtime code uses a 32-color named palette to better match the reference
+image, reduce orange dominance, and reserve distinct phenotype colors for
+future species.
+
+## 2026-05-31: Cozy Scientific Greenhouse Palette
+
+The active 32-color palette should read as a cozy scientific greenhouse rather
+than a near-default Pyxel palette. It uses deep slate UI backgrounds, aged paper
+panels, warmer less-red wood, brighter botanical greens, gold/yellow phenotype
+colors, blue scientific accents, and pink-red danger states. Keep
+`specs/ui/color-palette.md`, `mendels_greenhouse/ui/palette.py`, and generated
+`.pyxres` assets synchronized when changing these colors.
+
+## 2026-05-31: Mendel Pea Pod Asset Direction
+
+MVP Mendel Pea sprites should appear as vertical or diagonal pea pods, not
+horizontal pods, full plants, or potted plants. The pod stays green across
+variants, while the visible peas inside the pod carry the seed color and
+texture traits. Keep pod colors and seed colors as separate code parameters so
+recoloring peas does not recolor the pod.
+
+Sprite blits use `colkey=0`, so palette index `0` is transparent in resource
+sprites. Use a non-zero outline color such as `SPRITE_OUTLINE` for visible pod
+and seed contours.
+
+Top navigation icons should be stored as 64 x 64 `.pyxres` sprites. HUD frames,
+panel backgrounds, button surfaces, and conveyor panel shapes should be
+generated in runtime code while the layout is still evolving.
+
+## 2026-05-31: Punnett Square Analyzer Behavior
+
+The Genetic Analyzer should expose a read-only Punnett square at level 3 for
+selected parent pairs, using the same gamete/genotype logic as breeding
+probabilities. Level 4 turns the Punnett square into an interactive simulator
+and comparison tool with target highlighting.
+
+## 2026-05-30: Premium Pixel-Art Interface Target
+
+The UI quality target is a polished pixel-art management screen with dense but readable information: logo plaque, resource counters, contract panel, parent cards, probability/legend panel, large genetic conveyor, bottom stats/help panels, and icon navigation.
+
+Use larger source sprites for important plant views:
+
+- Conveyor offspring: prefer `64 x 64`.
+- Parent card plants: prefer `96 x 96` or `128 x 128`.
+- Analyzer and discovery previews: prefer `128 x 128`, maximum `256 x 256`.
 
 ## 2026-05-30: AI Contribution Governance
 
@@ -134,9 +190,24 @@ Core gameplay logic should be testable without launching Pyxel windows. Use `hyp
 
 Future save data will use versioned JSON. Local Pyxel saves should live under Pyxel's user data directory. Pyxel `.pyxres` remains for resources, not player saves.
 
-Future packaging follows Pyxel's native flow: run the main Python entrypoint directly during development and package as `.pyxapp` for distribution. Do not export HTML during the MVP implementation phase.
+Future packaging follows Pyxel's native flow: run the main Python entrypoint directly during development and package as `.pyxapp` for distribution. The current web build packages the game as `.pyxapp`, exports HTML with Pyxel `app2html`, hardens the generated HTML wrapper with a CSP, and serves it from Docker with `python -m http.server`.
 
-Future NiceGUI integration should wrap the selected Pyxel delivery artifact after the first release. NiceGUI will initially use simple username and password authentication for accounts.
+Future NiceGUI integration should replace or wrap the current Docker/app2html delivery artifact when account and save orchestration enter scope. NiceGUI will initially use simple username and password authentication for accounts.
+
+## 2026-05-31: Pyxel Web CSP For Wallet Extensions
+
+The Pyxel web game does not use wallet, Web3, or blockchain APIs. The generated
+`app2html` wrapper should be post-processed with a restrictive Content Security
+Policy so browser wallet extension scripts such as MetaMask's in-page script
+cannot connect inside the game page. Keep `game/tools/harden_web_html.py` in
+the Docker build path and verify the game still loads after CSP changes.
+
+## 2026-05-31: Coolify CI/CD Gate
+
+Use GitHub Actions plus Coolify for the first VPS deployment path. CI runs game
+checks and a Docker Compose image build on pushes and pull requests. CD runs
+after successful `main` CI or manual dispatch and calls the Coolify deploy
+webhook using `COOLIFY_WEBHOOK` and `COOLIFY_TOKEN` GitHub secrets.
 
 ## 2026-05-30: Implementation Readiness
 
@@ -157,6 +228,50 @@ Use Babel through Poe tasks for i18n extraction, update, and compile.
 Use Pyxel palette indexes through human-readable enums and central UI color mappings.
 
 Use scene management for screen architecture. The MVP starts with `0` credits, one autosave slot using local versioned JSON saves, and `.pyxres` as the production asset source.
+
+## 2026-05-30: Pyxel Agent Tooling
+
+`pyxel-mcp` is approved as a development dependency for the `game/` package.
+
+`pyxel-skill` is approved as a local Codex skill for Pyxel implementation guidance, but project specs remain the source of truth when tool defaults conflict.
+
+Pyxel MCP/skill output must support implementation and visual verification; it does not replace pytest or spec updates.
+
+## 2026-05-31: Modern Pixel-Art Direction
+
+The visual target is modern indie pixel art, not bare retro placeholders.
+
+Reference mix:
+
+- Stardew Valley for warm vegetation and farming readability.
+- Fields of Mistria for soft modern pixel art and approachable UI.
+- Potion Permit for laboratory interiors, lighting, and dense cozy spaces.
+- Sun Haven for vibrant analyzer/discovery effects.
+- Pokemon GBA for collection/catalog readability.
+- Professor Layton for friendly contract/puzzle presentation.
+- Papers, Please for readable request/document UI, adapted to a warm tone.
+
+Do not copy assets or compositions from references. Use them only to guide warmth, polish, readability, and UI density.
+
+## 2026-05-31: Pyxel MCP For Assets And Audio
+
+Use `pyxel-mcp` for visual/audio verification when exposed to the session:
+
+- Screens and layout: `run_and_capture`, `inspect_layout`, `inspect_palette`.
+- Sprites and image banks: `inspect_sprite`, `inspect_bank`.
+- Tilemaps/backgrounds: `inspect_tilemap`.
+- Animation: `capture_frames`, `inspect_animation`, `compare_frames`.
+- Music and sound effects: `render_audio`.
+
+Production visual/audio resources belong in `game/mendels_greenhouse/assets/mendels_greenhouse.pyxres`.
+
+## 2026-05-31: Mouse-First Interaction
+
+Mendel's Greenhouse is a mouse-first game.
+
+The player should be able to complete the main loop by clicking UI controls, plant cards, greenhouse slots, offspring, menus, and conveyor controls.
+
+Keyboard support is still required for accessibility and power users. Every core mouse action must have a keyboard-reachable equivalent through focus, activation, shortcuts, or explicit controls.
 
 Use Python 3.11 as the local development baseline. The project metadata should use `>=3.11,<4.0`. The first MVP screen set is Main Game, Greenhouse, Contracts, and Collection. Tutorial delivery happens through the first contract with minimal popups.
 

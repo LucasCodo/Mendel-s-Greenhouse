@@ -30,7 +30,11 @@ NiceGUI is the planned future framework for:
 
 The initial future account model will use simple username and password authentication.
 
-The future NiceGUI shell should wrap the selected Pyxel delivery artifact after the first release. Do not export HTML during the MVP implementation phase.
+The current web delivery uses Pyxel's documented `.pyxapp` to `app2html`
+flow inside Docker, hardens the generated HTML wrapper, and serves the
+generated HTML with `python -m http.server`. The future NiceGUI shell should
+replace or wrap this delivery path when account and save orchestration enter
+scope.
 
 ## Boundaries
 
@@ -42,7 +46,7 @@ Resolved future direction:
 - Local Pyxel save location: Pyxel user data directory.
 - Packaging: Pyxel `.pyxapp`.
 - Early execution: main Python entrypoint.
-- HTML export: postponed until after the first release, if still needed.
+- HTML export: enabled for the temporary Docker-hosted Pyxel web build.
 - Future web shell: NiceGUI custom component around Pyxel web delivery.
 - Authentication: simple username and password initially.
 

@@ -93,14 +93,15 @@ Required tasks:
 
 ### Pyxel Palette Mapping
 
-Use Pyxel's palette indexes and expose them through human-readable enums.
+Use the project palette indexes through human-readable classes.
 
 Rules:
 
 - Do not scatter raw integer color indexes across UI code.
-- Do not rely on hex values directly in draw calls.
-- Keep design-system color roles mapped to Pyxel palette indexes.
-- If the palette is customized later, update the mapping in one place.
+- Keep design-system color roles mapped to named indexes in one place.
+- Keep `PROJECT_PALETTE`, `PyxelColor`, and `specs/ui/color-palette.md`
+  synchronized.
+- Do not assume Pyxel's default 16-color palette is the project visual limit.
 
 Recommended module:
 
@@ -111,38 +112,23 @@ mendels_greenhouse/ui/palette.py
 Recommended shape:
 
 ```python
-from enum import IntEnum
+PROJECT_PALETTE = [
+    0x111827,  # 0 ink shadow
+    0x1E293B,  # 1 deep glass navy
+    # ...
+]
 
 
-class PyxelColor(IntEnum):
-    BLACK = 0
-    NAVY = 1
-    PURPLE = 2
-    GREEN = 3
-    BROWN = 4
-    DARK_BLUE = 5
-    LIGHT_BLUE = 6
-    WHITE = 7
-    RED = 8
-    ORANGE = 9
-    YELLOW = 10
-    LIME = 11
-    CYAN = 12
-    GRAY = 13
-    PINK = 14
-    PEACH = 15
-
-
-class UiColor(IntEnum):
-    BACKGROUND = PyxelColor.PEACH
-    TEXT = PyxelColor.BLACK
-    PRIMARY = PyxelColor.GREEN
-    ANALYZER = PyxelColor.CYAN
-    WARNING = PyxelColor.YELLOW
-    ERROR = PyxelColor.RED
+class PyxelColor:
+    GREENHOUSE_BG = 1
+    UI_DARK = 0
+    PARCHMENT = 15
+    ACTION = 11
+    PROGRESS = 30
 ```
 
-Names may be adjusted after checking the final Pyxel palette, but the principle is fixed.
+Names may be adjusted after checking the final Pyxel palette, but the principle
+is fixed.
 
 ### Development Dependencies
 
@@ -154,12 +140,15 @@ Initial development dependencies:
 - `ruff`
 - `poethepoet`
 - `Babel`
+- `pyxel-mcp`
 
 Future-only:
 
 - `pytest-playwright`
 
 Do not add `taskipy`.
+
+`pyxel-mcp` is an implementation aid for Pyxel validation and screenshots. It does not replace pytest or the source-of-truth specs.
 
 ### Python Version
 
@@ -173,14 +162,18 @@ The project metadata should use:
 
 ### Packaging And Execution Timing
 
-Do not export HTML during the MVP implementation phase.
-
 Approved execution/distribution options for the early implementation:
 
-- Run the main Python entrypoint directly with `poetry run python -m mendels_greenhouse`.
+- Run the main Python entrypoint directly with `python game\main.py`
+  from the repository root.
+- Run the same launcher with `pyxel run game\main.py` from the
+  repository root.
 - Package the game as a Pyxel `.pyxapp`.
+- Export the staged `.pyxapp` with Pyxel `app2html` for the current Docker
+  web build.
+- Harden the generated HTML wrapper before serving it.
 
-HTML export and documentation-site work are postponed until after the first release.
+Documentation-site work remains postponed until after the first release.
 
 ## Acceptance Criteria
 

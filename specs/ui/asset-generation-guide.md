@@ -6,15 +6,25 @@ This guide defines how AI-generated or human-created visual assets should suppor
 
 ## Art Style
 
-- 2D pixel art.
-- Colorful.
+- Modern 2D pixel art.
+- Colorful but comfortable.
 - Educational.
 - Friendly.
 - High legibility.
 - Clean silhouettes.
 - Low visual noise.
 - Limited palette.
-- Retro game readability.
+- Modern indie-game polish.
+
+Reference direction:
+
+- Stardew Valley for warm vegetation and readable farming spaces.
+- Fields of Mistria for soft modern pixel art and friendly UI.
+- Potion Permit for laboratory interiors and lighting.
+- Sun Haven for vibrant analyzer/discovery effects.
+- Pokemon GBA for collection/catalog clarity.
+
+Use these as design references, not as sources to copy.
 
 ## Required Visual Rules
 
@@ -60,10 +70,25 @@ Use Pyxel's native resource format:
 Primary runtime asset file:
 
 ```text
-mendels_greenhouse/assets/mendels_greenhouse.pyxres
+game/mendels_greenhouse/assets/mendels_greenhouse.pyxres
 ```
 
 Assets should be authored so they can be packed into the `.pyxres` file without losing readability.
+
+## Pyxel MCP Verification
+
+When `pyxel-mcp` tools are available, generated assets must be checked inside Pyxel rather than only as standalone files.
+
+Use:
+
+- `inspect_sprite` for individual plant/icon sprites.
+- `inspect_bank` for image-bank overview.
+- `inspect_tilemap` for greenhouse backgrounds.
+- `inspect_palette` for color/contrast checks.
+- `inspect_animation` for animated sprite sheets.
+- `render_audio` for sounds and music.
+
+If MCP tools are not available in the current agent session, record that limitation and run `poetry run poe check` plus direct Pyxel smoke checks.
 
 ## Resolution Rules
 
@@ -72,13 +97,18 @@ Asset sizes must be large enough for the game to look polished while staying com
 | Asset Type | Minimum | Preferred | Maximum |
 | ---------- | ------: | --------: | ------: |
 | Small icons | 16 x 16 | 16 x 16 or 32 x 32 | 64 x 64 |
-| UI icons | 16 x 16 | 32 x 32 | 64 x 64 |
-| Plant sprites | 32 x 32 | 64 x 64 or 128 x 128 | 256 x 256 |
-| Analyzer plant preview | 64 x 64 | 128 x 128 | 256 x 256 |
-| Discovery popup plant | 64 x 64 | 128 x 128 | 256 x 256 |
-| Background panels | 128 x 128 | 256 x 144 or 256 x 256 | 256 x 256 |
+| UI icons | 16 x 16 | 32 x 32 or 48 x 48 | 64 x 64 |
+| Conveyor plant sprites | 48 x 48 | 64 x 64 | 128 x 128 |
+| Parent card plant sprites | 64 x 64 | 96 x 96 or 128 x 128 | 256 x 256 |
+| Analyzer plant preview | 96 x 96 | 128 x 128 | 256 x 256 |
+| Discovery popup plant | 96 x 96 | 128 x 128 | 256 x 256 |
+| Background tiles | 16 x 16 | 32 x 32 or 64 x 64 | 256 x 256 |
+| Background compositions | 256 x 160 | 640 x 360 | 640 x 360 |
+| UI panel pieces | 16 x 16 | 32 x 32 or 64 x 64 | 256 x 256 |
 
 Prefer the higher end of the range when readability improves, especially for plant sprites and discovery assets.
+
+For the main game screen, source art should be authored for the `640 x 360` internal canvas. The browser may scale this up, but the base composition must already look complete at native resolution.
 
 ## Plant Asset Requirements
 
@@ -94,6 +124,20 @@ Prefer the higher end of the range when readability improves, especially for pla
 - Buttons should have clear states.
 - Icons should be understandable at small sizes.
 - Decorative assets must not hide gameplay information.
+
+## Audio Asset Requirements
+
+Audio assets are defined in [assets/audio.md](assets/audio.md).
+
+Use Pyxel sound/music resources for:
+
+- UI clicks.
+- Conveyor movement.
+- Offspring reveal.
+- Contract progress.
+- Discoveries.
+- Analyzer activity.
+- Loopable greenhouse music.
 
 ## Consistency Rules
 

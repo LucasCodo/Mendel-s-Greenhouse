@@ -36,10 +36,14 @@ Rules:
 
 - UI code must not scatter raw integer color indexes.
 - Design-system color roles must map to Pyxel palette indexes in `mendels_greenhouse/ui/palette.py`.
-- The MVP should use Pyxel's palette directly.
+- The MVP uses an expanded project palette instead of limiting itself to the
+  default 16 colors.
 - If the palette is customized later, update the enum/mapping in one place.
+- Background PNGs and `.pyxres` assets must be generated or quantized against
+  the same runtime palette.
 
-See [implementation-readiness.md](implementation-readiness.md).
+See [implementation-readiness.md](implementation-readiness.md) and
+[../ui/color-palette.md](../ui/color-palette.md).
 
 ## Asset Format
 
@@ -64,21 +68,36 @@ The browser page should display the game scaled to fill the available page area 
 Recommended internal game resolution:
 
 ```text
-256 x 144
+640 x 360
 ```
 
-This gives a widescreen 16:9 canvas that scales cleanly in the browser while staying within a retro pixel-art density.
+This gives a widescreen 16:9 canvas with enough logical space for a high-quality management-game interface: persistent resource bar, contract panel, parent cards, analyzer/probability panels, a large conveyor, and bottom information panels.
+
+The earlier `256 x 144` target is too constrained for the intended visual quality and should only be used for tiny prototypes or isolated UI tests.
 
 Asset resolution range:
 
 ```text
 Minimum: 16 x 16
 Maximum: 256 x 256
-Preferred high-detail sprite size: 64 x 64 or 128 x 128
-Preferred background/tilemap source size: 256 x 144 or 256 x 256
+Preferred high-detail sprite size: 64 x 64, 96 x 96, or 128 x 128
+Preferred background/tilemap source size: 640 x 360, built from reusable tiles and panels
 ```
 
 Use higher-resolution pixel art within this range when it improves plant readability, especially for plant cards, analyzer previews, and discovery popups.
+
+## Quality Target
+
+The main game screen should aim for the density and polish of a premium pixel-art management interface:
+
+- Decorative greenhouse background with readable foreground UI.
+- Framed parchment/wood/metal panels for gameplay information.
+- Large parent plant previews.
+- A conveyor wide enough to show most of an offspring batch at once.
+- Distinct icons for credits, premium resource, garden capacity, guide, garden, shop, and settings.
+- Bottom panels for generation statistics, last generated plant, educational help, and speed controls.
+
+Do not reduce the UI to plain debug text once production assets exist.
 
 ## Browser Display Requirements
 
