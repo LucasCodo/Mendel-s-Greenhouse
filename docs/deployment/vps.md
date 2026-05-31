@@ -41,7 +41,8 @@ In Coolify:
 - Enable API access under Coolify settings.
 - Create an API token with deploy permission.
 - Open the application, go to Webhooks, and copy the deploy webhook.
-- Expose the service on container port `8080`.
+- Expose container port `8080`; let Coolify or Docker assign the external
+  host port so the deployment does not conflict with other VPS services.
 
 ## Runtime Shape
 
