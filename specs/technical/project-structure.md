@@ -6,31 +6,37 @@ This document defines the initial project structure for implementing Mendel's Gr
 
 ## Poetry Scaffolding
 
-When creating the implementation project from scratch, use Poetry with the flat layout:
+When creating the game package from scratch, use Poetry with the flat layout inside a dedicated `game/` directory:
 
 ```powershell
-poetry new --flat --name mendels_greenhouse --readme md --license MIT --python ">=3.11,<4.0" --dependency pyxel --no-interaction "Mendel's Greenhouse"
+poetry new --flat --name mendels_greenhouse --readme md --license MIT --python ">=3.11,<4.0" --dependency pyxel --no-interaction game
 ```
 
 Rationale:
 
 - `--flat` keeps the package layout simple for a small game.
 - `--name mendels_greenhouse` creates a Python-safe package name.
+- `game/` keeps the Pyxel game package separate from the future NiceGUI site package.
 - `--readme md` matches the repository documentation style.
 - `--license MIT` preserves the current project license.
 - `--python ">=3.11,<4.0"` matches the local development baseline and Pyxel compatibility.
 - `--dependency pyxel` records the selected game engine.
 - `--no-interaction` makes the scaffold command repeatable for agents.
 
-If the command is run inside an already initialized repository, verify the generated files before overwriting existing documentation.
+Do not run `poetry init` at the repository root for the game package. The root remains documentation and repository governance space, while implementation packages live in dedicated directories.
 
 After scaffolding, add development dependencies:
 
 ```powershell
-poetry add --group dev pytest pytest-cov hypothesis ruff poethepoet Babel
+poetry add --group dev pytest pytest-cov hypothesis ruff poethepoet Babel pyxel-mcp
 ```
 
 Use Poe tasks for automation. Do not use Taskipy.
+
+Local bootstrap note:
+
+- If `poetry install` fails because local HTTPS inspection prevents Poetry from validating `files.pythonhosted.org`, keep the first `pyproject.toml` installable with no external dependencies and reintroduce Pyxel/dev dependencies after the certificate chain is fixed.
+- Do not solve this by committing machine-specific certificate bundles.
 
 ## Package Layout
 
@@ -39,10 +45,14 @@ The game package should own the runtime code, game assets, and localization cata
 Recommended structure:
 
 ```text
-mendels_greenhouse/
+game/
+|-- pyproject.toml
+|-- poetry.lock
+|-- README.md
+|-- main.py
+|-- mendels_greenhouse/
 |-- __init__.py
-|-- __main__.py
-|-- app.py
+|-- main.py
 |-- assets/
 |   |-- mendels_greenhouse.pyxres
 |   `-- README.md
@@ -91,13 +101,13 @@ tests/
 All Pyxel-native assets must live inside the game package:
 
 ```text
-mendels_greenhouse/assets/
+game/mendels_greenhouse/assets/
 ```
 
 Primary resource file:
 
 ```text
-mendels_greenhouse/assets/mendels_greenhouse.pyxres
+game/mendels_greenhouse/assets/mendels_greenhouse.pyxres
 ```
 
 Do not place runtime assets only at repository root. Keeping assets inside the package makes imports, packaging, and future web delivery easier to reason about.
@@ -107,7 +117,7 @@ Do not place runtime assets only at repository root. Keeping assets inside the p
 Localization catalogs must live inside the game package:
 
 ```text
-mendels_greenhouse/locale/
+game/mendels_greenhouse/locale/
 ```
 
 Rules are defined in [localization.md](localization.md).
@@ -120,13 +130,20 @@ Save format and future NiceGUI boundaries are defined in [future-platform.md](fu
 
 ## Entrypoint
 
-The package should be runnable as a module:
+The game should be started from the root-level launcher:
 
 ```powershell
-poetry run python -m mendels_greenhouse
+python game\main.py
 ```
 
-`__main__.py` should call the game startup entrypoint.
+Pyxel's runner can also execute the same launcher:
+
+```powershell
+pyxel run game\main.py
+```
+
+`game/main.py` calls the game startup entrypoint. Do not add
+`mendels_greenhouse/__main__.py`; the package is not the CLI entrypoint.
 
 ## Test Location
 

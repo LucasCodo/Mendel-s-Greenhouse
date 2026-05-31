@@ -9,10 +9,16 @@ The Main Game Screen is the central gameplay workspace. It must support contract
 Top:
 
 ```text
-Current Contract | Progress | Credits | Menu
+Logo | Credits | Special Resource | Garden Capacity | Timer | Guide | Garden | Shop | Settings
 ```
 
 The screen must be designed for the internal Pyxel resolution defined in [../../technical/pyxel.md](../../technical/pyxel.md), then scaled to fill the browser page.
+
+Upper center:
+
+```text
+Current Contract panel | Progress bar | Total generated
+```
 
 Center:
 
@@ -32,28 +38,43 @@ Main area:
 Genetic Conveyor
 ```
 
+Left side support:
+
+```text
+Probabilities | Legend
+```
+
+Right side support:
+
+```text
+Trait explanation card
+```
+
 Footer:
 
 ```text
-Last Generated Plant | Quick Stats | Genetic Help
+Generation Stats | Last Generated Plant | Genetic Help | Conveyor Controls
 ```
 
 ## ASCII Wireframe
 
 ```text
-+--------------------------------------------------------------------------------+
-| Contract: Red Flowers 3/10      Credits: 250      Analyzer Lv. 2      Menu     |
-+----------------------+--------------------------------------+------------------+
-| Parent A             |          Genetic Conveyor            | Parent B         |
-| +------------------+ |  [ ] -> [ ] -> [ ] -> [Current]      | +--------------+ |
-| | PlantCard        | |                                      | | PlantCard    | |
-| | Phenotype        | |  Offspring reveal area               | | Phenotype    | |
-| | Genotype if ok   | |                                      | | Genotype if | |
-| +------------------+ |                                      | | ok          | |
-|                      |              [Crossbreed]            | +--------------+ |
-+----------------------+--------------------------------------+------------------+
-| Last Plant: Red/Broad | Stats: 20 offspring | Help: Aa x Aa can reveal recessive |
-+--------------------------------------------------------------------------------+
++------------------------------------------------------------------------------------------------+
+| LOGO        Credits      Gems      Garden 12/20      Timer        Guide   Garden   Shop   Gear |
++------------------------------------------------------------------------------------------------+
+| Probabilities     |        CURRENT CONTRACT: produce 6 purple flowers from 16 offspring       |
+| + pie + legend    |        [==================== 3 / 6 ====================] Total: 16       |
+|                   +-------------------------------------------------------------------------+
+|                   |     Parent Plant A              +              Parent Plant B            |
+|                   |   [large plant][AaBb]                        [large plant][AaBb]         |
+|                   |   [traits visible]                           [traits visible]            |
+|                   |                         [ CROSS PLANTS ]                                  |
++------------------------------------------------------------------------------------------------+
+|                              GENETIC CONVEYOR / OFFSPRING BATCH                                |
+| [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant]         |
++------------------------------------------------------------------------------------------------+
+| Generation Stats        | Last Generated Plant         | How It Works                 | Cancel / Speed |
++------------------------------------------------------------------------------------------------+
 ```
 
 ## Visual Loop
@@ -65,6 +86,25 @@ Last Generated Plant | Quick Stats | Genetic Help
 5. Contract progress updates if the offspring matches.
 6. Visual feedback confirms match, discovery, or invalid delivery.
 7. Rewards appear when contract or discovery criteria are met.
+
+## Interaction Model
+
+Primary input is mouse.
+
+Expected mouse interactions:
+
+- Click parent slots or plant cards to select parents.
+- Click `Crossbreed` to start the cross.
+- Click offspring or the latest plant panel to inspect details.
+- Click store, sell, deliver, cancel, and speed controls.
+- Click top navigation icons to move between major screens.
+
+Keyboard support is required as an alternative:
+
+- Focus can move through top navigation, parent slots, the crossbreed button, conveyor controls, and bottom-panel actions.
+- Focused controls can be activated from the keyboard.
+- Cancel/back behavior must be keyboard reachable.
+- Repeated reveal/advance actions may have shortcuts, but those shortcuts must mirror visible controls.
 
 ## Screen States
 
@@ -111,12 +151,18 @@ Only used if failure rules are later defined. If no failure rule exists, the sta
 - `GenotypeLabel`
 - `RewardPopup`
 - `DiscoveryPopup`
+- `ProbabilityPanel`
+- `ResourceCounter`
+- `NavigationIconButton`
+- `ConveyorControls`
 
 ## Browser Display
 
 - The game canvas occupies the full browser page.
 - The top menu or settings path must expose a fullscreen option.
 - Pixel art must remain crisp when scaled.
+- The internal canvas target is `640 x 360`.
+- The layout should preserve a 16:9 composition when scaled into the browser.
 
 ## Information Visibility
 

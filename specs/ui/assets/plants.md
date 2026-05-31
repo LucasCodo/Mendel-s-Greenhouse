@@ -36,6 +36,17 @@ Required plant variants:
 - Green seed + smooth seed.
 - Green seed + wrinkled seed.
 
+MVP Mendel Pea assets should be shown as vertical or diagonal pea pods, not as
+a horizontal pod, full plant, or plant in a pot. The pod remains green across
+variants; the visible peas inside the pod carry the seed color trait. Keep pod
+colors and seed colors as separate asset parameters so code can change seed
+color without recoloring the pod.
+
+Texture must be readable on the peas themselves:
+
+- Smooth seeds: round, glossy peas with a clean highlight.
+- Wrinkled seeds: irregular pea silhouette with visible crease lines.
+
 ## Species 2: Snapdragon
 
 Genes:
@@ -128,12 +139,14 @@ Each plant visual may need:
 
 | Plant Asset Use | Minimum | Preferred | Maximum |
 | --------------- | ------: | --------: | ------: |
-| Conveyor offspring | 32 x 32 | 64 x 64 | 128 x 128 |
-| PlantCard sprite | 32 x 32 | 64 x 64 | 128 x 128 |
-| Analyzer preview | 64 x 64 | 128 x 128 | 256 x 256 |
-| Discovery popup | 64 x 64 | 128 x 128 | 256 x 256 |
+| Conveyor offspring | 48 x 48 | 64 x 64 | 128 x 128 |
+| PlantCard sprite | 64 x 64 | 96 x 96 or 128 x 128 | 256 x 256 |
+| Analyzer preview | 96 x 96 | 128 x 128 | 256 x 256 |
+| Discovery popup | 96 x 96 | 128 x 128 | 256 x 256 |
 
 Use higher-resolution pixel art when phenotype readability improves.
+
+The visual target is polished pixel art rather than minimal retro placeholders. Parent cards and analyzer views should use larger sprites than conveyor items so flower color, stem height, leaf shape, and pot silhouette are obvious without text.
 
 ## Prohibited Ambiguity
 

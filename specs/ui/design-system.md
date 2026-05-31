@@ -33,7 +33,12 @@ Reference tone:
 
 ## Color Palette
 
-Pyxel encourages retro limited-palette thinking. These color roles define intent; implementation should map them to the final Pyxel palette during production.
+Use the expanded project palette defined in
+[color-palette.md](color-palette.md). Pyxel supports extending the color list,
+so the project does not treat 16 colors as a hard limit.
+
+These roles summarize intent; the authoritative hex values and palette indexes
+live in the color palette spec and `mendels_greenhouse/ui/palette.py`.
 
 ### Primary Colors
 
@@ -72,6 +77,9 @@ Pyxel encourages retro limited-palette thinking. These color roles define intent
 | Petal pattern | Must visibly alter petal markings |
 
 Text labels may support recognition, but visual traits must remain identifiable without labels.
+
+Orange and brown are allowed for terracotta pots, wood, floor light, and warm
+small accents. They must not dominate the full screen.
 
 ### Rarity Colors
 
@@ -120,12 +128,38 @@ Main screens should use a stable grid:
 - Center zone: core activity.
 - Bottom zone: recent results, help, and contextual actions.
 
+## Interaction Model
+
+The primary interaction mode is mouse-first.
+
+Players should be able to complete the core loop by pointing and clicking:
+
+- Select parent plants.
+- Start crossbreeding.
+- Inspect offspring.
+- Store, sell, or deliver plants.
+- Navigate to contracts, greenhouse, analyzer, collection, shop, and settings.
+- Adjust conveyor speed.
+- Confirm or cancel modal actions.
+
+Keyboard support is required as an alternative input path, not as the primary UX assumption.
+
+Keyboard controls should support:
+
+- Focus navigation between interactive elements.
+- Activation of focused controls.
+- Common shortcuts for repeated actions.
+- Cancel/back behavior.
+- Accessibility for users who cannot or prefer not to use a mouse.
+
+Every mouse-only affordance must have a keyboard-accessible equivalent.
+
 ## Screen Resolution And Scaling
 
 Target internal game resolution:
 
 ```text
-256 x 144
+640 x 360
 ```
 
 Display requirements:
@@ -136,6 +170,21 @@ Display requirements:
 - A fullscreen action is available from the game UI.
 - UI must remain readable at the internal resolution before browser scaling.
 - UI must fit both English and Brazilian Portuguese labels.
+- The main game screen should support a premium pixel-art management layout with a persistent top bar, central contract panel, parent cards, probability/legend support, large conveyor, and bottom information panels.
+
+The old `256 x 144` target is no longer sufficient for the desired interface density.
+
+## Quality Target Reference
+
+Production UI should trend toward:
+
+- Rich greenhouse/laboratory pixel-art background.
+- Wood, parchment, metal, and botanical UI framing.
+- Large, readable plant sprites.
+- Icon-first navigation.
+- High-contrast text surfaces.
+- Decorative detail around panels that never competes with gameplay data.
+- A dense but organized management-game layout.
 
 ## Base Visual Components
 
