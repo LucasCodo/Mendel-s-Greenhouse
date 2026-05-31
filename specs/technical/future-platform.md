@@ -69,16 +69,27 @@ Use Pyxel's native packaging flow for the game:
 
 1. Develop and run the Python package locally.
 2. Package the game as a `.pyxapp`.
-3. Use the `.pyxapp` as the distributable Pyxel artifact.
+3. Convert the `.pyxapp` to HTML with Pyxel `app2html` for the current web
+   delivery.
+4. Harden the generated HTML wrapper.
+5. Serve the generated HTML with `python -m http.server` from the Docker
+   runtime image.
 
-Do not export HTML during the MVP implementation phase.
+This is a temporary web delivery path for the Pyxel game only. NiceGUI
+account and save orchestration remain future scope.
 
 ### Local Development
 
 The package remains runnable through Poetry:
 
 ```powershell
-poetry run python -m mendels_greenhouse
+python game\main.py
+```
+
+Pyxel's runner can also execute the same launcher:
+
+```powershell
+pyxel run game\main.py
 ```
 
 ### Pyxel Packaging
@@ -86,22 +97,31 @@ poetry run python -m mendels_greenhouse
 Future packaging should follow Pyxel's documented flow:
 
 ```powershell
-pyxel package . mendels_greenhouse
+pyxel package mendels-greenhouse mendels-greenhouse/main.py
+pyxel app2html mendels-greenhouse.pyxapp
 ```
 
-The resulting `.pyxapp` should be treated as a distributable game artifact.
+The resulting `.pyxapp` is the intermediate Pyxel artifact. The generated HTML
+is the current browser-delivered artifact.
 
 ### Early Execution
 
 Early development should run the main Python entrypoint directly:
 
 ```powershell
-poetry run python -m mendels_greenhouse
+python game\main.py
 ```
 
-The `.pyxapp` package is the approved Pyxel distribution artifact before the first release.
+Pyxel runner execution is also valid:
 
-HTML export is not part of the current plan.
+```powershell
+pyxel run game\main.py
+```
+
+The `.pyxapp` package remains the approved intermediate Pyxel distribution
+artifact before the first release.
+
+HTML export is part of the current Docker-hosted web build.
 
 ## Code Architecture And Module Layout
 
@@ -123,8 +143,7 @@ Recommended package layout:
 
 ```text
 mendels_greenhouse/
-|-- __main__.py
-|-- app.py
+|-- main.py
 |-- assets/
 |-- locale/
 |-- content/
@@ -168,19 +187,28 @@ Core modules must not import Pyxel.
 
 If code quality degrades, use the refactoring policy in [development-tooling.md](development-tooling.md).
 
-## Pyxel Web Delivery In NiceGUI
+## Pyxel Web Delivery And Future NiceGUI
 
 ### Decision
 
-The future NiceGUI application should wrap the selected Pyxel delivery artifact after the first release.
+The current repository includes a minimal Docker web delivery path:
 
-The MVP should not depend on NiceGUI or HTML export.
+- Build assets.
+- Stage the Pyxel game package.
+- Package the staged game as `.pyxapp`.
+- Convert the `.pyxapp` with Pyxel `app2html`.
+- Harden the generated HTML wrapper to isolate browser wallet extensions.
+- Serve the generated `index.html` with `python -m http.server`.
+
+The future NiceGUI application should replace or wrap this selected Pyxel web
+artifact when account and save management enter scope.
 
 ### NiceGUI Integration Direction
 
 When the NiceGUI shell is implemented:
 
-- Prefer the approved Pyxel artifact or direct game entrypoint unless a later spec explicitly enables HTML export.
+- Prefer the Docker/app2html web artifact unless a later spec selects a
+  different Pyxel delivery method.
 - Create a small custom NiceGUI component for the game container.
 - Keep account/profile/save UI outside the Pyxel canvas.
 - Keep the game canvas full-page or fullscreen-capable.

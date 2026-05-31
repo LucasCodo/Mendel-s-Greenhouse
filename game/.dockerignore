@@ -1,0 +1,12 @@
+.pytest_cache
+.ruff_cache
+.venv
+__pycache__
+dist
+htmlcov
+*.pyc
+**/__pycache__
+mendels_greenhouse/assets/*_preview.png
+mendels_greenhouse/assets/gear_64.png
+mendels_greenhouse/assets/greenhouse_background_512x320.png
+mendels_greenhouse/assets/greenhouse_background_source.png

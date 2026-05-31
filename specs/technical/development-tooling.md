@@ -19,7 +19,7 @@ poetry add pyxel
 Initial development dependencies:
 
 ```powershell
-poetry add --group dev pytest pytest-cov hypothesis ruff poethepoet Babel
+poetry add --group dev pytest pytest-cov hypothesis ruff poethepoet Babel pyxel-mcp
 ```
 
 Future browser-test dependencies, added only when a runnable web build exists:
@@ -62,6 +62,37 @@ Rules:
 - Use `poe check` before commits that touch implementation code.
 - Use `poe i18n-compile` whenever `.po` files change.
 - Keep task names short and stable so future agents can run them without guessing.
+- Use `poe start` to run the Pyxel game entrypoint.
+
+## Pyxel Agent Tooling
+
+The project may use Pyxel-specific agent tooling when available:
+
+- `pyxel-mcp` is the approved MCP server for Pyxel inspection and automation.
+- `pyxel-skill` is the approved local Codex skill for Pyxel implementation guidance.
+
+Rules:
+
+- Install `pyxel-mcp` as a development dependency of the `game/` package.
+- Prefer project specs over generic skill defaults when they conflict.
+- Do not use MCP output as a substitute for tests.
+- Use Pyxel/MCP screenshot or validation tools for visual changes when they are exposed to the current agent session.
+- If MCP tools are not exposed, fall back to `poe check`, targeted pytest runs, and direct Pyxel runtime checks.
+- Configure MCP to use the Poetry-managed `pyxel-mcp` executable instead of adding another global install.
+- Use MCP audio tools for Pyxel sounds and music when adding or changing audio assets.
+
+Recommended MCP checks:
+
+| Work Type | MCP Tools |
+| --------- | --------- |
+| Pyxel code changes | `validate_script`, `run_and_capture`, `inspect_state` |
+| Main screen layout | `run_and_capture`, `inspect_layout`, `inspect_palette` |
+| Sprite/image-bank changes | `inspect_sprite`, `inspect_bank`, `inspect_palette` |
+| Tilemap/background changes | `inspect_tilemap`, `inspect_palette`, `run_and_capture` |
+| Animation changes | `capture_frames`, `inspect_animation`, `compare_frames` |
+| Music and sound effects | `render_audio` |
+
+Detailed workflow lives in [pyxel-mcp.md](pyxel-mcp.md).
 
 ## Ruff
 
@@ -231,11 +262,11 @@ The repository contains a non-source-of-truth readiness assessment file with sev
 | Screen architecture | Use scene management with `Scene` and `SceneManager`. |
 | Starting credits | Start with `0` credits unless balance testing proves the tutorial needs a small buffer. |
 | I18n automation | Use Babel through Poe tasks. |
-| Pyxel colors | Use Pyxel palette indexes mapped through human-readable enums. |
+| Pyxel colors | Use Pyxel native color constants mapped through human-readable classes. |
 | Project initialization | Scaffold with Poetry, Python 3.11, and configure dependencies/tasks before gameplay implementation. |
 | First MVP screens | Implement Main Game, Greenhouse, Contracts, and Collection first. |
 | Tutorial delivery | Use the first contract as a guided tutorial with minimal popups. |
-| Early distribution | Run the Python entrypoint directly or package `.pyxapp`; do not export HTML for the MVP. |
+| Early distribution | Run the Python entrypoint directly for development; use Docker to package `.pyxapp`, export HTML with `app2html`, harden the generated HTML wrapper, and serve it with `python -m http.server` for the current web build. |
 | Documentation site | Postpone until after the first release. |
 
 ## References

@@ -14,10 +14,8 @@ updated: 2026-05-30
 
 - Hosting provider.
 - Database technology.
-- Deployment workflow.
 - Final NiceGUI routing structure.
 - Exact save synchronization protocol between NiceGUI and the Pyxel game.
-- Whether HTML export is needed after the first release.
 
 ## Resolved On 2026-05-30
 
@@ -37,7 +35,7 @@ The game must support English and Brazilian Portuguese from the initial implemen
 
 The implementation should use Poetry flat layout with package name `mendels_greenhouse`. Runtime assets live inside `mendels_greenhouse/assets/` and use Pyxel's native `.pyxres` format.
 
-The game targets internal resolution `256 x 144`, scaled to fill the browser page with crisp pixel art and a fullscreen option.
+The game targets internal resolution `640 x 360`, scaled to fill the browser page with crisp pixel art and a fullscreen option.
 
 ### First Playable Prototype Scope
 
@@ -96,11 +94,11 @@ Species progression:
 
 Future save data will use versioned JSON. Local Pyxel saves should live under Pyxel's user data directory. Pyxel `.pyxres` remains for resources, not player saves.
 
-Future packaging follows Pyxel's native flow: run the main Python entrypoint directly during development and package as `.pyxapp` for distribution. Do not export HTML during the MVP implementation phase.
+Future packaging follows Pyxel's native flow: run the main Python entrypoint directly during development and package as `.pyxapp` for distribution. The current web build exports the `.pyxapp` with Pyxel `app2html`, hardens the generated HTML wrapper, and serves the generated HTML through Docker.
 
 Future code architecture should keep core gameplay logic independent from Pyxel rendering and future NiceGUI infrastructure.
 
-Future NiceGUI integration should wrap the selected Pyxel delivery artifact after the first release. NiceGUI will initially use simple username and password authentication for accounts.
+Future NiceGUI integration should replace or wrap the current Docker/app2html delivery artifact when account and save orchestration enter scope. NiceGUI will initially use simple username and password authentication for accounts.
 
 ### Implementation Readiness
 
