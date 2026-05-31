@@ -171,7 +171,7 @@ Approved execution/distribution options for the early implementation:
 - Package the game as a Pyxel `.pyxapp`.
 - Export the staged `.pyxapp` with Pyxel `app2html` for the current Docker
   web build.
-- Harden the generated HTML wrapper before serving it.
+- Serve the generated HTML without rewriting it.
 
 Documentation-site work remains postponed until after the first release.
 

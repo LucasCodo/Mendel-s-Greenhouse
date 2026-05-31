@@ -51,7 +51,6 @@ PY
 cd "$BUILD_DIR"
 poetry run pyxel package mendels-greenhouse mendels-greenhouse/main.py
 poetry run pyxel app2html "$APP_FILE"
-poetry run python "$GAME_DIR/tools/harden_web_html.py" "$HTML_FILE"
 
 cp "$HTML_FILE" "$WEB_DIR/index.html"
 printf "ok\n" > "$WEB_DIR/health.html"

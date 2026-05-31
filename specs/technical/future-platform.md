@@ -71,9 +71,8 @@ Use Pyxel's native packaging flow for the game:
 2. Package the game as a `.pyxapp`.
 3. Convert the `.pyxapp` to HTML with Pyxel `app2html` for the current web
    delivery.
-4. Harden the generated HTML wrapper.
-5. Serve the generated HTML with `python -m http.server` from the Docker
-   runtime image.
+4. Serve the generated HTML with Python's standard `http.server` from the
+   Docker runtime image.
 
 This is a temporary web delivery path for the Pyxel game only. NiceGUI
 account and save orchestration remain future scope.
@@ -197,8 +196,7 @@ The current repository includes a minimal Docker web delivery path:
 - Stage the Pyxel game package.
 - Package the staged game as `.pyxapp`.
 - Convert the `.pyxapp` with Pyxel `app2html`.
-- Harden the generated HTML wrapper to isolate browser wallet extensions.
-- Serve the generated `index.html` with `python -m http.server`.
+- Serve the generated `index.html` with Python's standard `http.server`.
 
 The future NiceGUI application should replace or wrap this selected Pyxel web
 artifact when account and save management enter scope.

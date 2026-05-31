@@ -31,10 +31,9 @@ NiceGUI is the planned future framework for:
 The initial future account model will use simple username and password authentication.
 
 The current web delivery uses Pyxel's documented `.pyxapp` to `app2html`
-flow inside Docker, hardens the generated HTML wrapper, and serves the
-generated HTML with `python -m http.server`. The future NiceGUI shell should
-replace or wrap this delivery path when account and save orchestration enter
-scope.
+flow inside Docker and serves the generated HTML with Python's standard
+`http.server`. The future NiceGUI shell should replace or wrap this delivery
+path when account and save orchestration enter scope.
 
 ## Boundaries
 

@@ -266,7 +266,7 @@ The repository contains a non-source-of-truth readiness assessment file with sev
 | Project initialization | Scaffold with Poetry, Python 3.11, and configure dependencies/tasks before gameplay implementation. |
 | First MVP screens | Implement Main Game, Greenhouse, Contracts, and Collection first. |
 | Tutorial delivery | Use the first contract as a guided tutorial with minimal popups. |
-| Early distribution | Run the Python entrypoint directly for development; use Docker to package `.pyxapp`, export HTML with `app2html`, harden the generated HTML wrapper, and serve it with `python -m http.server` for the current web build. |
+| Early distribution | Run the Python entrypoint directly for development; use Docker to package `.pyxapp`, export HTML with `app2html`, and serve it with Python's standard `http.server` for the current web build. |
 | Documentation site | Postpone until after the first release. |
 
 ## References

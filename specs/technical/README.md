@@ -10,7 +10,7 @@ This directory records approved implementation-level direction for Mendel's Gree
 - [localization.md](localization.md) - initial English and Brazilian Portuguese support.
 - [testing.md](testing.md) - pytest-based automated testing strategy.
 - [future-platform.md](future-platform.md) - future save, packaging, web delivery, architecture, and NiceGUI decisions.
-- [deployment.md](deployment.md) - Docker, web artifact, MetaMask isolation, and Coolify CI/CD.
+- [deployment.md](deployment.md) - Docker, web artifact, browser delivery, and Coolify CI/CD.
 - [development-tooling.md](development-tooling.md) - dev dependencies, Poe tasks, Ruff, Babel automation, and refactoring policy.
 - [implementation-readiness.md](implementation-readiness.md) - resolved readiness decisions for starting the MVP.
 - [pyxel-mcp.md](pyxel-mcp.md) - Pyxel MCP workflow for validating code, screenshots, assets, animation, and audio.
