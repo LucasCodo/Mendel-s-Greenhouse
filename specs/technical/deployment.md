@@ -15,28 +15,29 @@ The current web artifact is generated from the Pyxel app:
 2. Stage only runtime game files.
 3. Package the staged game with `pyxel package`.
 4. Convert the `.pyxapp` with `pyxel app2html`.
-5. Harden the generated HTML wrapper.
-6. Serve the resulting `index.html` with `python -m http.server`.
+5. Serve the resulting `index.html` with Python's standard `http.server`.
 
 The generated `.pyxapp`, HTML output, and `dist/` directory are build
 artifacts and must not be committed.
 
-## MetaMask Extension Isolation
+## Browser Extension Noise
 
-The generated Pyxel HTML does not use wallet, Web3, or blockchain APIs.
+The generated Pyxel HTML is served as the Pyxel export produced by
+`app2html`. The project does not add wallet, Web3, blockchain, or extension
+integration code to the page.
 
-Some browsers inject the MetaMask in-page script into every page. To avoid
-extension-origin scripts trying to connect inside the game page, the build
-post-processes the generated HTML and adds a Content Security Policy that
-allows only the game page, Pyxel's CDN script, and required browser primitives
-for the Pyxel WebAssembly runtime.
+Some browsers inject extension scripts into every page. MetaMask can emit
+`Failed to connect to MetaMask` from its own `chrome-extension://` script even
+when the page does not use wallet APIs. This is extension-side console noise,
+not an application integration point.
 
-If the CSP is changed, verify that:
+Do not add CSP rules, Web3 stubs, wallet detection, or extension integration
+code to handle this. If the console message appears during local testing, use a
+browser profile without MetaMask or disable MetaMask site access for the local
+game URL.
 
-- The game still loads from `http://localhost:8080`.
-- Browser console output does not contain MetaMask connection attempts from
-  `chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn`.
-- Pyxel WebAssembly still starts correctly.
+When changing the web delivery path, verify that the game still loads from
+`http://localhost:8080` and that Pyxel WebAssembly starts correctly.
 
 ## Docker Compose
 
