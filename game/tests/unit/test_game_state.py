@@ -3,7 +3,7 @@
 from mendels_greenhouse.core.contracts import create_tutorial_contract
 from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.services.breeding_service import BreedingService
-from mendels_greenhouse.state.game_state import BATCH_SIZE, GameState
+from mendels_greenhouse.state.game_state import GameState
 
 
 def test_initial_state_matches_official_mvp_setup() -> None:
@@ -35,13 +35,13 @@ def test_tutorial_contract_rejects_non_matching_phenotypes() -> None:
     assert contract.delivered_count == 0
 
 
-def test_breeding_service_generates_official_batch_size() -> None:
+def test_breeding_service_generates_representative_batch_size() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)
 
     assert service.start_crossbreeding()
 
-    assert len(state.current_batch) == BATCH_SIZE
+    assert len(state.current_batch) == 1
     assert state.visible_count == 0
 
 
@@ -55,6 +55,7 @@ def test_breeding_service_reveal_updates_collection_and_contract() -> None:
     assert state.visible_count == 1
     assert state.active_contract.delivered_count == 1
     assert "AaBb" in state.collection.genotypes
+    assert state.credits == 0
 
 
 def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
@@ -66,3 +67,36 @@ def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
     assert service.store_last_revealed()
 
     assert state.greenhouse.used_slots == 3
+
+
+def test_completed_contract_requires_manual_reward_claim() -> None:
+    state = GameState.create_initial()
+    service = BreedingService(state)
+
+    for _ in range(3):
+        service.start_crossbreeding()
+        assert service.reveal_next()
+
+    assert state.active_contract.completed
+    assert state.credits == 0
+
+    assert service.claim_contract_reward()
+
+    assert state.credits == 50
+    assert state.completed_contracts == 1
+    assert not state.active_contract.completed
+    assert state.active_contract.target_count == 4
+    assert state.active_contract.seed_color == "yellow"
+    assert state.active_contract.seed_texture == "smooth"
+
+
+def test_claim_without_complete_contract_does_not_generate_next() -> None:
+    state = GameState.create_initial()
+    service = BreedingService(state)
+    current_contract = state.active_contract
+
+    assert not service.claim_contract_reward()
+
+    assert state.credits == 0
+    assert state.completed_contracts == 0
+    assert state.active_contract is current_contract

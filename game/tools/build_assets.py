@@ -305,9 +305,10 @@ def _build_audio() -> None:
     pyxel.sounds[2].set("c3e3g3c4", "s", "3345", "nnff", 12)
     pyxel.sounds[3].set("g3c4e4g4", "t", "3456", "nnff", 10)
     pyxel.sounds[4].set("c2c2", "n", "32", "nf", 6)
-    pyxel.sounds[5].set("c3e3g3e3", "p", "2222", "nnnn", 16)
-    pyxel.sounds[6].set("c2g2c3g2", "t", "1111", "nnnn", 24)
-    pyxel.musics[0].set([5], [6])
+    pyxel.sounds[5].mml("T84 @0 V32 L8 O4 [C E G E F A G E]2")
+    pyxel.sounds[6].mml("T84 @1 V22 L4 O3 [C G A F]4")
+    pyxel.sounds[7].mml("T84 @0 V18 L2 O2 [C G A F]2")
+    pyxel.musics[0].set([5], [6], [7])
 
 
 def _write_bdf_font() -> None:

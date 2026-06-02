@@ -11,7 +11,6 @@ from mendels_greenhouse.core.contracts import (
 from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.core.greenhouse import Greenhouse
 
-BATCH_SIZE = 20
 SPECIES_MENDEL_PEA = "Mendel Pea"
 
 
@@ -24,6 +23,7 @@ class GameState:
     active_contract: PhenotypeContract
     credits: int = 0
     analyzer_level: int = 1
+    completed_contracts: int = 0
     unlocked_species: set[str] = field(
         default_factory=lambda: {SPECIES_MENDEL_PEA},
     )

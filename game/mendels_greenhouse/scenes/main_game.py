@@ -6,7 +6,7 @@ import pyxel
 
 from mendels_greenhouse.core.genetics import Plant, expected_distribution
 from mendels_greenhouse.services.breeding_service import BreedingService
-from mendels_greenhouse.state.game_state import BATCH_SIZE, GameState
+from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.components import (
     Rect,
     clicked,
@@ -34,6 +34,8 @@ COLLECTION_NAV_BUTTON = Rect(350, 5, 60, 56)
 GARDEN_NAV_BUTTON = Rect(420, 5, 60, 56)
 SHOP_NAV_BUTTON = Rect(490, 5, 60, 56)
 SETTINGS_NAV_BUTTON = Rect(560, 5, 60, 56)
+INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
+CLAIM_CONTRACT_BUTTON = Rect(420, 84, 64, 18)
 SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
 SCENE_BACK_BUTTON = Rect(516, 318, 92, 24)
 LANGUAGE_BUTTON = Rect(338, 112, 86, 20)
@@ -55,10 +57,10 @@ PLANT_SPRITE_H = 44
 NAV_ICON_SIZE = 64
 NAV_ICON_SCALE = 0.5
 NAV_ICONS = {
-    "COLECAO": (0, 64),
-    "JARDIM": (64, 64),
-    "LOJA": (128, 64),
-    "CONFIG.": (192, 64),
+    "Collection": (0, 64),
+    "Garden": (64, 64),
+    "Shop": (128, 64),
+    "Settings": (192, 64),
 }
 SCREEN_MAIN = "main"
 SCREEN_COLLECTION = "collection"
@@ -96,15 +98,159 @@ SPECIES_UNLOCKS = {
     "Corn": (4, 10000),
 }
 
-AUTO_REVEAL_INTERVAL = 18
+AUTO_REVEAL_INTERVAL = 42
 BUTTON_PRESS_FRAMES = 7
 CONVEYOR_START_X = 68
-CONVEYOR_SLOT_WIDTH = 38
+CONVEYOR_SLOT_WIDTH = 82
 CONVEYOR_ENTRANCE_X = 44
-CONVEYOR_BELT_SPEED = 3
-MUSIC_CHANNELS = (0, 1)
+CONVEYOR_BELT_SPEED = 1
+MUSIC_CHANNELS = (0, 1, 2)
 SOUND_CHANNEL = 3
 MAX_VOLUME_STEP = 10
+
+TRANSLATIONS = {
+    "pt-BR": {
+        "Analyzer": "Analisador",
+        "Analyzer is already maxed.": "Analisador ja esta no maximo.",
+        "Analyzer L{level}": "Analisador N{level}",
+        "Analyzer upgraded to level {level}.": (
+            "Analisador melhorado para nivel {level}."
+        ),
+        "BACK": "VOLTAR",
+        "BUY": "COMPRAR",
+        "Back to game": "Voltar ao jogo",
+        "Basic controls": "Comandos basicos",
+        "Before playing": "Antes de jogar",
+        "Changes apply immediately.": "Alteracoes aplicam na hora.",
+        "Collection": "Colecao",
+        "CONTRACT": "CONTRATO",
+        "CLAIM": "RESGATAR",
+        "Contract complete. Claim reward.": (
+            "Contrato completo. Resgate a recompensa."
+        ),
+        "Contract complete. +{reward} credits.": (
+            "Contrato completo. +{reward} creditos."
+        ),
+        "Contract match. {remaining} left.": (
+            "Contrato aceito. Faltam {remaining}."
+        ),
+        "CROSS PLANTS": "CRUZAR",
+        "Credits": "Creditos",
+        "Deliver 3 yellow smooth peas": "Entregue 3 ervilhas amarelas lisas",
+        "Deliver {target} {color} {texture} peas": (
+            "Entregue {target} ervilhas {color} {texture}"
+        ),
+        "Discovered genetic records": "Registros geneticos descobertos",
+        "Discovered: {total}": "Descobertos: {total}",
+        "DONE": "OK",
+        "Each cross shows the expected genetic combinations.": (
+            "Cada cruzamento mostra as combinacoes geneticas esperadas."
+        ),
+        "Each parent gives": "Cada planta fornece",
+        "Effects volume": "Volume efeitos",
+        "Empty or locked slot.": "Vazio ou bloqueado.",
+        "Empty slot": "Espaco vazio",
+        "EN": "EN",
+        "Garden": "Jardim",
+        "Generated: {visible}/{total}": "Gerado: {visible}/{total}",
+        "Generating offspring...": "Gerando descendentes...",
+        "Generation": "Geracao",
+        "Genetic Analyzer is already fully upgraded.": (
+            "Analisador genetico ja esta completo."
+        ),
+        "Genotypes": "Genotipos",
+        "Greenhouse is already at maximum capacity.": (
+            "A estufa ja esta na capacidade maxima."
+        ),
+        "Greenhouse is already maxed.": "A estufa ja esta no maximo.",
+        "Greenhouse is full.": "A estufa esta cheia.",
+        "Greenhouse slot": "Espaco da estufa",
+        "Help": "Ajuda",
+        "Hidden entries stay unknown.": (
+            "Entradas ocultas continuam desconhecidas."
+        ),
+        "How to play": "Como jogar",
+        "Language": "Idioma",
+        "Last offspring": "Ultimo descendente",
+        "LOCK": "BLOQ",
+        "Locked": "Bloqueado",
+        "Matches": "Aceitos",
+        "Max capacity": "Capacidade maxima",
+        "Max level": "Nivel maximo",
+        "Missing": "Faltam",
+        "Mouse: click buttons and plant cards.": (
+            "Mouse: clique em botoes e cartoes de plantas."
+        ),
+        "Music volume": "Volume musica",
+        "Mute music": "Mutar musica",
+        "Mute sounds": "Mutar sons",
+        "New discovery registered.": "Nova descoberta registrada.",
+        "No discoveries yet.": "Nenhuma descoberta ainda.",
+        "No revealed plant to store.": "Nenhuma planta revelada para guardar.",
+        "No completed contract to claim.": (
+            "Nenhum contrato completo para resgatar."
+        ),
+        "Not enough credits.": "Creditos insuficientes.",
+        "OK": "OK",
+        "Offspring revealed.": "Descendente revelado.",
+        "one allele per gene.": "um alelo por gene.",
+        "Parent A selected from garden.": "Pai A selecionado no jardim.",
+        "Parent A selected from slot 1.": "Pai A selecionado no espaco 1.",
+        "Parent B selected from garden.": "Pai B selecionado no jardim.",
+        "Parent B selected from slot 2.": "Pai B selecionado no espaco 2.",
+        "PARENT A": "PAI A",
+        "PARENT B": "PAI B",
+        "Phenotypes": "Fenotipos",
+        "Pick two parent plants, cross them, then inspect offspring.": (
+            "Escolha dois pais, cruze e observe os descendentes."
+        ),
+        "PROBABILITIES": "PROBABILIDADES",
+        "REVEAL": "REVELAR",
+        "Results are shuffled": "Resultados sao embaralhados",
+        "Reward claimed. +{reward} credits. New contract ready.": (
+            "Recompensa resgatada. +{reward} creditos. Novo contrato pronto."
+        ),
+        "Select parents": "Escolha os pais",
+        "Select parents, then cross plants.": (
+            "Escolha os pais e cruze as plantas."
+        ),
+        "Select two stored parent plants.": (
+            "Escolha duas plantas guardadas como pais."
+        ),
+        "SELECTED PLANT": "PLANTA SELECIONADA",
+        "Settings": "Configuracoes",
+        "Shop": "Loja",
+        "SPACE reveals one offspring; S stores the latest plant.": (
+            "SPACE revela um descendente; S guarda a planta atual."
+        ),
+        "Spend credits on progression": "Gaste creditos em progresso",
+        "Species": "Especies",
+        "STORE": "GUARDAR",
+        "Stored plant in slot {slot}.": "Planta guardada no espaco {slot}.",
+        "Stored plants and parent selection": (
+            "Plantas guardadas e selecao de pais"
+        ),
+        "The goal": "Objetivo",
+        "Unlocked {species}.": "{species} desbloqueado.",
+        "Unlocked greenhouse slot {slot}.": (
+            "Espaco {slot} da estufa desbloqueado."
+        ),
+        "Use 1/2 to reselect starting parents.": (
+            "Use 1/2 para escolher os pais iniciais."
+        ),
+        "Use contracts to learn how traits pass between generations.": (
+            "Use contratos para aprender como tracos passam entre geracoes."
+        ),
+        "Yellow smooth peas are requested first.": (
+            "Ervilhas amarelas lisas sao pedidas primeiro."
+        ),
+        "before the conveyor.": "antes da esteira.",
+        "green": "verde",
+        "smooth": "lisa",
+        "wrinkled": "rugosa",
+        "yellow": "amarela",
+    },
+}
 
 
 @dataclass
@@ -112,7 +258,7 @@ class SettingsState:
     """Runtime-only player preferences for the MVP settings panel."""
 
     language: str = "pt-BR"
-    music_volume: int = 7
+    music_volume: int = 1
     sound_volume: int = 7
     music_muted: bool = False
     sound_muted: bool = False
@@ -146,6 +292,7 @@ class MainGameScene:
         self.reveal_button_timer = 0
         self.store_button_timer = 0
         self._reveal_frames = {}
+        self.intro_open = True
         self.settings_open = False
         self.settings = SettingsState()
         self.active_screen = SCREEN_MAIN
@@ -157,6 +304,9 @@ class MainGameScene:
     def update(self) -> None:
         """Handle mouse-first controls and keyboard shortcuts."""
         self._tick_button_timers()
+        if self.intro_open:
+            self._update_intro_panel()
+            return
         if self.settings_open:
             self._update_settings_panel()
             return
@@ -194,6 +344,10 @@ class MainGameScene:
             self._play_sound(1)
             self.cross_button_timer = BUTTON_PRESS_FRAMES
             self.breeding.start_crossbreeding()
+
+        if clicked(CLAIM_CONTRACT_BUTTON) or pyxel.btnp(pyxel.KEY_C):
+            self._play_sound(3)
+            self.breeding.claim_contract_reward()
 
         if clicked(REVEAL_BUTTON) or pyxel.btnp(pyxel.KEY_SPACE):
             self._play_sound(2)
@@ -237,6 +391,8 @@ class MainGameScene:
             self._draw_shop_screen()
         else:
             self._draw_main_game_screen()
+        if self.intro_open:
+            self._draw_intro_panel()
         if self.settings_open:
             self._draw_settings_panel()
 
@@ -254,7 +410,7 @@ class MainGameScene:
         )
         draw_button(
             CROSS_BUTTON,
-            "CROSS PLANTS",
+            self._t("CROSS PLANTS"),
             enabled=self.state.can_crossbreed,
             pressed=self.cross_button_timer > 0,
         )
@@ -370,7 +526,12 @@ class MainGameScene:
         nav_x = 350
         self._draw_runtime_hud_frame(nav_x - 7, 4, 290, 58)
         for index, (label, sprite) in enumerate(NAV_ICONS.items()):
-            self._draw_nav_item(nav_x + index * 70, 9, label, sprite)
+            self._draw_nav_item(
+                nav_x + index * 70,
+                9,
+                self._nav_label(label),
+                sprite,
+            )
 
     def _draw_runtime_hud_frame(
         self,
@@ -438,16 +599,16 @@ class MainGameScene:
         rect = Rect(180, 74, 320, 46)
         draw_panel(rect)
         draw_outlined_text(
-            272,
+            286,
             66,
-            "CURRENT CONTRACT",
+            self._t("CONTRACT"),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
         pyxel.text(
             rect.x + 12,
             rect.y + 12,
-            contract.title,
+            self._contract_title(),
             PyxelColor.UI_DARK,
         )
         pyxel.rect(rect.x + 12, rect.y + 29, 235, 8, PyxelColor.BAR_EMPTY)
@@ -463,6 +624,8 @@ class MainGameScene:
         )
         progress = f"{contract.delivered_count}/{contract.target_count}"
         pyxel.text(rect.x + 260, rect.y + 30, progress, PyxelColor.UI_DARK)
+        if contract.completed and not contract.paid:
+            draw_button(CLAIM_CONTRACT_BUTTON, self._t("CLAIM"))
 
     def _draw_probability_panel(self) -> None:
         rect = Rect(12, 74, 132, 112)
@@ -470,14 +633,14 @@ class MainGameScene:
         draw_outlined_text(
             18,
             80,
-            "PROBABILITIES",
+            self._t("PROBABILITIES"),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
         parent_a = self.state.parent_a
         parent_b = self.state.parent_b
         if parent_a is None or parent_b is None:
-            pyxel.text(18, 96, "Select parents", PyxelColor.UI_DARK)
+            pyxel.text(18, 96, self._t("Select parents"), PyxelColor.UI_DARK)
             return
 
         distribution = expected_distribution(parent_a, parent_b)
@@ -499,7 +662,7 @@ class MainGameScene:
         draw_outlined_text(
             rect.x + 32,
             rect.y + 7,
-            title,
+            self._t(title),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
@@ -507,7 +670,7 @@ class MainGameScene:
             pyxel.text(
                 rect.x + 20,
                 rect.y + 28,
-                "Empty slot",
+                self._t("Empty slot"),
                 PyxelColor.UI_DARK,
             )
             return
@@ -525,7 +688,7 @@ class MainGameScene:
         pyxel.text(
             rect.x + 65,
             rect.y + 47,
-            phenotype.seed_color,
+            self._trait(phenotype.seed_color),
             PyxelColor.UI_DARK,
         )
 
@@ -536,7 +699,7 @@ class MainGameScene:
         pyxel.rect(230, 182, 180, 14, PyxelColor.UI_DARK)
 
         # Center status message dynamically inside the status box
-        msg = self.state.status_message[:44]
+        msg = self._status_text(self.state.status_message)[:44]
         text_width = len(msg) * 4
         text_x = 320 - text_width // 2
         pyxel.text(text_x, 187, msg, PyxelColor.ACCENT)
@@ -550,7 +713,7 @@ class MainGameScene:
         # Draw visible plants, sliding them smoothly from the left entrance
         visible = self.state.current_batch[: self.state.visible_count]
         reveal_frames = getattr(self, "_reveal_frames", {})
-        for index, plant in enumerate(visible[:14]):
+        for index, plant in enumerate(visible[:7]):
             reveal_frame = reveal_frames.get(index, 0)
             age = pyxel.frame_count - reveal_frame
             final_x = CONVEYOR_START_X + index * CONVEYOR_SLOT_WIDTH
@@ -572,12 +735,12 @@ class MainGameScene:
         self._draw_help_panel()
         draw_button(
             REVEAL_BUTTON,
-            "REVEAL",
+            self._t("REVEAL"),
             pressed=self.reveal_button_timer > 0,
         )
         draw_button(
             STORE_BUTTON,
-            "STORE",
+            self._t("STORE"),
             pressed=self.store_button_timer > 0,
         )
 
@@ -587,27 +750,32 @@ class MainGameScene:
         draw_outlined_text(
             18,
             270,
-            "GENERATION",
+            self._t("Generation").upper(),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
+        total = len(self.state.current_batch)
         pyxel.text(
             24,
             286,
-            f"Generated: {self.state.visible_count}/{BATCH_SIZE}",
+            self._t(
+                "Generated: {visible}/{total}",
+                visible=self.state.visible_count,
+                total=total,
+            ),
             PyxelColor.UI_DARK,
         )
         contract = self.state.active_contract
         pyxel.text(
             24,
             300,
-            f"Matches: {contract.delivered_count}",
+            f"{self._t('Matches')}: {contract.delivered_count}",
             PyxelColor.UI_DARK,
         )
         pyxel.text(
             24,
             314,
-            f"Missing: {contract.remaining_count}",
+            f"{self._t('Missing')}: {contract.remaining_count}",
             PyxelColor.UI_DARK,
         )
 
@@ -617,20 +785,35 @@ class MainGameScene:
         draw_outlined_text(
             166,
             270,
-            "LAST PLANT",
+            self._t("Last offspring").upper(),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
         plant = self.state.last_visible_plant
         if plant is None:
-            pyxel.text(178, 296, "Reveal offspring", PyxelColor.UI_DARK)
+            pyxel.text(
+                178,
+                296,
+                self._t("REVEAL").capitalize(),
+                PyxelColor.UI_DARK,
+            )
             return
 
         self._draw_plant_preview(190, 334, plant, large=True)
         phenotype = plant.phenotype
         pyxel.text(226, 288, plant.genotype, PyxelColor.UI_DARK)
-        pyxel.text(226, 302, phenotype.seed_color, PyxelColor.UI_DARK)
-        pyxel.text(226, 316, phenotype.seed_texture, PyxelColor.UI_DARK)
+        pyxel.text(
+            226,
+            302,
+            self._trait(phenotype.seed_color),
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            226,
+            316,
+            self._trait(phenotype.seed_texture),
+            PyxelColor.UI_DARK,
+        )
 
     def _draw_help_panel(self) -> None:
         rect = Rect(322, 264, 170, 84)
@@ -638,27 +821,45 @@ class MainGameScene:
         draw_outlined_text(
             328,
             270,
-            "HOW IT WORKS",
+            self._t("Help").upper(),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
-        pyxel.text(334, 284, "Each parent gives", PyxelColor.UI_DARK)
-        pyxel.text(334, 296, "one allele per gene.", PyxelColor.UI_DARK)
-        pyxel.text(334, 308, "Results are shuffled", PyxelColor.UI_DARK)
-        pyxel.text(334, 320, "before the conveyor.", PyxelColor.UI_DARK)
+        pyxel.text(334, 284, self._t("Each parent gives"), PyxelColor.UI_DARK)
+        pyxel.text(
+            334,
+            296,
+            self._t("one allele per gene."),
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            334,
+            308,
+            self._t("Results are shuffled"),
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            334,
+            320,
+            self._t("before the conveyor."),
+            PyxelColor.UI_DARK,
+        )
 
     def _draw_collection_screen(self) -> None:
-        self._draw_scene_shell("COLLECTION", "Discovered genetic records")
+        self._draw_scene_shell("Collection", "Discovered genetic records")
         pyxel.text(
             470,
             86,
-            f"Discovered: {self.state.collection.total_entries}",
+            self._t(
+                "Discovered: {total}",
+                total=self.state.collection.total_entries,
+            ),
             PyxelColor.PARCHMENT_LIGHT,
         )
         for index, tab in enumerate(COLLECTION_TABS):
             rect = Rect(24, 108 + index * 30, 104, 22)
             active = self.collection_tab == tab
-            draw_button(rect, tab.upper(), pressed=active)
+            draw_button(rect, self._t(tab).upper(), pressed=active)
 
         list_panel = Rect(148, 108, 220, 178)
         detail_panel = Rect(386, 108, 222, 178)
@@ -666,19 +867,29 @@ class MainGameScene:
         draw_panel(detail_panel)
         entries = self._collection_entries()
         if not entries:
-            pyxel.text(166, 132, "No discoveries yet.", PyxelColor.UI_DARK)
+            pyxel.text(
+                166,
+                132,
+                self._t("No discoveries yet."),
+                PyxelColor.UI_DARK,
+            )
         for index, line in enumerate(entries[:12]):
             y = 122 + index * 12
             pyxel.text(164, y, line[:44], PyxelColor.UI_DARK)
 
-        pyxel.text(402, 126, self.collection_tab.upper(), PyxelColor.UI_DARK)
+        pyxel.text(
+            402,
+            126,
+            self._t(self.collection_tab).upper(),
+            PyxelColor.UI_DARK,
+        )
         details = self._collection_details(entries)
         for index, line in enumerate(details):
             pyxel.text(402, 146 + index * 14, line, PyxelColor.UI_DARK)
         self._draw_scene_back_button()
 
     def _draw_garden_screen(self) -> None:
-        self._draw_scene_shell("GARDEN", "Stored plants and parent selection")
+        self._draw_scene_shell("Garden", "Stored plants and parent selection")
         pyxel.text(
             476,
             86,
@@ -693,9 +904,14 @@ class MainGameScene:
             self._draw_greenhouse_slot(index)
 
         selected = self._selected_greenhouse_plant()
-        pyxel.text(354, 122, "SELECTED PLANT", PyxelColor.UI_DARK)
+        pyxel.text(354, 122, self._t("SELECTED PLANT"), PyxelColor.UI_DARK)
         if selected is None:
-            pyxel.text(354, 146, "Empty or locked slot.", PyxelColor.UI_DARK)
+            pyxel.text(
+                354,
+                146,
+                self._t("Empty or locked slot."),
+                PyxelColor.UI_DARK,
+            )
         else:
             phenotype = selected.phenotype
             self._draw_plant_preview(382, 205, selected, large=True)
@@ -708,25 +924,25 @@ class MainGameScene:
             pyxel.text(
                 428,
                 160,
-                f"Color: {phenotype.seed_color}",
+                f"Color: {self._trait(phenotype.seed_color)}",
                 PyxelColor.UI_DARK,
             )
             pyxel.text(
                 428,
                 174,
-                f"Texture: {phenotype.seed_texture}",
+                f"Texture: {self._trait(phenotype.seed_texture)}",
                 PyxelColor.UI_DARK,
             )
-            draw_button(Rect(392, 183, 96, 22), "PARENT A")
-            draw_button(Rect(392, 211, 96, 22), "PARENT B")
+            draw_button(Rect(392, 183, 96, 22), self._t("PARENT A"))
+            draw_button(Rect(392, 211, 96, 22), self._t("PARENT B"))
         self._draw_scene_back_button()
 
     def _draw_shop_screen(self) -> None:
-        self._draw_scene_shell("SHOP", "Spend credits on progression")
+        self._draw_scene_shell("Shop", "Spend credits on progression")
         pyxel.text(
             510,
             86,
-            f"Credits: {self.state.credits}",
+            f"{self._t('Credits')}: {self.state.credits}",
             PyxelColor.PARCHMENT_LIGHT,
         )
         self._draw_shop_card("slot", Rect(36, 120, 170, 42))
@@ -736,10 +952,15 @@ class MainGameScene:
         details_panel = Rect(88, 198, 464, 100)
         draw_panel(details_panel)
         for index, line in enumerate(self._shop_details()):
-            pyxel.text(108, 216 + index * 14, line, PyxelColor.UI_DARK)
+            pyxel.text(
+                108,
+                216 + index * 14,
+                self._t(line),
+                PyxelColor.UI_DARK,
+            )
         draw_button(
             Rect(392, 284, 96, 24),
-            "BUY",
+            self._t("BUY"),
             enabled=self._selected_shop_available(),
         )
         self._draw_scene_back_button()
@@ -748,14 +969,14 @@ class MainGameScene:
         draw_outlined_text(
             24,
             76,
-            title,
+            self._t(title).upper(),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
-        pyxel.text(26, 91, subtitle, PyxelColor.PARCHMENT_LIGHT)
+        pyxel.text(26, 91, self._t(subtitle), PyxelColor.PARCHMENT_LIGHT)
 
     def _draw_scene_back_button(self) -> None:
-        draw_button(SCENE_BACK_BUTTON, "BACK")
+        draw_button(SCENE_BACK_BUTTON, self._t("BACK"))
 
     def _draw_greenhouse_slot(self, index: int) -> None:
         rect = self._greenhouse_slot_rect(index)
@@ -774,11 +995,21 @@ class MainGameScene:
             PyxelColor.UI_DARK,
         )
         if not unlocked:
-            pyxel.text(rect.x + 13, rect.y + 19, "LOCK", PyxelColor.UI_DARK)
+            pyxel.text(
+                rect.x + 13,
+                rect.y + 19,
+                self._t("LOCK"),
+                PyxelColor.UI_DARK,
+            )
             return
         plant = self.state.greenhouse.slots[index]
         if plant is None:
-            pyxel.text(rect.x + 14, rect.y + 19, "EMPTY", PyxelColor.UI_DARK)
+            pyxel.text(
+                rect.x + 14,
+                rect.y + 19,
+                self._t("Empty slot").upper()[:5],
+                PyxelColor.UI_DARK,
+            )
             return
         self._draw_plant_preview(rect.x + 22, rect.y + 42, plant)
 
@@ -788,9 +1019,14 @@ class MainGameScene:
         pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
         pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
         title, cost, status = self._shop_card_data(item)
-        pyxel.text(rect.x + 8, rect.y + 9, title, PyxelColor.UI_DARK)
+        pyxel.text(rect.x + 8, rect.y + 9, self._t(title), PyxelColor.UI_DARK)
         pyxel.text(rect.x + 8, rect.y + 23, cost, PyxelColor.UI_DARK)
-        pyxel.text(rect.x + 92, rect.y + 23, status, PyxelColor.UI_DARK)
+        pyxel.text(
+            rect.x + 92,
+            rect.y + 23,
+            self._t(status),
+            PyxelColor.UI_DARK,
+        )
 
     def _greenhouse_slot_rect(self, index: int) -> Rect:
         col = index % GREENHOUSE_COLUMNS
@@ -991,6 +1227,71 @@ class MainGameScene:
             colkey=0,
         )
 
+    def _update_intro_panel(self) -> None:
+        if (
+            clicked(INTRO_OK_BUTTON)
+            or pyxel.btnp(pyxel.KEY_RETURN)
+            or pyxel.btnp(pyxel.KEY_ESCAPE)
+        ):
+            self._play_sound(0)
+            self.intro_open = False
+
+    def _draw_intro_panel(self) -> None:
+        pyxel.dither(0.72)
+        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
+        pyxel.dither(1)
+
+        panel = Rect(92, 56, 456, 272)
+        draw_panel(panel)
+        draw_outlined_text(
+            222,
+            78,
+            self._t("Before playing").upper(),
+            PyxelColor.ACCENT,
+            font=self._display_font,
+        )
+
+        sections = [
+            (
+                "The goal",
+                [
+                    (
+                        "Use contracts to learn how traits pass "
+                        "between generations."
+                    ),
+                    "Yellow smooth peas are requested first.",
+                ],
+            ),
+            (
+                "How to play",
+                [
+                    (
+                        "Pick two parent plants, cross them, then inspect "
+                        "offspring."
+                    ),
+                    "Each cross shows the expected genetic combinations.",
+                ],
+            ),
+            (
+                "Basic controls",
+                [
+                    "Mouse: click buttons and plant cards.",
+                    "SPACE reveals one offspring; S stores the latest plant.",
+                    "Use 1/2 to reselect starting parents.",
+                ],
+            ),
+        ]
+        y = 112
+        for title, lines in sections:
+            pyxel.text(126, y, self._t(title).upper(), PyxelColor.UI_DARK)
+            y += 13
+            for line in lines:
+                pyxel.text(138, y, self._t(line), PyxelColor.UI_DARK)
+                y += 12
+            y += 7
+
+        draw_button(INTRO_OK_BUTTON, self._t("OK"))
+
     def _update_settings_panel(self) -> None:
         if clicked(SETTINGS_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
             self._play_sound(0)
@@ -1051,55 +1352,49 @@ class MainGameScene:
         draw_outlined_text(
             254,
             84,
-            self._settings_text("SETTINGS", "CONFIGURACOES"),
+            self._t("Settings").upper(),
             PyxelColor.ACCENT,
             font=self._display_font,
         )
         pyxel.text(
             188,
             106,
-            self._settings_text("Language", "Idioma"),
+            self._t("Language"),
             PyxelColor.UI_DARK,
         )
         draw_button(LANGUAGE_BUTTON, self._language_label())
 
         self._draw_volume_control(
             143,
-            self._settings_text("Music volume", "Volume musica"),
+            self._t("Music volume"),
             self.settings.music_volume,
             (MUSIC_DOWN_BUTTON, MUSIC_UP_BUTTON),
         )
         self._draw_checkbox(
             MUSIC_MUTE_CHECKBOX,
             self.settings.music_muted,
-            self._settings_text("Mute music", "Mutar musica"),
+            self._t("Mute music"),
         )
 
         self._draw_volume_control(
             186,
-            self._settings_text("Sound volume", "Volume sons"),
+            self._t("Effects volume"),
             self.settings.sound_volume,
             (SOUND_DOWN_BUTTON, SOUND_UP_BUTTON),
         )
         self._draw_checkbox(
             SOUND_MUTE_CHECKBOX,
             self.settings.sound_muted,
-            self._settings_text("Mute sounds", "Mutar sons"),
+            self._t("Mute sounds"),
         )
 
         pyxel.text(
             188,
             238,
-            self._settings_text(
-                "Changes apply immediately.",
-                "Alteracoes aplicam na hora.",
-            ),
+            self._t("Changes apply immediately."),
             PyxelColor.UI_DARK,
         )
-        draw_button(
-            SETTINGS_BACK_BUTTON,
-            self._settings_text("BACK", "VOLTAR"),
-        )
+        draw_button(SETTINGS_BACK_BUTTON, self._t("BACK"))
 
     def _draw_volume_control(
         self,
@@ -1149,10 +1444,57 @@ class MainGameScene:
             return "PT-BR"
         return "EN"
 
-    def _settings_text(self, english: str, portuguese: str) -> str:
-        if self.settings.language == "pt-BR":
-            return portuguese
-        return english
+    def _nav_label(self, key: str) -> str:
+        label = self._t(key).upper()
+        return label[:7]
+
+    def _trait(self, value: str) -> str:
+        return self._t(value)
+
+    def _contract_title(self) -> str:
+        contract = self.state.active_contract
+        has_phenotype_goal = (
+            contract.seed_color is not None
+            and contract.seed_texture is not None
+        )
+        if has_phenotype_goal:
+            return self._t(
+                "Deliver {target} {color} {texture} peas",
+                target=contract.target_count,
+                color=self._trait(contract.seed_color),
+                texture=self._trait(contract.seed_texture),
+            )
+        return contract.title
+
+    def _status_text(self, message: str) -> str:
+        dynamic_templates = [
+            ("Contract complete. +", " credits.", "reward"),
+            ("Contract match. ", " left.", "remaining"),
+            (
+                "Reward claimed. +",
+                " credits. New contract ready.",
+                "reward",
+            ),
+            ("Stored plant in slot ", ".", "slot"),
+            ("Unlocked greenhouse slot ", ".", "slot"),
+            ("Analyzer upgraded to level ", ".", "level"),
+        ]
+        for prefix, suffix, key in dynamic_templates:
+            if message.startswith(prefix) and message.endswith(suffix):
+                value = message.removeprefix(prefix).removesuffix(suffix)
+                template = f"{prefix}{{{key}}}{suffix}"
+                return self._t(template, **{key: value})
+        if message.startswith("Unlocked ") and message.endswith("."):
+            species = message.removeprefix("Unlocked ").removesuffix(".")
+            return self._t("Unlocked {species}.", species=species)
+        return self._t(message)
+
+    def _t(self, text: str, **kwargs: object) -> str:
+        catalog = TRANSLATIONS.get(self.settings.language, {})
+        translated = catalog.get(text, text)
+        if kwargs:
+            return translated.format(**kwargs)
+        return translated
 
     def _apply_audio_settings(self) -> None:
         for channel in MUSIC_CHANNELS:
