@@ -5,7 +5,9 @@ from dataclasses import dataclass
 import pyxel
 
 from mendels_greenhouse.core.genetics import Plant, expected_distribution
+from mendels_greenhouse.core.i18n import gettext_noop, set_language, t
 from mendels_greenhouse.services.breeding_service import BreedingService
+from mendels_greenhouse.services.greenhouse_service import GreenhouseService
 from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.components import (
     Rect,
@@ -36,6 +38,8 @@ SHOP_NAV_BUTTON = Rect(490, 5, 60, 56)
 SETTINGS_NAV_BUTTON = Rect(560, 5, 60, 56)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
 CLAIM_CONTRACT_BUTTON = Rect(420, 84, 64, 18)
+PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
+GARDEN_DISCARD_BUTTON = Rect(500, 211, 80, 22)
 SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
 SCENE_BACK_BUTTON = Rect(516, 318, 92, 24)
 LANGUAGE_BUTTON = Rect(338, 112, 86, 20)
@@ -108,149 +112,97 @@ MUSIC_CHANNELS = (0, 1, 2)
 SOUND_CHANNEL = 3
 MAX_VOLUME_STEP = 10
 
-TRANSLATIONS = {
-    "pt-BR": {
-        "Analyzer": "Analisador",
-        "Analyzer is already maxed.": "Analisador ja esta no maximo.",
-        "Analyzer L{level}": "Analisador N{level}",
-        "Analyzer upgraded to level {level}.": (
-            "Analisador melhorado para nivel {level}."
-        ),
-        "BACK": "VOLTAR",
-        "BUY": "COMPRAR",
-        "Back to game": "Voltar ao jogo",
-        "Basic controls": "Comandos basicos",
-        "Before playing": "Antes de jogar",
-        "Changes apply immediately.": "Alteracoes aplicam na hora.",
-        "Collection": "Colecao",
-        "CONTRACT": "CONTRATO",
-        "CLAIM": "RESGATAR",
-        "Contract complete. Claim reward.": (
-            "Contrato completo. Resgate a recompensa."
-        ),
-        "Contract complete. +{reward} credits.": (
-            "Contrato completo. +{reward} creditos."
-        ),
-        "Contract match. {remaining} left.": (
-            "Contrato aceito. Faltam {remaining}."
-        ),
-        "CROSS PLANTS": "CRUZAR",
-        "Credits": "Creditos",
-        "Deliver 3 yellow smooth peas": "Entregue 3 ervilhas amarelas lisas",
-        "Deliver {target} {color} {texture} peas": (
-            "Entregue {target} ervilhas {color} {texture}"
-        ),
-        "Discovered genetic records": "Registros geneticos descobertos",
-        "Discovered: {total}": "Descobertos: {total}",
-        "DONE": "OK",
-        "Each cross shows the expected genetic combinations.": (
-            "Cada cruzamento mostra as combinacoes geneticas esperadas."
-        ),
-        "Each parent gives": "Cada planta fornece",
-        "Effects volume": "Volume efeitos",
-        "Empty or locked slot.": "Vazio ou bloqueado.",
-        "Empty slot": "Espaco vazio",
-        "EN": "EN",
-        "Garden": "Jardim",
-        "Generated: {visible}/{total}": "Gerado: {visible}/{total}",
-        "Generating offspring...": "Gerando descendentes...",
-        "Generation": "Geracao",
-        "Genetic Analyzer is already fully upgraded.": (
-            "Analisador genetico ja esta completo."
-        ),
-        "Genotypes": "Genotipos",
-        "Greenhouse is already at maximum capacity.": (
-            "A estufa ja esta na capacidade maxima."
-        ),
-        "Greenhouse is already maxed.": "A estufa ja esta no maximo.",
-        "Greenhouse is full.": "A estufa esta cheia.",
-        "Greenhouse slot": "Espaco da estufa",
-        "Help": "Ajuda",
-        "Hidden entries stay unknown.": (
-            "Entradas ocultas continuam desconhecidas."
-        ),
-        "How to play": "Como jogar",
-        "Language": "Idioma",
-        "Last offspring": "Ultimo descendente",
-        "LOCK": "BLOQ",
-        "Locked": "Bloqueado",
-        "Matches": "Aceitos",
-        "Max capacity": "Capacidade maxima",
-        "Max level": "Nivel maximo",
-        "Missing": "Faltam",
-        "Mouse: click buttons and plant cards.": (
-            "Mouse: clique em botoes e cartoes de plantas."
-        ),
-        "Music volume": "Volume musica",
-        "Mute music": "Mutar musica",
-        "Mute sounds": "Mutar sons",
-        "New discovery registered.": "Nova descoberta registrada.",
-        "No discoveries yet.": "Nenhuma descoberta ainda.",
-        "No revealed plant to store.": "Nenhuma planta revelada para guardar.",
-        "No completed contract to claim.": (
-            "Nenhum contrato completo para resgatar."
-        ),
-        "Not enough credits.": "Creditos insuficientes.",
-        "OK": "OK",
-        "Offspring revealed.": "Descendente revelado.",
-        "one allele per gene.": "um alelo por gene.",
-        "Parent A selected from garden.": "Pai A selecionado no jardim.",
-        "Parent A selected from slot 1.": "Pai A selecionado no espaco 1.",
-        "Parent B selected from garden.": "Pai B selecionado no jardim.",
-        "Parent B selected from slot 2.": "Pai B selecionado no espaco 2.",
-        "PARENT A": "PAI A",
-        "PARENT B": "PAI B",
-        "Phenotypes": "Fenotipos",
-        "Pick two parent plants, cross them, then inspect offspring.": (
-            "Escolha dois pais, cruze e observe os descendentes."
-        ),
-        "PROBABILITIES": "PROBABILIDADES",
-        "REVEAL": "REVELAR",
-        "Results are shuffled": "Resultados sao embaralhados",
-        "Reward claimed. +{reward} credits. New contract ready.": (
-            "Recompensa resgatada. +{reward} creditos. Novo contrato pronto."
-        ),
-        "Select parents": "Escolha os pais",
-        "Select parents, then cross plants.": (
-            "Escolha os pais e cruze as plantas."
-        ),
-        "Select two stored parent plants.": (
-            "Escolha duas plantas guardadas como pais."
-        ),
-        "SELECTED PLANT": "PLANTA SELECIONADA",
-        "Settings": "Configuracoes",
-        "Shop": "Loja",
-        "SPACE reveals one offspring; S stores the latest plant.": (
-            "SPACE revela um descendente; S guarda a planta atual."
-        ),
-        "Spend credits on progression": "Gaste creditos em progresso",
-        "Species": "Especies",
-        "STORE": "GUARDAR",
-        "Stored plant in slot {slot}.": "Planta guardada no espaco {slot}.",
-        "Stored plants and parent selection": (
-            "Plantas guardadas e selecao de pais"
-        ),
-        "The goal": "Objetivo",
-        "Unlocked {species}.": "{species} desbloqueado.",
-        "Unlocked greenhouse slot {slot}.": (
-            "Espaco {slot} da estufa desbloqueado."
-        ),
-        "Use 1/2 to reselect starting parents.": (
-            "Use 1/2 para escolher os pais iniciais."
-        ),
-        "Use contracts to learn how traits pass between generations.": (
-            "Use contratos para aprender como tracos passam entre geracoes."
-        ),
-        "Yellow smooth peas are requested first.": (
-            "Ervilhas amarelas lisas sao pedidas primeiro."
-        ),
-        "before the conveyor.": "antes da esteira.",
-        "green": "verde",
-        "smooth": "lisa",
-        "wrinkled": "rugosa",
-        "yellow": "amarela",
-    },
-}
+I18N_MARKERS = (
+    gettext_noop("Analyzer"),
+    gettext_noop("Analyzer upgrades reveal more data."),
+    gettext_noop("Analyzer is already maxed."),
+    gettext_noop("Analyzer L{level}"),
+    gettext_noop("Analyzer upgraded to level {level}."),
+    gettext_noop("Adds a {genes}-gene plant species."),
+    gettext_noop("All currently specified species are unlocked."),
+    gettext_noop("All specified species are unlocked."),
+    gettext_noop("Back to game"),
+    gettext_noop("Basic controls"),
+    gettext_noop("Choose an occupied garden slot."),
+    gettext_noop("Collection"),
+    gettext_noop("Contract complete. Claim reward."),
+    gettext_noop("Contract complete. +{reward} credits."),
+    gettext_noop("Contract match. {remaining} left."),
+    gettext_noop("Cost: {cost} credits."),
+    gettext_noop("Credits"),
+    gettext_noop("Deliver 3 yellow smooth peas"),
+    gettext_noop("Discarded plant from slot {slot}."),
+    gettext_noop("Discovered genetic records"),
+    gettext_noop("DONE"),
+    gettext_noop("Each cross shows the expected genetic combinations."),
+    gettext_noop("Founder genotypes cannot be discarded."),
+    gettext_noop("Garden"),
+    gettext_noop("Generating offspring..."),
+    gettext_noop("Genetic Analyzer is already fully upgraded."),
+    gettext_noop("Genotypes"),
+    gettext_noop("Genotypes found: {count}"),
+    gettext_noop("Generated offspring register here."),
+    gettext_noop("Greenhouse is already at maximum capacity."),
+    gettext_noop("Greenhouse is already maxed."),
+    gettext_noop("Greenhouse is full."),
+    gettext_noop("Greenhouse slot"),
+    gettext_noop("Hidden entries stay unknown."),
+    gettext_noop("How to play"),
+    gettext_noop("LOCK"),
+    gettext_noop("Locked"),
+    gettext_noop("Matches"),
+    gettext_noop("Max capacity"),
+    gettext_noop("Max level"),
+    gettext_noop("Mendel Pea unlocked."),
+    gettext_noop("Missing"),
+    gettext_noop("More slots let you store more offspring."),
+    gettext_noop("Mouse: click buttons and plant cards."),
+    gettext_noop("New discovery registered."),
+    gettext_noop("Next species unlock in shop."),
+    gettext_noop("No completed contract to claim."),
+    gettext_noop("No revealed plant to store."),
+    gettext_noop("Not enough credits."),
+    gettext_noop("Offspring revealed."),
+    gettext_noop("PARENT A"),
+    gettext_noop("PARENT B"),
+    gettext_noop("Phenotypes"),
+    gettext_noop("Phenotypes found: {count}"),
+    gettext_noop(
+        "Pick two parent plants, cross them, then inspect offspring."
+    ),
+    gettext_noop("Reward claimed. +{reward} credits. New contract ready."),
+    gettext_noop("Seed color + texture."),
+    gettext_noop("Select Parent A"),
+    gettext_noop("Select Parent B"),
+    gettext_noop("Select parents from the same species."),
+    gettext_noop("Select parents, then cross plants."),
+    gettext_noop("Select two stored parent plants."),
+    gettext_noop("Shop"),
+    gettext_noop("Slot {slot}"),
+    gettext_noop("SPACE reveals one offspring; S stores the latest plant."),
+    gettext_noop("Species"),
+    gettext_noop("Species found: {count}"),
+    gettext_noop("Spend credits on progression"),
+    gettext_noop("Stored plant in slot {slot}."),
+    gettext_noop("Stored plants and parent selection"),
+    gettext_noop("The goal"),
+    gettext_noop("Unlock {species}."),
+    gettext_noop("Unlock greenhouse slot {slot}."),
+    gettext_noop("Unlocked {species}."),
+    gettext_noop("Unlocked greenhouse slot {slot}."),
+    gettext_noop("Unlocks deeper genetic information."),
+    gettext_noop("Upgrade to level {level}: {name}."),
+    gettext_noop("Use 1/2 to reselect starting parents."),
+    gettext_noop(
+        "Use contracts to learn how traits pass between generations."
+    ),
+    gettext_noop("Yellow smooth peas are requested first."),
+    gettext_noop("green"),
+    gettext_noop("smooth"),
+    gettext_noop("wrinkled"),
+    gettext_noop("yellow"),
+    gettext_noop("{name} - discovered"),
+)
 
 
 @dataclass
@@ -286,6 +238,7 @@ class MainGameScene:
     ) -> None:
         self.state = state
         self.breeding = BreedingService(state)
+        self.greenhouse_service = GreenhouseService(state)
         self.background_image = background_image
         self.fonts = fonts
         self.cross_button_timer = 0
@@ -294,7 +247,9 @@ class MainGameScene:
         self._reveal_frames = {}
         self.intro_open = True
         self.settings_open = False
+        self.parent_picker_target: str | None = None
         self.settings = SettingsState()
+        set_language(self.settings.language)
         self.active_screen = SCREEN_MAIN
         self.collection_tab = "Species"
         self.selected_greenhouse_slot = 0
@@ -306,25 +261,20 @@ class MainGameScene:
         self._tick_button_timers()
         if self.intro_open:
             self._update_intro_panel()
-            return
-        if self.settings_open:
+        elif self.settings_open:
             self._update_settings_panel()
-            return
-
-        if self._update_top_navigation():
-            return
-
-        if self.active_screen == SCREEN_COLLECTION:
+        elif self.parent_picker_target is not None:
+            self._update_parent_picker()
+        elif self._update_top_navigation():
+            pass
+        elif self.active_screen == SCREEN_COLLECTION:
             self._update_collection_screen()
-            return
-        if self.active_screen == SCREEN_GARDEN:
+        elif self.active_screen == SCREEN_GARDEN:
             self._update_garden_screen()
-            return
-        if self.active_screen == SCREEN_SHOP:
+        elif self.active_screen == SCREEN_SHOP:
             self._update_shop_screen()
-            return
-
-        self._update_main_game()
+        else:
+            self._update_main_game()
 
     def _update_main_game(self) -> None:
         """Handle main crossbreeding screen controls."""
@@ -361,13 +311,11 @@ class MainGameScene:
 
         if clicked(PARENT_A_CARD) or pyxel.btnp(pyxel.KEY_1):
             self._play_sound(0)
-            self.state.selected_parent_a = 0
-            self.state.status_message = "Parent A selected from slot 1."
+            self.parent_picker_target = "a"
 
         if clicked(PARENT_B_CARD) or pyxel.btnp(pyxel.KEY_2):
             self._play_sound(0)
-            self.state.selected_parent_b = 1
-            self.state.status_message = "Parent B selected from slot 2."
+            self.parent_picker_target = "b"
 
         # Track when each plant index is revealed
         if not hasattr(self, "_reveal_frames"):
@@ -393,6 +341,8 @@ class MainGameScene:
             self._draw_main_game_screen()
         if self.intro_open:
             self._draw_intro_panel()
+        if self.parent_picker_target is not None:
+            self._draw_parent_picker()
         if self.settings_open:
             self._draw_settings_panel()
 
@@ -463,12 +413,21 @@ class MainGameScene:
             return
         if clicked(Rect(392, 183, 96, 22)):
             self._play_sound(0)
-            self.state.selected_parent_a = self.selected_greenhouse_slot
-            self.state.status_message = "Parent A selected from garden."
+            self.greenhouse_service.select_parent(
+                "a",
+                self.selected_greenhouse_slot,
+            )
         if clicked(Rect(392, 211, 96, 22)):
             self._play_sound(0)
-            self.state.selected_parent_b = self.selected_greenhouse_slot
-            self.state.status_message = "Parent B selected from garden."
+            self.greenhouse_service.select_parent(
+                "b",
+                self.selected_greenhouse_slot,
+            )
+        if clicked(GARDEN_DISCARD_BUTTON):
+            self._play_sound(4)
+            self.greenhouse_service.discard_plant(
+                self.selected_greenhouse_slot
+            )
 
     def _update_shop_screen(self) -> None:
         if clicked(SCENE_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
@@ -935,6 +894,13 @@ class MainGameScene:
             )
             draw_button(Rect(392, 183, 96, 22), self._t("PARENT A"))
             draw_button(Rect(392, 211, 96, 22), self._t("PARENT B"))
+            draw_button(
+                GARDEN_DISCARD_BUTTON,
+                self._t("DISCARD"),
+                enabled=self.state.greenhouse.can_discard(
+                    self.selected_greenhouse_slot,
+                ),
+            )
         self._draw_scene_back_button()
 
     def _draw_shop_screen(self) -> None:
@@ -977,6 +943,79 @@ class MainGameScene:
 
     def _draw_scene_back_button(self) -> None:
         draw_button(SCENE_BACK_BUTTON, self._t("BACK"))
+
+    def _update_parent_picker(self) -> None:
+        if clicked(PARENT_PICKER_CLOSE_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+            self._play_sound(0)
+            self.parent_picker_target = None
+            return
+
+        for index in range(self.state.greenhouse.capacity):
+            if clicked(self._parent_picker_slot_rect(index)):
+                self._play_sound(0)
+                target = self.parent_picker_target
+                if target in {"a", "b"}:
+                    self.greenhouse_service.select_parent(target, index)
+                    if self.state.greenhouse.plant_at(index) is not None:
+                        self.parent_picker_target = None
+                return
+
+    def _draw_parent_picker(self) -> None:
+        pyxel.dither(0.68)
+        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
+        pyxel.dither(1)
+
+        panel = Rect(88, 74, 496, 250)
+        draw_panel(panel)
+        title = (
+            "Select Parent A"
+            if self.parent_picker_target == "a"
+            else "Select Parent B"
+        )
+        draw_outlined_text(
+            116,
+            92,
+            self._t(title).upper(),
+            PyxelColor.ACCENT,
+            font=self._display_font,
+        )
+        pyxel.text(118, 112, self._t("Garden plants"), PyxelColor.UI_DARK)
+        for index in range(self.state.greenhouse.capacity):
+            self._draw_parent_picker_slot(index)
+        draw_button(PARENT_PICKER_CLOSE_BUTTON, self._t("BACK"))
+
+    def _draw_parent_picker_slot(self, index: int) -> None:
+        rect = self._parent_picker_slot_rect(index)
+        plant = self.state.greenhouse.plant_at(index)
+        selected = index in {
+            self.state.selected_parent_a,
+            self.state.selected_parent_b,
+        }
+        fill = PyxelColor.ACCENT if selected else PyxelColor.PARCHMENT
+        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
+        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
+        if plant is None:
+            pyxel.text(rect.x + 10, rect.y + 26, self._t("Empty slot"), 1)
+            return
+        self._draw_plant_preview(rect.x + 24, rect.y + 47, plant)
+        pyxel.text(rect.x + 48, rect.y + 8, plant.genotype, PyxelColor.UI_DARK)
+        pyxel.text(
+            rect.x + 48,
+            rect.y + 20,
+            self._trait(plant.phenotype.seed_color),
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            rect.x + 48,
+            rect.y + 31,
+            self._trait(plant.phenotype.seed_texture),
+            PyxelColor.UI_DARK,
+        )
+
+    def _parent_picker_slot_rect(self, index: int) -> Rect:
+        col = index % 5
+        row = index // 5
+        return Rect(112 + col * 90, 130 + row * 42, 82, 36)
 
     def _draw_greenhouse_slot(self, index: int) -> None:
         rect = self._greenhouse_slot_rect(index)
@@ -1047,29 +1086,37 @@ class MainGameScene:
         collection = self.state.collection
         if self.collection_tab == "Species":
             entries = sorted(collection.species)
-            return [f"{name} - discovered" for name in entries]
+            return [
+                self._t("{name} - discovered", name=name) for name in entries
+            ]
         if self.collection_tab == "Phenotypes":
             entries = sorted(collection.phenotypes)
-            return [f"{color} / {texture}" for color, texture in entries]
+            return [
+                f"{self._trait(color)} / {self._trait(texture)}"
+                for color, texture in entries
+            ]
         return sorted(collection.genotypes)
 
     def _collection_details(self, entries: list[str]) -> list[str]:
         if self.collection_tab == "Species":
             return [
-                "Mendel Pea unlocked.",
-                f"Species found: {len(self.state.collection.species)}",
-                "Next species unlock in shop.",
+                self._t("Mendel Pea unlocked."),
+                self._t(
+                    "Species found: {count}",
+                    count=len(self.state.collection.species),
+                ),
+                self._t("Next species unlock in shop."),
             ]
         if self.collection_tab == "Phenotypes":
             return [
-                f"Phenotypes found: {len(entries)}",
-                "Seed color + texture.",
-                "Hidden entries stay unknown.",
+                self._t("Phenotypes found: {count}", count=len(entries)),
+                self._t("Seed color + texture."),
+                self._t("Hidden entries stay unknown."),
             ]
         return [
-            f"Genotypes found: {len(entries)}",
-            "Generated offspring register here.",
-            "Analyzer upgrades reveal more data.",
+            self._t("Genotypes found: {count}", count=len(entries)),
+            self._t("Generated offspring register here."),
+            self._t("Analyzer upgrades reveal more data."),
         ]
 
     def _shop_card_data(self, item: str) -> tuple[str, str, str]:
@@ -1079,7 +1126,7 @@ class MainGameScene:
                 return ("Greenhouse slot", "Max capacity", "DONE")
             cost = GREENHOUSE_EXPANSION_COSTS[next_slot]
             return (
-                f"Slot {next_slot}",
+                self._t("Slot {slot}", slot=next_slot),
                 f"{cost} CR",
                 self._afford_label(cost),
             )
@@ -1089,7 +1136,7 @@ class MainGameScene:
                 return ("Analyzer", "Max level", "DONE")
             _name, cost = ANALYZER_UPGRADES[next_level]
             return (
-                f"Analyzer L{next_level}",
+                self._t("Analyzer L{level}", level=next_level),
                 f"{cost} CR",
                 self._afford_label(cost),
             )
@@ -1104,31 +1151,35 @@ class MainGameScene:
             next_slot = self.state.greenhouse.capacity + 1
             cost = GREENHOUSE_EXPANSION_COSTS.get(next_slot)
             if cost is None:
-                return ["Greenhouse is already at maximum capacity."]
+                return [self._t("Greenhouse is already at maximum capacity.")]
             return [
-                f"Unlock greenhouse slot {next_slot}.",
-                "More slots let you store more offspring.",
-                f"Cost: {cost} credits.",
+                self._t("Unlock greenhouse slot {slot}.", slot=next_slot),
+                self._t("More slots let you store more offspring."),
+                self._t("Cost: {cost} credits.", cost=cost),
             ]
         if self.selected_shop_item == "analyzer":
             next_level = self.state.analyzer_level + 1
             upgrade = ANALYZER_UPGRADES.get(next_level)
             if upgrade is None:
-                return ["Genetic Analyzer is already fully upgraded."]
+                return [self._t("Genetic Analyzer is already fully upgraded.")]
             name, cost = upgrade
             return [
-                f"Upgrade to level {next_level}: {name}.",
-                "Unlocks deeper genetic information.",
-                f"Cost: {cost} credits.",
+                self._t(
+                    "Upgrade to level {level}: {name}.",
+                    level=next_level,
+                    name=name,
+                ),
+                self._t("Unlocks deeper genetic information."),
+                self._t("Cost: {cost} credits.", cost=cost),
             ]
         species_name, data = self._next_species_unlock()
         if species_name is None or data is None:
-            return ["All currently specified species are unlocked."]
+            return [self._t("All currently specified species are unlocked.")]
         genes, cost = data
         return [
-            f"Unlock {species_name}.",
-            f"Adds a {genes}-gene plant species.",
-            f"Cost: {cost} credits.",
+            self._t("Unlock {species}.", species=species_name),
+            self._t("Adds a {genes}-gene plant species.", genes=genes),
+            self._t("Cost: {cost} credits.", cost=cost),
         ]
 
     def _buy_selected_shop_item(self) -> None:
@@ -1303,6 +1354,7 @@ class MainGameScene:
             self.settings.language = (
                 "en" if self.settings.language == "pt-BR" else "pt-BR"
             )
+            set_language(self.settings.language)
 
         if clicked(MUSIC_DOWN_BUTTON):
             self._play_sound(0)
@@ -1476,6 +1528,7 @@ class MainGameScene:
                 "reward",
             ),
             ("Stored plant in slot ", ".", "slot"),
+            ("Discarded plant from slot ", ".", "slot"),
             ("Unlocked greenhouse slot ", ".", "slot"),
             ("Analyzer upgraded to level ", ".", "level"),
         ]
@@ -1490,11 +1543,7 @@ class MainGameScene:
         return self._t(message)
 
     def _t(self, text: str, **kwargs: object) -> str:
-        catalog = TRANSLATIONS.get(self.settings.language, {})
-        translated = catalog.get(text, text)
-        if kwargs:
-            return translated.format(**kwargs)
-        return translated
+        return t(text, **kwargs)
 
     def _apply_audio_settings(self) -> None:
         for channel in MUSIC_CHANNELS:

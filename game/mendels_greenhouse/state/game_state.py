@@ -8,10 +8,8 @@ from mendels_greenhouse.core.contracts import (
     PhenotypeContract,
     create_tutorial_contract,
 )
-from mendels_greenhouse.core.genetics import Plant
+from mendels_greenhouse.core.genetics import SPECIES_MENDEL_PEA, Plant
 from mendels_greenhouse.core.greenhouse import Greenhouse
-
-SPECIES_MENDEL_PEA = "Mendel Pea"
 
 
 @dataclass

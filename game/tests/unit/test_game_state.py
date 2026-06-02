@@ -3,6 +3,7 @@
 from mendels_greenhouse.core.contracts import create_tutorial_contract
 from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.services.breeding_service import BreedingService
+from mendels_greenhouse.services.greenhouse_service import GreenhouseService
 from mendels_greenhouse.state.game_state import GameState
 
 
@@ -67,6 +68,36 @@ def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
     assert service.store_last_revealed()
 
     assert state.greenhouse.used_slots == 3
+
+
+def test_greenhouse_service_discards_only_non_protected_plants() -> None:
+    state = GameState.create_initial()
+    service = GreenhouseService(state)
+    state.greenhouse.store(Plant("AaBb"))
+
+    assert not service.discard_plant(0)
+    assert state.greenhouse.plant_at(0) == Plant("AABB")
+
+    assert service.discard_plant(2)
+    assert state.greenhouse.plant_at(2) is None
+
+
+def test_parent_selection_repairs_incompatible_other_species() -> None:
+    state = GameState.create_initial()
+    service = GreenhouseService(state)
+    state.greenhouse.slots = [
+        Plant("AABB", species="Mendel Pea"),
+        Plant("aabb", species="Mendel Pea"),
+        Plant("AABB", species="Snapdragon"),
+        Plant("AaBb", species="Snapdragon"),
+    ]
+    state.selected_parent_a = 0
+    state.selected_parent_b = 1
+
+    assert service.select_parent("a", 2)
+
+    assert state.selected_parent_a == 2
+    assert state.selected_parent_b == 3
 
 
 def test_completed_contract_requires_manual_reward_claim() -> None:

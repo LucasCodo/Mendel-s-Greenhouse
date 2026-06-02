@@ -22,6 +22,9 @@ class BreedingService:
         if parent_a is None or parent_b is None:
             self.state.status_message = "Select two stored parent plants."
             return False
+        if parent_a.species != parent_b.species:
+            self.state.status_message = "Select parents from the same species."
+            return False
 
         distribution = expected_distribution(parent_a, parent_b)
         self.state.current_batch = crossbreed(

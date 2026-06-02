@@ -127,6 +127,8 @@ def _reachable_phenotypes(greenhouse: Greenhouse) -> set[tuple[str, str]]:
     stored_plants = [plant for plant in greenhouse.slots if plant is not None]
     reachable: set[tuple[str, str]] = set()
     for parent_a, parent_b in combinations(stored_plants, 2):
+        if parent_a.species != parent_b.species:
+            continue
         distribution = expected_distribution(parent_a, parent_b)
         for genotype in distribution.genotype_counts:
             reachable.add(phenotype_key(Plant(genotype).phenotype))
