@@ -276,3 +276,18 @@ Keyboard support is still required for accessibility and power users. Every core
 Use Python 3.11 as the local development baseline. The project metadata should use `>=3.11,<4.0`. The first MVP screen set is Main Game, Greenhouse, Contracts, and Collection. Tutorial delivery happens through the first contract with minimal popups.
 
 Do not build a documentation site now; revisit GitHub Pages/MkDocs after the first release.
+
+## 2026-05-31: Specimen Generations And Knowledge Tree
+
+Collection specimen entries record lineage generation labels. Starting or
+directly acquired plants display as `P0`; offspring display as `F1`, `F2`, and
+later filial generations based on one more than the highest parent generation
+depth.
+
+Analyzer level 2 exposes allele breakdowns alongside genotype information.
+Analyzer level 3 may show the `9:3:3:1` ratio only for valid independently
+assorting, complete-dominance dihybrid crosses such as `AaBb x AaBb`.
+
+The Progression Screen is specified as a Knowledge Tree that stores learned
+concepts and shows concept details through hover, focus, or selection without
+revealing analyzer-locked information early.

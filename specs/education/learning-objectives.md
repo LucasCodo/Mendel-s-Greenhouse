@@ -28,6 +28,16 @@ When it appears: analyzer level 2.
 
 System that teaches it: genetic sequencing and genotypic contracts.
 
+## Allele
+
+How it appears: each gene is represented by two alleles, such as `A` and `a`,
+with one inherited from each parent.
+
+When it appears: analyzer level 2.
+
+System that teaches it: genetic analyzer allele breakdown, genotype inspection,
+and knowledge tree explanations.
+
 ## Phenotype
 
 How it appears: visible plant traits such as red flowers or broad leaves.
@@ -66,7 +76,27 @@ How it appears: multiple genes combine independently across offspring.
 
 When it appears: analyzer level 3 and multi-gene species.
 
-System that teaches it: probability predictions and multi-gene contracts.
+System that teaches it: probability predictions, multi-gene contracts, Punnett
+square summaries, and the knowledge tree.
+
+Key conditions:
+
+- The traits are controlled by different genes.
+- The genes assort independently.
+- Each parent contributes one allele per gene.
+- The expected `9:3:3:1` phenotype ratio applies to a complete-dominance
+  dihybrid cross such as `AaBb x AaBb`.
+
+## 9:3:3:1 Dihybrid Ratio
+
+How it appears: the analyzer groups the expected phenotypes of a valid
+independent dihybrid cross into four outcome classes with a `9:3:3:1` ratio.
+
+When it appears: analyzer level 3 after the player can inspect probabilities for
+two independently assorting genes.
+
+System that teaches it: probabilistic analyzer summaries, Scientific Customer
+contracts, breeding history, and the knowledge tree.
 
 ## Genetic Probability
 

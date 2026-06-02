@@ -7,6 +7,7 @@ from random import Random
 
 GENE_WIDTH = 2
 MVP_GENES = ("A", "B")
+SPECIES_MENDEL_PEA = "Mendel Pea"
 
 
 @dataclass(frozen=True)
@@ -22,6 +23,7 @@ class Plant:
     """A plant specimen represented by a genotype string."""
 
     genotype: str
+    species: str = SPECIES_MENDEL_PEA
 
     def __post_init__(self) -> None:
         validate_genotype(self.genotype)
@@ -34,6 +36,11 @@ class Plant:
             seed_color="yellow" if "A" in pairs["A"] else "green",
             seed_texture="smooth" if "B" in pairs["B"] else "wrinkled",
         )
+
+    @property
+    def is_protected_founder(self) -> bool:
+        """Return whether this plant is a non-discardable founder genotype."""
+        return self.genotype.isupper() or self.genotype.islower()
 
 
 @dataclass(frozen=True)
@@ -115,6 +122,10 @@ def expected_distribution(
     parent_b: Plant,
 ) -> CrossbreedingDistribution:
     """Calculate all expected offspring genotypes before shuffling."""
+    if parent_a.species != parent_b.species:
+        message = "Parents must belong to the same species."
+        raise ValueError(message)
+
     counts: Counter[str] = Counter()
     parent_a_gametes = gametes(parent_a)
     parent_b_gametes = gametes(parent_b)
@@ -145,7 +156,9 @@ def crossbreed(
     distribution = expected_distribution(parent_a, parent_b)
     genotypes = _expand_distribution(distribution, count)
     randomizer.shuffle(genotypes)
-    return [Plant(genotype) for genotype in genotypes]
+    return [
+        Plant(genotype, species=parent_a.species) for genotype in genotypes
+    ]
 
 
 def _expand_distribution(

@@ -20,7 +20,8 @@ Read the documents in this order:
 - Detailed gameplay rules stay in `specs/`.
 - Mechanics live in `specs/mechanics/`.
 - Game content lives in `specs/content/`.
-- Learning objectives live in `specs/education/`.
+- Learning objectives live in `specs/education/`; detailed learned-concept UI
+  behavior lives in `specs/ui/screens/knowledge-tree-screen.md`.
 - Detailed interface rules stay in `specs/ui/`.
 - Approved implementation direction lives in `specs/technical/`.
 - Localization rules live in `specs/technical/localization.md`.

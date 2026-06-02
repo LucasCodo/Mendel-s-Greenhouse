@@ -25,6 +25,25 @@ def test_pure_parent_cross_produces_only_double_heterozygotes() -> None:
     assert len(offspring) == 20
 
 
+def test_crossbreed_preserves_parent_species() -> None:
+    offspring = crossbreed(
+        Plant("AABB", species="Snapdragon"),
+        Plant("aabb", species="Snapdragon"),
+        count=1,
+        rng=Random(1),
+    )
+
+    assert offspring[0].species == "Snapdragon"
+
+
+def test_distribution_rejects_mismatched_parent_species() -> None:
+    with pytest.raises(ValueError, match="same species"):
+        expected_distribution(
+            Plant("AABB", species="Mendel Pea"),
+            Plant("aabb", species="Snapdragon"),
+        )
+
+
 def test_double_heterozygote_has_four_gamete_types() -> None:
     assert set(gametes(Plant("AaBb"))) == {"AB", "Ab", "aB", "ab"}
 
@@ -58,6 +77,17 @@ def test_phenotype_uses_recessive_trait_without_dominant_allele() -> None:
 
     assert phenotype.seed_color == "green"
     assert phenotype.seed_texture == "wrinkled"
+
+
+@pytest.mark.parametrize("genotype", ["AABB", "aabb"])
+def test_fully_dominant_and_recessive_founders_are_protected(
+    genotype: str,
+) -> None:
+    assert Plant(genotype).is_protected_founder
+
+
+def test_mixed_genotype_is_not_protected_founder() -> None:
+    assert not Plant("AaBb").is_protected_founder
 
 
 def test_combine_gametes_normalizes_uppercase_alleles_first() -> None:

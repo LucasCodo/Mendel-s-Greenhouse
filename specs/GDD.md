@@ -122,6 +122,10 @@ The collection records discovered species, phenotypes, and genotypes. It gives l
 
 The encyclopedia exposes discovered knowledge, observed frequencies, and crossbreeding history. It grows through exploration.
 
+The knowledge tree presents unlocked genetics concepts, including allele
+definitions, independent assortment conditions, and the `9:3:3:1` dihybrid
+ratio, using hover, focus, or selection details.
+
 ## Screens
 
 Minimum planned screens:
@@ -132,6 +136,7 @@ Minimum planned screens:
 - Genetic Analyzer Screen
 - Collection Screen
 - Progression Screen
+- Knowledge Tree Screen
 
 Detailed screen rules are defined in [SCREEN_SPEC.md](SCREEN_SPEC.md) and [ui/README.md](ui/README.md).
 

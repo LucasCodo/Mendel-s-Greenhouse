@@ -60,6 +60,32 @@ class Greenhouse:
         self.slots[index] = None
         return plant
 
+    def can_discard(self, index: int) -> bool:
+        """Return whether a plant can be discarded from a slot."""
+        plant = self.plant_at(index)
+        return plant is not None and not plant.is_protected_founder
+
+    def discard(self, index: int) -> Plant | None:
+        """Discard a plant when its genotype is not protected."""
+        if not self.can_discard(index):
+            return None
+        return self.remove(index)
+
+    def compatible_slot_indices(
+        self,
+        species: str,
+        *,
+        exclude: int | None = None,
+    ) -> list[int]:
+        """Return occupied slot indices containing the requested species."""
+        return [
+            index
+            for index, plant in enumerate(self.slots)
+            if plant is not None
+            and plant.species == species
+            and index != exclude
+        ]
+
     def expand(self) -> bool:
         """Add one storage slot until the maximum capacity is reached."""
         if self.capacity >= MAX_CAPACITY:

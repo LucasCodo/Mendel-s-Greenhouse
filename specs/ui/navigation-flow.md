@@ -15,6 +15,7 @@ Main Game Screen
 |- Contracts
 |- Shop
 |- Collection
+|- Knowledge Tree
 |- Genetic Analyzer
 |- Breeding History
 |- Greenhouse
@@ -29,6 +30,7 @@ flowchart TD
     Main["Main Game Screen"] --> Contracts["Contracts"]
     Main --> Shop["Shop"]
     Main --> Collection["Collection"]
+    Main --> Knowledge["Knowledge Tree"]
     Main --> Analyzer["Genetic Analyzer"]
     Main --> History["Breeding History"]
     Main --> Greenhouse["Greenhouse"]
@@ -37,6 +39,7 @@ flowchart TD
     Contracts --> Main
     Shop --> Main
     Collection --> Main
+    Knowledge --> Main
     Analyzer --> Main
     History --> Main
     Greenhouse --> Main
@@ -93,8 +96,19 @@ Collection
 -> Species
 -> Phenotypes
 -> Genotypes
+-> Specimens
 -> Entry Detail
 -> Back to Collection
+```
+
+## Knowledge Tree Flow
+
+```text
+Knowledge Tree
+-> Select Concept Node
+-> Read Explanation / Conditions / Example
+-> Related Specimen, Cross, or Contract
+-> Back to Knowledge Tree
 ```
 
 ## Shop Flow

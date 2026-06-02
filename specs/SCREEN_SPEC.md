@@ -8,6 +8,7 @@ Detailed screen requirements are defined in:
 - [ui/screens/contract-screen.md](ui/screens/contract-screen.md)
 - [ui/screens/genetic-analyzer-screen.md](ui/screens/genetic-analyzer-screen.md)
 - [ui/screens/collection-screen.md](ui/screens/collection-screen.md)
+- [ui/screens/knowledge-tree-screen.md](ui/screens/knowledge-tree-screen.md)
 - [ui/screens/greenhouse-screen.md](ui/screens/greenhouse-screen.md)
 - [ui/screens/breeding-history-screen.md](ui/screens/breeding-history-screen.md)
 - [ui/screens/shop-screen.md](ui/screens/shop-screen.md)

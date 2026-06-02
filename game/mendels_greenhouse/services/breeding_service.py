@@ -1,7 +1,8 @@
 """Application service for crossbreeding and offspring reveal."""
 
-from mendels_greenhouse.core.genetics import crossbreed
-from mendels_greenhouse.state.game_state import BATCH_SIZE, GameState
+from mendels_greenhouse.core.contracts import generate_next_contract
+from mendels_greenhouse.core.genetics import crossbreed, expected_distribution
+from mendels_greenhouse.state.game_state import GameState
 
 
 class BreedingService:
@@ -21,11 +22,15 @@ class BreedingService:
         if parent_a is None or parent_b is None:
             self.state.status_message = "Select two stored parent plants."
             return False
+        if parent_a.species != parent_b.species:
+            self.state.status_message = "Select parents from the same species."
+            return False
 
+        distribution = expected_distribution(parent_a, parent_b)
         self.state.current_batch = crossbreed(
             parent_a,
             parent_b,
-            count=BATCH_SIZE,
+            count=distribution.total_combinations,
             rng=self.state.rng,
         )
         self.state.visible_count = 0
@@ -44,13 +49,9 @@ class BreedingService:
 
         is_discovery = self.state.collection.register_plant(plant)
         delivered = self.state.active_contract.deliver(plant)
-        reward = self.state.active_contract.claim_reward()
-        self.state.credits += reward
 
-        if reward:
-            self.state.status_message = (
-                f"Contract complete. +{reward} credits."
-            )
+        if delivered and self.state.active_contract.completed:
+            self.state.status_message = "Contract complete. Claim reward."
         elif delivered:
             remaining = self.state.active_contract.remaining_count
             self.state.status_message = f"Contract match. {remaining} left."
@@ -59,6 +60,26 @@ class BreedingService:
         else:
             self.state.status_message = "Offspring revealed."
 
+        return True
+
+    def claim_contract_reward(self) -> bool:
+        """Claim a completed contract reward and generate the next contract."""
+        reward = self.state.active_contract.claim_reward()
+        if reward == 0:
+            self.state.status_message = "No completed contract to claim."
+            return False
+
+        self.state.credits += reward
+        self.state.completed_contracts += 1
+        self.state.active_contract = generate_next_contract(
+            analyzer_level=self.state.analyzer_level,
+            collection=self.state.collection,
+            greenhouse=self.state.greenhouse,
+            completed_contracts=self.state.completed_contracts,
+        )
+        self.state.status_message = (
+            f"Reward claimed. +{reward} credits. New contract ready."
+        )
         return True
 
     def store_last_revealed(self) -> bool:
