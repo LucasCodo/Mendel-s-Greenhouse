@@ -14,10 +14,19 @@ Relationships:
 - Has one Genotype.
 - Expresses one or more Phenotypes.
 - May occupy one GreenhouseSlot.
+- May reference parent Plants when produced through crossbreeding.
 
 Rules:
 
 - A plant can be stored, sold, delivered, inspected, or used as a parent.
+- A plant records generation depth, meaning the number of crossbreeding steps
+  needed to produce that specimen from a starting or directly acquired plant.
+- Starting or directly acquired plants use generation depth `0` and display as
+  `P0`.
+- Offspring generation depth is `max(parent_a.generation_depth,
+  parent_b.generation_depth) + 1`.
+- Offspring display generation depth as filial labels such as `F1`, `F2`, and
+  `F3`.
 
 ## Species
 
@@ -159,11 +168,15 @@ Responsibility: records permanent discovery state.
 Relationships:
 
 - May reference Species, Phenotype, or Genotype.
+- May reference a discovered Plant specimen record when preserving lineage
+  history.
 
 Rules:
 
 - Discovery persists after sale or delivery.
 - Rewards are granted once.
+- Specimen collection entries store the specimen generation label and generation
+  depth.
 
 ## CrossbreedingResult
 

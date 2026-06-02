@@ -220,6 +220,10 @@ Production UI should trend toward:
 - Avoid teaching full genetics concepts in tooltips.
 - Prefer one short sentence.
 
+Knowledge tree concept details are not tooltips for this rule. They may contain
+short educational explanations because they remain available through selection
+and focus.
+
 ### Modals
 
 - Use for confirmation, discoveries, rewards, and important unlocks.

@@ -154,9 +154,35 @@ States:
 Behavior:
 
 - Level 1: phenotype only.
-- Level 2: phenotype and genotype.
-- Level 3: simple probabilities.
+- Level 2: phenotype, genotype, and allele breakdown.
+- Level 3: simple probabilities, read-only Punnett square, and recognized ratio
+  summaries such as `9:3:3:1` when valid.
 - Level 4: full predictions and simulator outputs.
+
+## KnowledgeNode
+
+Purpose: show one learned genetics concept in the knowledge tree.
+
+Properties:
+
+- Concept name.
+- Unlock state.
+- Prerequisites.
+- Short explanation.
+- Optional related specimen, cross, contract, or collection entry.
+
+States:
+
+- Locked.
+- Available.
+- Newly learned.
+- Selected.
+
+Behavior:
+
+- Reveals details on hover, focus, or click selection.
+- Does not reveal information above the current analyzer level.
+- Uses localizable educational text.
 
 ## ConveyorBelt
 

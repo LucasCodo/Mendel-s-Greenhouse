@@ -9,7 +9,7 @@ The Main Game Screen is the central gameplay workspace. It must support contract
 Top:
 
 ```text
-Logo | Credits | Special Resource | Garden Capacity | Timer | Guide | Garden | Shop | Settings
+Logo | Credits | Special Resource | Garden Capacity | Timer | Guide | Knowledge | Garden | Shop | Settings
 ```
 
 The screen must be designed for the internal Pyxel resolution defined in [../../technical/pyxel.md](../../technical/pyxel.md), then scaled to fill the browser page.
@@ -60,7 +60,7 @@ Generation Stats | Last Generated Plant | Genetic Help | Conveyor Controls
 
 ```text
 +------------------------------------------------------------------------------------------------+
-| LOGO        Credits      Gems      Garden 12/20      Timer        Guide   Garden   Shop   Gear |
+| LOGO     Credits    Gems    Garden 12/20    Timer    Guide  Knowledge  Garden  Shop  Gear |
 +------------------------------------------------------------------------------------------------+
 | Probabilities     |        CURRENT CONTRACT: produce 6 purple flowers from 16 offspring       |
 | + pie + legend    |        [==================== 3 / 6 ====================] Total: 16       |
@@ -167,6 +167,6 @@ Only used if failure rules are later defined. If no failure rule exists, the sta
 ## Information Visibility
 
 - Analyzer level 1: phenotypes only.
-- Analyzer level 2: phenotypes and genotypes.
+- Analyzer level 2: phenotypes, genotypes, and allele breakdown.
 - Analyzer level 3: parent-pair probability preview available.
 - Analyzer level 4: simulator shortcut available.

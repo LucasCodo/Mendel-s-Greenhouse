@@ -59,6 +59,8 @@ Rules:
 - Requires probability analysis.
 - Assigned primarily to Scientific Customers.
 - Usually resolved as statistical contracts that validate a generated batch without consuming plants automatically.
+- Contracts that require the `9:3:3:1` ratio are valid only for independently
+  assorting two-gene, complete-dominance crosses such as `AaBb x AaBb`.
 
 ## Resolution Modes
 
@@ -114,6 +116,8 @@ A generated contract is valid only if:
 - The player has the analyzer level needed to verify completion.
 - At least one available or reasonably reachable parent combination can satisfy it.
 - The objective quantity is feasible within the current production and storage rules.
+- Ratio objectives such as `9:3:3:1` match the biological conditions documented
+  in [progression.md](progression.md).
 
 ## Impossibility Prevention
 

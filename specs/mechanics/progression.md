@@ -77,9 +77,11 @@ Unlocks:
 
 Teaches:
 
+- Alleles.
 - Genotype.
 - Homozygosity.
 - Heterozygosity.
+- Allele segregation.
 
 ### Level 3: Probabilistic Analysis
 
@@ -94,6 +96,18 @@ Teaches:
 - Independent assortment.
 - Expected distributions.
 - Genetic probability.
+- Canonical dihybrid ratios such as `9:3:3:1` when the selected cross satisfies
+  the biological conditions.
+
+The `9:3:3:1` phenotype ratio should be introduced only when all of these are
+true:
+
+- The species has at least two genes under analysis.
+- The analyzed traits are controlled by different genes.
+- The genes assort independently according to the content rules.
+- Both parents are heterozygous for the two analyzed genes, such as
+  `AaBb x AaBb`.
+- The phenotype rules use complete dominance for both genes.
 
 ### Level 4: Genetic Simulator
 
@@ -107,6 +121,37 @@ Unlocks:
 Teaches:
 
 - Genetic planning and efficient reasoning.
+
+## Knowledge Tree
+
+The Progression Screen includes a knowledge tree that records what the player
+has learned.
+
+Rules:
+
+- Knowledge nodes unlock from analyzer levels, discovered concepts, and relevant
+  contract milestones.
+- Hover, focus, or selection shows concise educational information for the node.
+- The same information must be reachable without hover for accessibility.
+- Nodes may reference examples from the player's own discovered specimens,
+  crosses, and collection entries.
+- The knowledge tree explains concepts but does not reveal locked genotype,
+  allele, or probability data before the relevant analyzer level.
+
+Initial knowledge nodes:
+
+- Phenotype.
+- Dominant allele.
+- Recessive allele.
+- Allele pair.
+- Genotype.
+- Homozygous.
+- Heterozygous.
+- Allele segregation.
+- Independent assortment.
+- `9:3:3:1` dihybrid ratio.
+- Genetic probability.
+- Genetic planning.
 
 ## Species
 

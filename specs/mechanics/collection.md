@@ -6,6 +6,34 @@ The collection records the player's discovered genetic knowledge and supports lo
 
 ## Collection Categories
 
+### Specimens
+
+Registers individual discovered or preserved plant specimens when the game needs
+to show lineage history for a concrete plant.
+
+Specimen entries should show:
+
+- Species identifier.
+- Phenotype summary.
+- Genotype when the analyzer level allows it.
+- Generation label, such as `P0`, `F1`, or `F2`.
+- Generation depth, meaning how many crossbreeding steps were required to obtain
+  the specimen.
+- Parent summary when known and useful.
+- Discovery status.
+
+Generation rules:
+
+- Starting or directly acquired plants are generation depth `0` and display as
+  `P0`.
+- Offspring produced by one cross from `P0` parents display as `F1`.
+- Offspring produced from a lineage that required two crossbreeding steps display
+  as `F2`.
+- For mixed-generation parents, offspring generation depth is one more than the
+  highest parent generation depth.
+- Generation labels are informational. They do not change genetic probability,
+  contract validity, phenotype expression, or genotype formation.
+
 ### Species
 
 Registers each unlocked species.
@@ -48,6 +76,9 @@ Rules:
 - Discovery remains registered even if the plant is sold or delivered.
 - Hidden entries should not reveal exact undiscovered details unless intentionally designed.
 - Discovery rewards are granted once.
+- The first specimen record for a discovered plant stores its generation label.
+- Later specimens with the same genotype may update observed lineage history but
+  do not grant duplicate genotype discovery rewards.
 
 ## Rewards
 

@@ -33,6 +33,7 @@ Shows:
 ```text
 Phenotype
 Genotype
+Allele breakdown
 ```
 
 Wireframe:
@@ -46,8 +47,19 @@ Wireframe:
 |                  | Broad Leaf        |
 +------------------+-------------------+
 | Genotype: AaBb                       |
+| Alleles: A/a controls seed color     |
+|          B/b controls seed texture   |
 +--------------------------------------+
 ```
+
+Level 2 allele information:
+
+- Show each gene as a pair of alleles.
+- Label dominant and recessive allele symbols when the related concept is
+  unlocked.
+- Explain that one allele in each pair came from each parent when parentage is
+  known.
+- Do not show probability forecasts until level 3.
 
 ## Level 3: Probabilistic Analysis
 
@@ -58,6 +70,7 @@ Phenotype
 Genotype
 Simple probabilities
 Read-only Punnett square
+Recognized ratio summaries
 ```
 
 Wireframe:
@@ -120,6 +133,9 @@ probability.
 - Each cell shows the normalized offspring genotype produced by combining the
   row and column gametes.
 - The result summary must aggregate matching cells into percentages.
+- When the selected cross satisfies the independent dihybrid conditions, show
+  the grouped phenotype ratio `9:3:3:1` and link it to the Independent
+  Assortment knowledge node.
 - For the MVP two-gene Mendel Pea scope, support up to a `4 x 4` grid when both
   parents can produce four gametes.
 - The grid must not allow editing, parent suggestions, or target optimization
