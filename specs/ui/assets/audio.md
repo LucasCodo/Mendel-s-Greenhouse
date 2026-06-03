@@ -55,7 +55,7 @@ Suggested instrumentation style:
 | Analyzer opens | soft electronic hum |
 | Probability revealed | light sequence of tones |
 | Invalid action | soft muted knock, not harsh |
-| Conveyor moving | quiet mechanical loop |
+| Germination bed reveal | soft soil, seed, and sprout accents |
 
 ## Pyxel Resource Requirements
 

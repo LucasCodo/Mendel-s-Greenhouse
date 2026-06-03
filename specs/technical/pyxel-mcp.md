@@ -59,7 +59,7 @@ Use the MCP server for these categories.
 Use for:
 
 - Main game screen visual checks.
-- Conveyor reveal flow.
+- Germination Bed reveal flow.
 - Fullscreen/page framing checks when available.
 - Regression screenshots after UI changes.
 
@@ -102,7 +102,7 @@ Use for:
 
 - Sound-effect sanity checks.
 - Loopable music checks.
-- Confirming discovery/reward/conveyor sounds are present and not silent.
+- Confirming discovery/reward/germination sounds are present and not silent.
 
 ## Required Workflow For Visual Changes
 
@@ -149,7 +149,7 @@ Required checks:
 
 - Sounds are not silent.
 - Reward/discovery sounds are short and readable.
-- Conveyor sounds do not become fatiguing.
+- Germination Bed reveal sounds do not become fatiguing.
 - Music loops cleanly.
 - Audio supports the cozy greenhouse/laboratory mood.
 

@@ -148,7 +148,7 @@ sprites. Use a non-zero outline color such as `SPRITE_OUTLINE` for visible pod
 and seed contours.
 
 Top navigation icons should be stored as 64 x 64 `.pyxres` sprites. HUD frames,
-panel backgrounds, button surfaces, and conveyor panel shapes should be
+panel backgrounds, button surfaces, and Germination Bed panel shapes should be
 generated in runtime code while the layout is still evolving.
 
 ## 2026-05-31: Punnett Square Analyzer Behavior
@@ -158,13 +158,29 @@ selected parent pairs, using the same gamete/genotype logic as breeding
 probabilities. Level 4 turns the Punnett square into an interactive simulator
 and comparison tool with target highlighting.
 
+## 2026-06-02: Germination Bed Replaces Conveyor
+
+The main offspring layout should abandon the industrial conveyor metaphor and
+use a Germination Bed. Generated offspring appear as planted cells with seed,
+seedling, and adult phenotype states. This better matches the greenhouse
+fantasy, makes Mendelian proportions readable as visual groups, supports direct
+specimen selection, and gives contracts a clear match-highlight surface.
+
+The Punnett square remains the analyzer explanation for why outcomes are
+possible. The Germination Bed shows the current or representative lot. The two
+views must use the same gamete/genotype logic, but the bed is not required to
+match Punnett cell positions.
+
 ## 2026-05-30: Premium Pixel-Art Interface Target
 
-The UI quality target is a polished pixel-art management screen with dense but readable information: logo plaque, resource counters, contract panel, parent cards, probability/legend panel, large genetic conveyor, bottom stats/help panels, and icon navigation.
+The UI quality target is a polished pixel-art management screen with dense but
+readable information: logo plaque, resource counters, contract panel, parent
+cards, probability/Punnett panel, large Germination Bed, bottom stats/help
+panels, and icon navigation.
 
 Use larger source sprites for important plant views:
 
-- Conveyor offspring: prefer `64 x 64`.
+- Germination Bed specimens: prefer `24 x 24` or `32 x 32`.
 - Parent card plants: prefer `96 x 96` or `128 x 128`.
 - Analyzer and discovery previews: prefer `128 x 128`, maximum `256 x 256`.
 
@@ -201,13 +217,6 @@ The Pyxel web game does not use wallet, Web3, or blockchain APIs. The generated
 Policy so browser wallet extension scripts such as MetaMask's in-page script
 cannot connect inside the game page. Keep `game/tools/harden_web_html.py` in
 the Docker build path and verify the game still loads after CSP changes.
-
-## 2026-05-31: Coolify CI/CD Gate
-
-Use GitHub Actions plus Coolify for the first VPS deployment path. CI runs game
-checks and a Docker Compose image build on pushes and pull requests. CD runs
-after successful `main` CI or manual dispatch and calls the Coolify deploy
-webhook using `COOLIFY_WEBHOOK` and `COOLIFY_TOKEN` GitHub secrets.
 
 ## 2026-05-30: Implementation Readiness
 
@@ -269,7 +278,9 @@ Production visual/audio resources belong in `game/mendels_greenhouse/assets/mend
 
 Mendel's Greenhouse is a mouse-first game.
 
-The player should be able to complete the main loop by clicking UI controls, plant cards, greenhouse slots, offspring, menus, and conveyor controls.
+The player should be able to complete the main loop by clicking UI controls,
+plant cards, greenhouse slots, Germination Bed specimens, menus, and bed
+controls.
 
 Keyboard support is still required for accessibility and power users. Every core mouse action must have a keyboard-reachable equivalent through focus, activation, shortcuts, or explicit controls.
 

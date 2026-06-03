@@ -4,21 +4,22 @@
 
 Animations make crossbreeding and feedback readable. They should support learning and pacing, not distract from plant information.
 
-## Conveyor Animation
+## Germination Bed Animation
 
 Intent:
 
-- Show offspring production as the center of gameplay.
+- Show offspring germination as the center of gameplay.
 
 Behavior:
 
-- Conveyor begins moving when crossbreeding starts.
-- Offspring cards enter in shuffled order.
-- Current offspring pauses briefly for readability.
+- Bed cells enter seeded state when crossbreeding starts.
+- Seeds grow into seedlings or adult phenotype sprites in a readable sequence.
+- Contract-matching cells receive a brief icon/outline pulse.
+- Selected specimens receive a persistent focus frame.
 
 Suggested duration:
 
-- 0.3 to 0.6 seconds per offspring reveal in normal speed.
+- 0.25 to 0.5 seconds per bed-cell reveal in normal speed.
 
 ## Plant Appearing
 
@@ -28,7 +29,7 @@ Intent:
 
 Behavior:
 
-- Small pop-in, grow-in, or tray-arrival motion.
+- Small pop-in, sprout, grow-in, or bloom motion.
 - Trait reveal happens after plant appears.
 
 Suggested duration:

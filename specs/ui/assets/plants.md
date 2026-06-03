@@ -2,14 +2,15 @@
 
 ## Purpose
 
-Plant assets must make genetic phenotypes visually readable at small sizes and during conveyor movement.
+Plant assets must make genetic phenotypes visually readable at small sizes in
+plant cards and Germination Bed cells.
 
 ## Global Rules
 
 - Phenotypes must be recognizable without text.
 - Each gene maps to a clear visual feature.
 - Visual priority favors contract-relevant traits.
-- Plant silhouettes must stay readable in `PlantCard` and conveyor states.
+- Plant silhouettes must stay readable in `PlantCard` and Germination Bed states.
 
 ## Gene Visual Mapping
 
@@ -35,6 +36,11 @@ Required plant variants:
 - Yellow seed + wrinkled seed.
 - Green seed + smooth seed.
 - Green seed + wrinkled seed.
+
+Reference images:
+
+- [references/plants/mendel-pea/README.md](references/plants/mendel-pea/README.md)
+- [references/plants/mendel-pea/mendel-pea-variants-sheet.png](references/plants/mendel-pea/mendel-pea-variants-sheet.png)
 
 MVP Mendel Pea assets should be shown as vertical or diagonal pea pods, not as
 a horizontal pod, full plant, or plant in a pot. The pod remains green across
@@ -131,7 +137,7 @@ Each plant visual may need:
 | Context | Requirement |
 | ------- | ----------- |
 | PlantCard | Trait readable at small card size |
-| Conveyor | Trait readable while moving |
+| Germination Bed | Trait readable in grid cells |
 | Analyzer | Larger view for inspection |
 | Collection | Clean reference pose |
 
@@ -139,14 +145,17 @@ Each plant visual may need:
 
 | Plant Asset Use | Minimum | Preferred | Maximum |
 | --------------- | ------: | --------: | ------: |
-| Conveyor offspring | 48 x 48 | 64 x 64 | 128 x 128 |
+| Germination Bed specimen | 16 x 16 | 24 x 24 or 32 x 32 | 64 x 64 |
 | PlantCard sprite | 64 x 64 | 96 x 96 or 128 x 128 | 256 x 256 |
 | Analyzer preview | 96 x 96 | 128 x 128 | 256 x 256 |
 | Discovery popup | 96 x 96 | 128 x 128 | 256 x 256 |
 
 Use higher-resolution pixel art when phenotype readability improves.
 
-The visual target is polished pixel art rather than minimal retro placeholders. Parent cards and analyzer views should use larger sprites than conveyor items so flower color, stem height, leaf shape, and pot silhouette are obvious without text.
+The visual target is polished pixel art rather than minimal retro placeholders.
+Parent cards and analyzer views should use larger sprites than Germination Bed
+items so flower color, stem height, leaf shape, and pot silhouette are obvious
+without text.
 
 ## Prohibited Ambiguity
 

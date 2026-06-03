@@ -1399,7 +1399,7 @@ class MainGameScene:
         pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
         pyxel.dither(1)
 
-        panel = Rect(160, 70, 320, 242)
+        panel = Rect(100, 70, 440, 242)
         draw_panel(panel)
         draw_outlined_text(
             254,

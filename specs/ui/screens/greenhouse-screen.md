@@ -2,7 +2,11 @@
 
 ## Purpose
 
-The Greenhouse Screen manages stored plants and slot pressure.
+The Greenhouse Screen, shown to players as the Garden Scene, manages stored
+plants, parent selection, analysis, discard decisions, and slot pressure.
+
+Detailed scene decomposition and the official visual target live in
+[../scenes/garden/README.md](../scenes/garden/README.md).
 
 ## Capacity
 

@@ -184,29 +184,66 @@ Behavior:
 - Does not reveal information above the current analyzer level.
 - Uses localizable educational text.
 
-## ConveyorBelt
+## GerminationBed
 
-Purpose: display offspring generation.
+Purpose: display an offspring lot as planted specimens in a greenhouse bed.
 
 Properties:
 
-- Offspring queue.
-- Current offspring.
+- Offspring lot.
+- Bed dimensions.
+- Selected specimen.
+- Contract-match highlights.
+- Optional Punnett outcome group highlights.
 - Generation status.
-- Speed state.
+- Growth/reveal state.
 
 States:
 
 - Idle.
-- Crossbreeding.
-- Revealing offspring.
-- Paused.
+- Seeded.
+- Germinating.
+- Revealed.
+- Specimen selected.
 - Complete.
 
 Behavior:
 
-- Shows offspring in shuffled order.
+- Shows offspring as a readable grid of pots, seedlings, or adult plants.
+- Uses representative cell counts for the active cross when the full batch would
+  add visual noise.
+- Supports `4 x 4` and similar beds when proportions such as 75% / 25% or
+  `9:3:3:1` need to be visually legible.
+- Highlights contract-matching specimens with icon and outline, not color alone.
+- Selecting a specimen opens detail actions such as wait, store, sell, deliver,
+  or discard.
 - Triggers discovery and contract feedback.
+
+## PunnettSummary
+
+Purpose: bridge the analyzer's Punnett square and the Germination Bed.
+
+Properties:
+
+- Parent gametes.
+- Outcome cells.
+- Aggregated phenotype or genotype groups.
+- Probability labels when analyzer level allows them.
+- Highlighted group from selected bed specimen or contract target.
+
+States:
+
+- Hidden by analyzer level.
+- Compact read-only summary.
+- Expanded analyzer link.
+- Highlighted outcome group.
+
+Behavior:
+
+- Uses the same gamete/genotype logic as crossbreeding.
+- Does not imply the bed is a cell-for-cell Punnett square.
+- At level 3, may show compact expected probabilities beside the bed.
+- At level 4, may link into simulator comparison.
 
 ## RewardPopup
 

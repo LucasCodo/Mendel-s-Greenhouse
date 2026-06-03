@@ -139,7 +139,7 @@ Players should be able to complete the core loop by pointing and clicking:
 - Inspect offspring.
 - Store, sell, or deliver plants.
 - Navigate to contracts, greenhouse, analyzer, collection, shop, and settings.
-- Adjust conveyor speed.
+- Select Germination Bed specimens and control bed reveal/clear actions.
 - Confirm or cancel modal actions.
 
 Keyboard support is required as an alternative input path, not as the primary UX assumption.
@@ -170,7 +170,10 @@ Display requirements:
 - A fullscreen action is available from the game UI.
 - UI must remain readable at the internal resolution before browser scaling.
 - UI must fit both English and Brazilian Portuguese labels.
-- The main game screen should support a premium pixel-art management layout with a persistent top bar, central contract panel, parent cards, probability/legend support, large conveyor, and bottom information panels.
+- The main game screen should support a premium pixel-art management layout with
+  a persistent top bar, central contract panel, parent cards,
+  probability/Punnett support, a large Germination Bed, and bottom information
+  panels.
 
 The old `256 x 144` target is no longer sufficient for the desired interface density.
 

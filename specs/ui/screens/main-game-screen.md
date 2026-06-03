@@ -2,7 +2,12 @@
 
 ## Purpose
 
-The Main Game Screen is the central gameplay workspace. It must support contract tracking, parent selection, crossbreeding, offspring observation, and immediate plant decisions.
+The Main Game Screen is the central gameplay workspace. It must support contract
+tracking, parent selection, crossbreeding, offspring observation in the
+Germination Bed, and immediate plant decisions.
+
+Detailed scene decomposition and the official visual target live in
+[../scenes/main-game/README.md](../scenes/main-game/README.md).
 
 ## Layout
 
@@ -35,7 +40,7 @@ Center bottom:
 Main area:
 
 ```text
-Genetic Conveyor
+Germination Bed
 ```
 
 Left side support:
@@ -53,7 +58,7 @@ Trait explanation card
 Footer:
 
 ```text
-Generation Stats | Last Generated Plant | Genetic Help | Conveyor Controls
+Generation Stats | Selected Specimen | Genetic Help | Bed Controls
 ```
 
 ## ASCII Wireframe
@@ -70,10 +75,12 @@ Generation Stats | Last Generated Plant | Genetic Help | Conveyor Controls
 |                   |   [traits visible]                           [traits visible]            |
 |                   |                         [ CROSS PLANTS ]                                  |
 +------------------------------------------------------------------------------------------------+
-|                              GENETIC CONVEYOR / OFFSPRING BATCH                                |
-| [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant] [plant]         |
+|                              GERMINATION BED / OFFSPRING LOT                                    |
+|       [pot][pot][pot][pot]       Compact Punnett / distribution reference                       |
+|       [spr][spr][flw][spr]       Contract matches highlighted with icon + outline               |
+|       [pot][pot][pot][pot]                                                                    |
 +------------------------------------------------------------------------------------------------+
-| Generation Stats        | Last Generated Plant         | How It Works                 | Cancel / Speed |
+| Generation Stats        | Selected Specimen            | How It Works                 | Wait / Clear    |
 +------------------------------------------------------------------------------------------------+
 ```
 
@@ -81,9 +88,9 @@ Generation Stats | Last Generated Plant | Genetic Help | Conveyor Controls
 
 1. Crossbreeding starts.
 2. Offspring batch is generated.
-3. Offspring appear on the conveyor in shuffled order.
-4. Phenotype is revealed.
-5. Contract progress updates if the offspring matches.
+3. Seeds appear in the Germination Bed.
+4. A short growth animation reveals seedlings or adult phenotype sprites.
+5. Contract progress updates for matching bed specimens.
 6. Visual feedback confirms match, discovery, or invalid delivery.
 7. Rewards appear when contract or discovery criteria are met.
 
@@ -95,13 +102,14 @@ Expected mouse interactions:
 
 - Click parent slots or plant cards to select parents.
 - Click `Crossbreed` to start the cross.
-- Click offspring or the latest plant panel to inspect details.
+- Click a bed specimen or the selected specimen panel to inspect details.
 - Click store, sell, deliver, cancel, and speed controls.
 - Click top navigation icons to move between major screens.
 
 Keyboard support is required as an alternative:
 
-- Focus can move through top navigation, parent slots, the crossbreed button, conveyor controls, and bottom-panel actions.
+- Focus can move through top navigation, parent slots, the crossbreed button,
+  bed cells, bed controls, and bottom-panel actions.
 - Focused controls can be activated from the keyboard.
 - Cancel/back behavior must be keyboard reachable.
 - Repeated reveal/advance actions may have shortcuts, but those shortcuts must mirror visible controls.
@@ -117,13 +125,14 @@ Keyboard support is required as an alternative:
 ### Crossbreeding
 
 - Parent slots locked.
-- Conveyor animation starts.
+- Germination Bed enters seeded state.
 - Crossbreed button becomes disabled or changes to current status.
 
 ### Revealing Offspring
 
-- Offspring enter the conveyor one by one.
-- Newly visible traits animate lightly.
+- Bed cells reveal seedlings or adult phenotype sprites in a readable sequence.
+- Newly visible traits animate lightly through grow-in, bloom, or highlight
+  states.
 - New discoveries trigger a non-destructive overlay.
 
 ### Contract Complete
@@ -146,7 +155,8 @@ Only used if failure rules are later defined. If no failure rule exists, the sta
 
 - `PlantCard`
 - `ContractCard` compact variant
-- `ConveyorBelt`
+- `GerminationBed`
+- `PunnettSummary`
 - `TraitBadge`
 - `GenotypeLabel`
 - `RewardPopup`
@@ -154,7 +164,7 @@ Only used if failure rules are later defined. If no failure rule exists, the sta
 - `ProbabilityPanel`
 - `ResourceCounter`
 - `NavigationIconButton`
-- `ConveyorControls`
+- `BedControls`
 
 ## Browser Display
 

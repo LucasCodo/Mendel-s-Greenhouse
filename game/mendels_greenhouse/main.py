@@ -6,6 +6,7 @@ import pyxel
 
 from mendels_greenhouse.scenes.base import SceneManager
 from mendels_greenhouse.scenes.main_game import HEIGHT, WIDTH, MainGameScene
+from mendels_greenhouse.services.music import init_music
 from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.fonts import FontSet
 from mendels_greenhouse.ui.palette import apply_project_palette
@@ -59,6 +60,7 @@ class Game:
         pyxres_path = assets_dir / "mendels_greenhouse.pyxres"
         if pyxres_path.exists():
             pyxel.load(str(pyxres_path))
+        init_music()
 
     def _load_background_image(self) -> pyxel.Image | None:
         background_path = self.assets_dir / "greenhouse_background_640x360.png"

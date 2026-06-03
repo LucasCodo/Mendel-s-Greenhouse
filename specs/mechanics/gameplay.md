@@ -65,11 +65,30 @@ Rules:
 - Offspring display order must be shuffled.
 - Shuffled display order must not reveal probability order.
 
-## Production Conveyor
+## Germination Bed
 
-The production conveyor displays generated offspring one at a time or in a readable sequence.
+The Germination Bed displays the generated offspring batch as a readable
+planting grid instead of an industrial production conveyor.
 
-It should show only information unlocked by the current analyzer level.
+The bed reinforces the greenhouse fantasy, makes Mendelian proportions visible
+as spatial patterns, and gives each offspring a concrete specimen slot the
+player can inspect.
+
+Rules:
+
+- Each visible bed cell represents one generated offspring specimen.
+- The bed should use a representative grid for the active cross instead of an
+  arbitrary fixed visual count.
+- For simple equal-probability crosses, the visual bed may show one specimen per
+  distinct expected outcome.
+- For percentage-based contracts, the bed may expand to enough cells to make the
+  target proportion readable, such as a `4 x 4` bed for 75% / 25% patterns.
+- Offspring display order may still be shuffled, but the final bed must preserve
+  the generated batch contents and contract validation data.
+- Contract-matching plants should receive a clear non-color-only highlight.
+- The player can select a bed cell to inspect, store, sell, deliver, wait, or
+  discard the specimen according to the current rules.
+- The bed should show only information unlocked by the current analyzer level.
 
 Examples:
 
@@ -77,6 +96,27 @@ Examples:
 - Level 2: full genotypes may be inspected.
 - Level 3: expected probabilities may be shown for selected crosses.
 - Level 4: simulated results may be previewed before spending the cross.
+
+### Punnett Square Relationship
+
+The Genetic Analyzer's Punnett square and the Germination Bed must use the same
+gamete and genotype calculation source.
+
+The Punnett square explains why the outcomes are possible; the Germination Bed
+shows what the current lot produced or represents.
+
+Rules:
+
+- At analyzer level 3, the main screen may show a compact read-only Punnett
+  summary beside the bed.
+- Punnett cells should aggregate into phenotype/genotype groups that map to bed
+  highlights and legends.
+- A bed cell is not required to occupy the same position as a Punnett cell. The
+  bed is a garden layout, not a genetics matrix.
+- When the generated or representative bed is shuffled, the Punnett summary
+  remains the stable explanatory reference.
+- Selecting a bed specimen may highlight the corresponding Punnett outcome group
+  when that information is unlocked.
 
 ## Contract Resolution
 
