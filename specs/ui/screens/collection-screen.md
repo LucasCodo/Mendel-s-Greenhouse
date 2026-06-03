@@ -4,6 +4,9 @@
 
 The Collection Screen is the genetic Pokedex of Mendel's Greenhouse.
 
+Detailed scene decomposition and the official visual target live in
+[../scenes/collection/README.md](../scenes/collection/README.md).
+
 ## Layout
 
 ```text

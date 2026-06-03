@@ -17,24 +17,37 @@ Use these documents with the gameplay specs:
 4. [component-library.md](component-library.md)
 5. [accessibility.md](accessibility.md)
 6. [asset-generation-guide.md](asset-generation-guide.md)
-7. [screens/main-game-screen.md](screens/main-game-screen.md)
-8. [screens/contract-screen.md](screens/contract-screen.md)
-9. [screens/genetic-analyzer-screen.md](screens/genetic-analyzer-screen.md)
-10. [screens/greenhouse-screen.md](screens/greenhouse-screen.md)
-11. [screens/collection-screen.md](screens/collection-screen.md)
-12. [screens/knowledge-tree-screen.md](screens/knowledge-tree-screen.md)
-13. [screens/breeding-history-screen.md](screens/breeding-history-screen.md)
-14. [screens/shop-screen.md](screens/shop-screen.md)
-15. [screens/tutorial-screen.md](screens/tutorial-screen.md)
-16. [screens/settings-screen.md](screens/settings-screen.md)
-17. [screens/game-overlays.md](screens/game-overlays.md)
-18. [assets/plants.md](assets/plants.md)
-19. [assets/ui-elements.md](assets/ui-elements.md)
-20. [assets/icons.md](assets/icons.md)
-21. [assets/backgrounds.md](assets/backgrounds.md)
-22. [assets/animations.md](assets/animations.md)
-23. [assets/visual-effects.md](assets/visual-effects.md)
-24. [assets/audio.md](assets/audio.md)
+7. [scenes/README.md](scenes/README.md)
+8. [screens/main-game-screen.md](screens/main-game-screen.md)
+9. [screens/contract-screen.md](screens/contract-screen.md)
+10. [screens/genetic-analyzer-screen.md](screens/genetic-analyzer-screen.md)
+11. [screens/greenhouse-screen.md](screens/greenhouse-screen.md)
+12. [screens/collection-screen.md](screens/collection-screen.md)
+13. [screens/knowledge-tree-screen.md](screens/knowledge-tree-screen.md)
+14. [screens/breeding-history-screen.md](screens/breeding-history-screen.md)
+15. [screens/shop-screen.md](screens/shop-screen.md)
+16. [screens/tutorial-screen.md](screens/tutorial-screen.md)
+17. [screens/settings-screen.md](screens/settings-screen.md)
+18. [screens/game-overlays.md](screens/game-overlays.md)
+19. [assets/plants.md](assets/plants.md)
+20. [assets/ui-elements.md](assets/ui-elements.md)
+21. [assets/icons.md](assets/icons.md)
+22. [assets/backgrounds.md](assets/backgrounds.md)
+23. [assets/animations.md](assets/animations.md)
+24. [assets/visual-effects.md](assets/visual-effects.md)
+25. [assets/audio.md](assets/audio.md)
+
+## Scene Wiki
+
+Detailed Obsidian-friendly scene decomposition lives in
+[scenes/README.md](scenes/README.md). Use it to break reference images into
+implementation-sized components without bloating the formal screen specs.
+
+Current scene targets:
+
+- [scenes/main-game/visual-target.md](scenes/main-game/visual-target.md)
+- [scenes/garden/visual-target.md](scenes/garden/visual-target.md)
+- [scenes/collection/visual-target.md](scenes/collection/visual-target.md)
 
 ## Implementation Rule
 
