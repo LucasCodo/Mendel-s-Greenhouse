@@ -44,7 +44,8 @@ Height:
 - Tall
 ```
 
-The visual difference must be obvious in small UI cards and in the production conveyor.
+The visual difference must be obvious in small UI cards and in Germination Bed
+cells.
 
 ## Asset Prompt Pattern
 
@@ -98,7 +99,7 @@ Asset sizes must be large enough for the game to look polished while staying com
 | ---------- | ------: | --------: | ------: |
 | Small icons | 16 x 16 | 16 x 16 or 32 x 32 | 64 x 64 |
 | UI icons | 16 x 16 | 32 x 32 or 48 x 48 | 64 x 64 |
-| Conveyor plant sprites | 48 x 48 | 64 x 64 | 128 x 128 |
+| Germination Bed specimen sprites | 16 x 16 | 24 x 24 or 32 x 32 | 64 x 64 |
 | Parent card plant sprites | 64 x 64 | 96 x 96 or 128 x 128 | 256 x 256 |
 | Analyzer plant preview | 96 x 96 | 128 x 128 | 256 x 256 |
 | Discovery popup plant | 96 x 96 | 128 x 128 | 256 x 256 |
@@ -132,7 +133,7 @@ Audio assets are defined in [assets/audio.md](assets/audio.md).
 Use Pyxel sound/music resources for:
 
 - UI clicks.
-- Conveyor movement.
+- Germination Bed growth/reveal.
 - Offspring reveal.
 - Contract progress.
 - Discoveries.

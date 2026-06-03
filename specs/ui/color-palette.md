@@ -95,7 +95,7 @@ would become ambiguous with the core palette.
 | 24 | Tomato Orange | `#D88B3A` | Tomato fruit transition |
 | 25 | Tomato Red Bright | `#D94B6A` | Tomato fruit dominant color |
 | 26 | Soil Dark | `#3A2A20` | Soil, pot interior |
-| 27 | Metal Dark | `#334155` | Conveyor body, machine panels |
+| 27 | Metal Dark | `#334155` | Analyzer frames, restrained lab hardware |
 | 28 | Metal Light | `#9CA3AF` | Bolts, rails, mechanical highlights |
 | 29 | Rare Gem | `#A35CFF` | Premium/rare resource |
 | 30 | Success Lime | `#6BCB77` | Contract success, completion tick |

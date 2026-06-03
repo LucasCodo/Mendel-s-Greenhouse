@@ -47,12 +47,14 @@ Backlog for the first playable implementation of Mendel's Greenhouse.
 
 - [x] Add `.pyxres` placeholder assets under `game/mendels_greenhouse/assets/`.
 - [x] Create the greenhouse background composition for the `640 x 360` main screen.
-- [x] Create initial framed UI pieces for logo, buttons, icons, and conveyor.
-- [x] Create 64 x 64 conveyor plant sprites for MVP phenotypes.
+- [x] Create initial framed UI pieces for logo, buttons, icons, and the former
+  conveyor prototype.
+- [x] Create 64 x 64 former conveyor plant sprites for MVP phenotypes.
 - [x] Create initial parent-card plant sprites for MVP phenotypes.
 - [x] Fix atlas overlap between 64 x 64 plant sprites and UI icons.
 - [x] Add click animation states to MVP buttons.
-- [x] Add automatic conveyor reveal/scroll animation.
+- [x] Add automatic former conveyor reveal/scroll animation.
+- [ ] Replace the former conveyor layout with the Germination Bed layout.
 - [ ] Regenerate and commit `poetry.lock` when dependency resolution is stable.
 - [ ] Configure the active MCP client to expose `pyxel-mcp` tools to Codex sessions.
 - [ ] Use `pyxel-mcp` to inspect image banks after adding production sprites.

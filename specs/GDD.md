@@ -42,7 +42,7 @@ The first playable prototype validates the core loop:
 1. The player has two parent plants.
 2. The player selects two plants for crossbreeding.
 3. One offspring batch is generated.
-4. Offspring appear on the production conveyor.
+4. Offspring germinate in the Germination Bed.
 5. The player sees produced phenotypes.
 6. The system automatically checks contract progress.
 7. The player receives rewards.
@@ -65,7 +65,7 @@ The MVP objective is to teach the Second Law of Mendel without introducing exces
 1. Accept a contract.
 2. Select parent plants.
 3. Perform a crossbreeding process.
-4. Observe offspring on the production conveyor.
+4. Observe offspring in the Germination Bed.
 5. Analyze results.
 6. Store useful specimens.
 7. Deliver valid plants or validate statistical goals.

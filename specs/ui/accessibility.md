@@ -36,7 +36,8 @@ Mendel's Greenhouse should be readable, teachable, and playable by a broad audie
 Mouse:
 
 - Primary input for normal play.
-- Used for selecting plants, buttons, tabs, cards, slots, and conveyor controls.
+- Used for selecting plants, buttons, tabs, cards, slots, bed cells, and bed
+  controls.
 - Hover may reveal tooltips, but the same information must be available through click/selection or focus.
 
 Keyboard:

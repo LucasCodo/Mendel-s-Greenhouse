@@ -44,7 +44,7 @@ The first playable prototype validates the main loop:
 1. The player has two parent plants.
 2. The player selects two plants for crossbreeding.
 3. One offspring batch is generated.
-4. Offspring appear on the production conveyor.
+4. Offspring germinate in the Germination Bed.
 5. The player sees produced phenotypes.
 6. The system automatically checks contract progress.
 7. The player receives rewards.

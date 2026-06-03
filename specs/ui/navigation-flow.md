@@ -56,7 +56,7 @@ Contracts
 -> Select Parent A
 -> Select Parent B
 -> Start Crossbreeding
--> Production Conveyor
+-> Germination Bed
 -> Inspect Offspring
 -> Store, Sell, or Deliver
 -> Reward / Discovery / Upgrade
@@ -67,7 +67,7 @@ Contracts
 flowchart LR
     A["Accept Contract"] --> B["Select Parents"]
     B --> C["Crossbreed"]
-    C --> D["Conveyor Output"]
+    C --> D["Germination Bed"]
     D --> E["Inspect Results"]
     E --> F{"Use Result?"}
     F -->|Store| G["Greenhouse"]

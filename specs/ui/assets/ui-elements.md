@@ -9,7 +9,9 @@ This document lists reusable UI art assets and layout elements required for the 
 | Plant card frame | Holds plant data | normal, selected, reserved, deliverable, locked |
 | Contract panel | Shows contract objective | phenotypic, genotypic, probabilistic |
 | Analyzer panel | Displays genetic data | level 1, level 2, level 3, level 4 |
-| Conveyor belt | Shows offspring generation | idle, moving, paused |
+| Germination bed | Shows offspring lot | empty, seeded, germinating, revealed, selected |
+| Pot cell | Holds one offspring specimen | empty, seed, seedling, adult, matched, selected |
+| Punnett summary panel | Explains expected outcome groups | hidden, compact, highlighted |
 | Greenhouse slot | Stores plants | empty, occupied, locked, highlighted |
 | Progress bar | Shows completion | contract, collection, upgrade |
 | Reward popup frame | Displays rewards | small, large |
@@ -54,9 +56,11 @@ Required high-polish UI asset groups:
 | Contract panel | Runtime generated | Parchment surface, progress bar area |
 | Parent panel | 128 x 96 | Plant preview plus trait fields |
 | Probability panel | 96 x 128 | Pie chart and allele legend |
-| Conveyor body | Runtime generated | Metal belt with modular ends |
+| Germination bed frame | Runtime generated | Soil, wooden/terracotta border, grid cells |
+| Pot sprites | 16 x 16 or 24 x 24 | Seed, seedling, adult plant slot states |
+| Punnett summary panel | Runtime generated | Compact grid plus grouped legend |
 | Bottom info panel | Runtime generated | Stats, last plant, help |
-| Speed controls | 96 x 64 | Pause, play, fast-forward |
+| Bed controls | 96 x 64 | Wait, clear, next result, batch actions |
 
 ## Style Rules
 

@@ -71,7 +71,10 @@ Recommended internal game resolution:
 640 x 360
 ```
 
-This gives a widescreen 16:9 canvas with enough logical space for a high-quality management-game interface: persistent resource bar, contract panel, parent cards, analyzer/probability panels, a large conveyor, and bottom information panels.
+This gives a widescreen 16:9 canvas with enough logical space for a
+high-quality management-game interface: persistent resource bar, contract
+panel, parent cards, analyzer/probability panels, a large Germination Bed, and
+bottom information panels.
 
 The earlier `256 x 144` target is too constrained for the intended visual quality and should only be used for tiny prototypes or isolated UI tests.
 
@@ -93,7 +96,8 @@ The main game screen should aim for the density and polish of a premium pixel-ar
 - Decorative greenhouse background with readable foreground UI.
 - Framed parchment/wood/metal panels for gameplay information.
 - Large parent plant previews.
-- A conveyor wide enough to show most of an offspring batch at once.
+- A Germination Bed large enough to show representative offspring proportions at
+  a glance.
 - Distinct icons for credits, premium resource, garden capacity, guide, garden, shop, and settings.
 - Bottom panels for generation statistics, last generated plant, educational help, and speed controls.
 
