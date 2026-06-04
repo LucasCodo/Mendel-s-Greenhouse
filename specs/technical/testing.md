@@ -142,7 +142,9 @@ Test that:
 - Phenotypes are derived from genotypes according to the content bible.
 - Crossbreeding distributions match expected Mendelian outcomes.
 - Expected probabilities sum to 100%.
-- A generated batch contains exactly 20 offspring.
+- A generated display batch uses the active cross's combination count when it
+  fits the main screen.
+- Larger combination counts are capped to a representative visual batch.
 - Shuffling offspring order does not change the underlying distribution.
 
 ### Contracts

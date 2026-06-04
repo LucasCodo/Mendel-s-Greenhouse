@@ -1,10 +1,14 @@
 """Application service for crossbreeding and offspring reveal."""
 
 from mendels_greenhouse.core.contracts import generate_next_contract
-from mendels_greenhouse.core.genetics import crossbreed
+from mendels_greenhouse.core.genetics import (
+    Plant,
+    crossbreed,
+    expected_distribution,
+)
 from mendels_greenhouse.state.game_state import GameState
 
-GERMINATION_BED_SIZE = 20
+MAX_GERMINATION_BED_SIZE = 20
 SPECIMEN_SALE_VALUE = 2
 
 
@@ -29,10 +33,11 @@ class BreedingService:
             self.state.status_message = "Select parents from the same species."
             return False
 
+        batch_size = representative_bed_size(parent_a, parent_b)
         self.state.current_batch = crossbreed(
             parent_a,
             parent_b,
-            count=GERMINATION_BED_SIZE,
+            count=batch_size,
             rng=self.state.rng,
         )
         self.state.visible_count = 0
@@ -120,3 +125,12 @@ class BreedingService:
             f"Sold specimen for {SPECIMEN_SALE_VALUE} credits."
         )
         return True
+
+
+def representative_bed_size(parent_a: Plant, parent_b: Plant) -> int:
+    """Return the displayed batch size for a parent cross."""
+    total_combinations = expected_distribution(
+        parent_a,
+        parent_b,
+    ).total_combinations
+    return min(total_combinations, MAX_GERMINATION_BED_SIZE)

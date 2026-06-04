@@ -78,12 +78,15 @@ Analyzer use is unlimited after a level is unlocked. It has no per-use credit co
 
 ## Offspring Production
 
-Each crossbreeding process produces 20 offspring.
+Each crossbreeding process displays a batch sized from the active cross's
+genetic outcome combinations when that count fits on screen. If the combination
+count is too large, the Germination Bed uses a capped representative batch.
 
 Balance intent:
 
-- Large enough for visible statistical patterns.
+- Large enough for visible statistical patterns when probabilities matter.
 - Small enough to keep results readable.
+- Variable enough that simple crosses do not add visual noise.
 - Compatible with greenhouse storage pressure.
 - Useful for contract fulfillment without removing strategic scarcity.
 
@@ -221,7 +224,8 @@ Example:
 Playtests should verify:
 
 - The player can reach 8 slots during the first hour.
-- 20 offspring per cross makes patterns visible.
+- Variable representative bed sizes make patterns visible without overflowing
+  the main screen.
 - The initial 4-slot greenhouse creates decisions without frustration.
 - Analyzer level 2 arrives before phenotypic contracts feel repetitive.
 - Probabilistic contracts appear only after players understand genotypes.

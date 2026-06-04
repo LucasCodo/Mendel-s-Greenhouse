@@ -7,7 +7,10 @@ from mendels_greenhouse.core.save_data import (
     state_from_save_data,
     state_to_save_data,
 )
-from mendels_greenhouse.services.breeding_service import BreedingService
+from mendels_greenhouse.services.breeding_service import (
+    BreedingService,
+    representative_bed_size,
+)
 from mendels_greenhouse.services.greenhouse_service import GreenhouseService
 from mendels_greenhouse.services.save_service import SaveIdentity, SaveService
 from mendels_greenhouse.state.game_state import GameState
@@ -42,14 +45,21 @@ def test_tutorial_contract_rejects_non_matching_phenotypes() -> None:
     assert contract.delivered_count == 0
 
 
-def test_breeding_service_generates_representative_batch_size() -> None:
+def test_breeding_service_uses_combination_count_for_simple_cross() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)
 
     assert service.start_crossbreeding()
 
-    assert len(state.current_batch) == 20
+    assert len(state.current_batch) == 1
     assert state.visible_count == 0
+
+
+def test_representative_bed_size_uses_available_combinations() -> None:
+    parent_a = Plant("AaBb")
+    parent_b = Plant("AaBb")
+
+    assert representative_bed_size(parent_a, parent_b) == 16
 
 
 def test_breeding_service_reveal_updates_collection_and_contract() -> None:

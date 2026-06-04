@@ -4,11 +4,12 @@ We analyzed the current project state and determined the requirements needed to 
 
 ## Proposed Changes
 
-### 1. Germination Bed Layout (Replaces Conveyor)
+### 1. Variable Germination Bed Layout (Replaces Conveyor)
 
-We will replace the industrial conveyor belt with a 5x4 soil grid representing the 20 offspring from crossbreeding.
+We will replace the industrial conveyor belt with a variable soil grid representing the active cross.
 
-- **Visual Grid**: A framed brown soil panel inside the central-lower main screen (`x: 215` to `395`, `y: 192` to `258`).
+- **Visual Grid**: A framed brown soil panel inside the central-lower main screen. Its cell count follows the number of genetic outcome combinations when that count fits on screen.
+- **Representative Cap**: If a future cross has more combinations than can fit cleanly, the bed uses a capped representative size instead of overflowing the canvas.
 - **Growth Animation**: Unrevealed offspring appear as seeds/dirt. Revealed offspring grow over 30 frames:
   - Age < 15: Seed stage.
   - 15 <= Age < 30: Seedling stage.

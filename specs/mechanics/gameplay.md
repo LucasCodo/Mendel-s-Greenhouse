@@ -13,7 +13,11 @@ Requirements:
 - Both parent slots must contain valid plants.
 - Parent plants must belong to the same species unless a future spec explicitly allows hybrid species.
 - The crossbreeding action generates one offspring batch.
-- Each batch contains 20 offspring.
+- The displayed offspring batch size follows the number of genetic outcome
+  combinations for the selected parents when that count fits on screen.
+- If the number of genetic combinations is too large for the main screen, the
+  Germination Bed uses a capped representative batch that preserves the active
+  cross distribution as well as possible without overflowing the UI.
 
 ## Allele Inheritance
 
@@ -79,8 +83,14 @@ Rules:
 - Each visible bed cell represents one generated offspring specimen.
 - The bed should use a representative grid for the active cross instead of an
   arbitrary fixed visual count.
+- The bed dimensions are variable and are derived from the current displayed
+  batch size.
+- The bed must never grow beyond the available main-screen area.
 - For simple equal-probability crosses, the visual bed may show one specimen per
   distinct expected outcome.
+- For crosses with more possible combinations than can fit on the main screen,
+  the bed uses the maximum supported representative cell count instead of
+  drawing every possible combination.
 - For percentage-based contracts, the bed may expand to enough cells to make the
   target proportion readable, such as a `4 x 4` bed for 75% / 25% patterns.
 - Offspring display order may still be shuffled, but the final bed must preserve

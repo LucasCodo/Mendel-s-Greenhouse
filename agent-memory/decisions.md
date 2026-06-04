@@ -314,3 +314,10 @@ Future account integration must keep save ownership tied to the authenticated
 user or profile. One user's save must never overwrite, load, mutate, or expose
 another user's save. File-backed saves should use atomic replacement writes so
 crashes do not leave partially written JSON.
+
+## 2026-06-04: Variable Germination Bed Size
+
+The Germination Bed size follows the active cross's number of genetic outcome
+combinations when that count fits on screen. For larger future crosses, the bed
+uses the maximum supported representative cell count instead of drawing every
+possible combination, so the main screen never overflows.

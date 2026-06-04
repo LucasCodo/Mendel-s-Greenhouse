@@ -1,6 +1,7 @@
 """Main gameplay scene for the MVP."""
 
 from dataclasses import dataclass
+from math import ceil, sqrt
 
 import pyxel
 
@@ -175,12 +176,14 @@ ANALYZER_GENOTYPE_LEVEL = 2
 ANALYZER_PROBABILITY_LEVEL = 3
 SEED_STAGE_FRAMES = 15
 SEEDLING_STAGE_FRAMES = 30
-BED_COLUMNS = 5
-BED_ROWS = 4
+MAX_BED_CELLS = 20
+BED_MAX_COLUMNS = 5
+BED_ORIGIN_X = 210
+BED_ORIGIN_Y = 184
+BED_MAX_W = 220
+BED_MAX_H = 72
 BED_CELL_W = 34
 BED_CELL_H = 15
-BED_X = 220
-BED_Y = 194
 BED_GAP = 3
 MUSIC_CHANNELS = (0, 1, 2)
 SOUND_CHANNEL = 3
@@ -349,6 +352,27 @@ def _clamp_volume(value: object, default: int) -> int:
     if not isinstance(value, int):
         return default
     return min(max(value, 0), MAX_VOLUME_STEP)
+
+
+@dataclass(frozen=True)
+class BedLayout:
+    """Computed Germination Bed geometry for the current batch."""
+
+    x: int
+    y: int
+    columns: int
+    rows: int
+    cell_count: int
+
+    @property
+    def width(self) -> int:
+        """Return the pixel width occupied by cells."""
+        return self.columns * BED_CELL_W + (self.columns - 1) * BED_GAP
+
+    @property
+    def height(self) -> int:
+        """Return the pixel height occupied by cells."""
+        return self.rows * BED_CELL_H + (self.rows - 1) * BED_GAP
 
 
 class MainGameScene:
@@ -837,9 +861,20 @@ class MainGameScene:
         )
 
     def _draw_germination_bed(self) -> None:
-        pyxel.rect(210, 184, 220, 72, PyxelColor.DARK_WOOD)
-        pyxel.rectb(210, 184, 220, 72, PyxelColor.FRAME)
-        pyxel.rectb(212, 186, 216, 68, PyxelColor.UI_DARK)
+        layout = self._germination_layout()
+        frame_x = layout.x - 10
+        frame_y = layout.y - 10
+        frame_w = layout.width + 20
+        frame_h = layout.height + 20
+        pyxel.rect(frame_x, frame_y, frame_w, frame_h, PyxelColor.DARK_WOOD)
+        pyxel.rectb(frame_x, frame_y, frame_w, frame_h, PyxelColor.FRAME)
+        pyxel.rectb(
+            frame_x + 2,
+            frame_y + 2,
+            frame_w - 4,
+            frame_h - 4,
+            PyxelColor.UI_DARK,
+        )
         pyxel.rect(230, 174, 180, 14, PyxelColor.UI_DARK)
 
         msg = self._status_text(self.state.status_message)[:44]
@@ -847,13 +882,18 @@ class MainGameScene:
         text_x = 320 - text_width // 2
         pyxel.text(text_x, 179, msg, PyxelColor.ACCENT)
 
-        for index in range(BED_COLUMNS * BED_ROWS):
-            self._draw_germination_cell(index)
+        for index in range(layout.cell_count):
+            self._draw_germination_cell(index, layout)
 
-    def _draw_germination_cell(self, index: int) -> None:
-        rect = self._germination_cell_rect(index)
+    def _draw_germination_cell(self, index: int, layout: BedLayout) -> None:
+        rect = self._germination_cell_rect(index, layout)
         visible = index < self.state.visible_count
-        plant = self.state.current_batch[index] if visible else None
+        has_specimen = index < len(self.state.current_batch)
+        plant = (
+            self.state.current_batch[index]
+            if visible and has_specimen
+            else None
+        )
         selected = index == self.state.selected_offspring_index
         matches_contract = (
             plant is not None and self.state.active_contract.matches(plant)
@@ -916,22 +956,45 @@ class MainGameScene:
         for offset in (-3, 0, 3):
             pyxel.pset(x + offset, y - 5, seed_color)
 
-    def _germination_cell_rect(self, index: int) -> Rect:
-        col = index % BED_COLUMNS
-        row = index // BED_COLUMNS
+    def _germination_cell_rect(self, index: int, layout: BedLayout) -> Rect:
+        col = index % layout.columns
+        row = index // layout.columns
         return Rect(
-            BED_X + col * (BED_CELL_W + BED_GAP),
-            BED_Y + row * (BED_CELL_H + BED_GAP),
+            layout.x + col * (BED_CELL_W + BED_GAP),
+            layout.y + row * (BED_CELL_H + BED_GAP),
             BED_CELL_W,
             BED_CELL_H,
         )
 
     def _update_germination_bed_selection(self) -> None:
-        for index in range(BED_COLUMNS * BED_ROWS):
-            if clicked(self._germination_cell_rect(index)):
+        layout = self._germination_layout()
+        for index in range(len(self.state.current_batch)):
+            if clicked(self._germination_cell_rect(index, layout)):
                 self._play_sound(0)
                 self.state.selected_offspring_index = index
                 return
+
+    def _germination_layout(self) -> BedLayout:
+        cell_count = min(
+            max(len(self.state.current_batch), 1),
+            MAX_BED_CELLS,
+        )
+        columns = min(max(ceil(sqrt(cell_count)), 1), BED_MAX_COLUMNS)
+        rows = ceil(cell_count / columns)
+        while rows * BED_CELL_H + (rows - 1) * BED_GAP > BED_MAX_H:
+            columns = min(columns + 1, BED_MAX_COLUMNS)
+            rows = ceil(cell_count / columns)
+            if columns == BED_MAX_COLUMNS:
+                break
+        width = columns * BED_CELL_W + (columns - 1) * BED_GAP
+        height = rows * BED_CELL_H + (rows - 1) * BED_GAP
+        return BedLayout(
+            x=BED_ORIGIN_X + (BED_MAX_W - width) // 2,
+            y=BED_ORIGIN_Y + (BED_MAX_H - height) // 2,
+            columns=columns,
+            rows=rows,
+            cell_count=cell_count,
+        )
 
     def _draw_bottom_panels(self) -> None:
         self._draw_stats_panel()
