@@ -62,12 +62,12 @@ def test_representative_bed_size_uses_available_combinations() -> None:
     assert representative_bed_size(parent_a, parent_b) == 16
 
 
-def test_breeding_service_resolves_grown_batch() -> None:
+def test_breeding_service_harvests_grown_batch() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)
     service.start_crossbreeding()
 
-    assert service.resolve_germination_batch()
+    assert service.harvest_germination_batch()
 
     assert state.visible_count == 0
     assert state.current_batch == []
@@ -82,7 +82,7 @@ def test_breeding_service_sells_non_contract_specimens_after_growth() -> None:
     state.visible_count = 2
     service = BreedingService(state)
 
-    assert service.resolve_germination_batch()
+    assert service.harvest_germination_batch()
 
     assert state.active_contract.delivered_count == 1
     assert state.credits == 2
@@ -147,7 +147,7 @@ def test_completed_contract_requires_manual_reward_claim() -> None:
 
     for _ in range(3):
         service.start_crossbreeding()
-        assert service.resolve_germination_batch()
+        assert service.harvest_germination_batch()
 
     assert state.active_contract.completed
     assert state.credits == 0

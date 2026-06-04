@@ -98,13 +98,16 @@ Rules:
 - Contract-matching plants should receive a clear non-color-only highlight.
 - During the MVP loop, generated specimens appear in the bed simultaneously as
   seeds and grow over a short timed animation.
-- When the growth animation completes, delivery-contract matches are
-  automatically rescued by the active contract until its remaining requirement
-  is satisfied.
-- Specimens that do not count toward the active delivery contract are
-  automatically sold at the current common sale value.
+- When the growth animation completes, the player can press the harvest button
+  to resolve the grown batch.
+- Harvesting rescues delivery-contract matches into the active contract until
+  its remaining requirement is satisfied.
+- Harvesting sells specimens that do not count toward the active delivery
+  contract at the current common sale value.
 - The player can select a growing bed cell to inspect it while the batch is
   visible.
+- Hovering a growing bed cell shows a floating information panel with the
+  plant information currently unlocked by the analyzer level.
 - The bed should show only information unlocked by the current analyzer level.
 
 Examples:

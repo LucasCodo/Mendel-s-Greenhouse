@@ -172,9 +172,10 @@ views must use the same gamete/genotype logic, but the bed is not required to
 match Punnett cell positions.
 
 The MVP Germination Bed grows the whole generated lot simultaneously. After the
-short growth animation, delivery-contract matches are automatically rescued by
-the active contract, and non-contract specimens are automatically sold at the
-common sale value.
+short growth animation, the player clicks a harvest button to resolve the lot:
+delivery-contract matches are rescued by the active contract, and non-contract
+specimens are sold at the common sale value. Hovering a growing bed plant shows
+a floating detail panel with analyzer-level-appropriate information.
 
 ## 2026-05-30: Premium Pixel-Art Interface Target
 

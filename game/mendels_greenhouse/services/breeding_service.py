@@ -48,8 +48,8 @@ class BreedingService:
         self.state.status_message = "Generating offspring..."
         return True
 
-    def resolve_germination_batch(self) -> bool:
-        """Deliver contract matches and sell the remaining grown specimens."""
+    def harvest_germination_batch(self) -> bool:
+        """Harvest grown specimens into contract delivery or sale."""
         if not self.state.current_batch:
             return False
 

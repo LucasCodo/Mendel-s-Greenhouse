@@ -30,6 +30,7 @@ TOP_BAR_H = 66
 PROBABILITY_PANEL_MAX_Y = 166
 
 CROSS_BUTTON = Rect(267, 158, 106, 22)
+HARVEST_BUTTON = Rect(432, 322, 122, 24)
 PARENT_A_CARD = Rect(166, 120, 128, 68)
 PARENT_B_CARD = Rect(346, 120, 128, 68)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
@@ -224,6 +225,9 @@ I18N_MARKERS = (
     gettext_noop("Greenhouse is already maxed."),
     gettext_noop("Greenhouse is full."),
     gettext_noop("Greenhouse slot"),
+    gettext_noop("Growing"),
+    gettext_noop("HARVEST"),
+    gettext_noop("Harvest grown plants."),
     gettext_noop("Hidden entries stay unknown."),
     gettext_noop("How to play"),
     gettext_noop("ANALYZER L3 REQUIRED"),
@@ -277,6 +281,7 @@ I18N_MARKERS = (
     gettext_noop("Select parents from the same species."),
     gettext_noop("Select parents, then cross plants."),
     gettext_noop("Select two stored parent plants."),
+    gettext_noop("Sells after harvest"),
     gettext_noop("Shop"),
     gettext_noop("Slot {slot}"),
     gettext_noop("Species"),
@@ -284,6 +289,7 @@ I18N_MARKERS = (
     gettext_noop("Spend credits on progression"),
     gettext_noop("Stored plant in slot {slot}."),
     gettext_noop("Stored plants and parent selection"),
+    gettext_noop("Ready to harvest."),
     gettext_noop("The goal"),
     gettext_noop("Unlock {species}."),
     gettext_noop("Unlock greenhouse slot {slot}."),
@@ -413,7 +419,7 @@ class MainGameScene:
         """Handle mouse-first controls and keyboard shortcuts."""
         self._tick_button_timers()
         if not self.intro_open:
-            self._handle_germination_settlement()
+            self._update_germination_readiness()
         if self.intro_open:
             self._update_intro_panel()
         elif self.settings_open:
@@ -441,20 +447,25 @@ class MainGameScene:
         self._update_germination_bed_selection()
         self._track_reveal_frames()
 
-    def _handle_germination_settlement(self) -> None:
+    def _update_germination_readiness(self) -> None:
         if not self.state.current_batch:
             self.germination_started_frame = None
             return
         if self.germination_started_frame is None:
             self.germination_started_frame = pyxel.frame_count
+        if (
+            self._germination_ready()
+            and self.state.status_message == "Generating offspring..."
+        ):
+            self.state.status_message = "Ready to harvest."
+
+    def _germination_ready(self) -> bool:
+        if not self.state.current_batch:
+            return False
+        if self.germination_started_frame is None:
+            return False
         elapsed = pyxel.frame_count - self.germination_started_frame
-        if elapsed < GERMINATION_SETTLE_FRAMES:
-            return
-        if self.breeding.resolve_germination_batch():
-            self._play_sound(3)
-            self._autosave()
-        self._reveal_frames.clear()
-        self.germination_started_frame = None
+        return elapsed >= GERMINATION_SETTLE_FRAMES
 
     def _handle_breeding_buttons(self) -> None:
         if clicked(CROSS_BUTTON) or pyxel.btnp(pyxel.KEY_RETURN):
@@ -472,6 +483,15 @@ class MainGameScene:
             self._play_sound(3)
             if self.breeding.claim_contract_reward():
                 self._autosave()
+
+        if (
+            clicked(HARVEST_BUTTON) or pyxel.btnp(pyxel.KEY_H)
+        ) and self._germination_ready():
+            self._play_sound(3)
+            if self.breeding.harvest_germination_batch():
+                self._autosave()
+            self._reveal_frames.clear()
+            self.germination_started_frame = None
 
         if clicked(PARENT_A_CARD) or pyxel.btnp(pyxel.KEY_1):
             self._play_sound(0)
@@ -535,6 +555,7 @@ class MainGameScene:
         )
         self._draw_germination_bed()
         self._draw_bottom_panels()
+        self._draw_hovered_plant_tooltip()
 
     def _update_navigation_rail(self) -> bool:
         for screen, _label, _sprite in NAV_ITEMS:
@@ -1040,6 +1061,11 @@ class MainGameScene:
         self._draw_stats_panel()
         self._draw_last_plant_panel()
         self._draw_help_panel()
+        draw_button(
+            HARVEST_BUTTON,
+            self._t("HARVEST"),
+            enabled=self._germination_ready(),
+        )
 
     def _draw_stats_panel(self) -> None:
         rect = Rect(12, 264, 136, 84)
@@ -1141,6 +1167,62 @@ class MainGameScene:
             self._t("are rescued first."),
             PyxelColor.UI_DARK,
         )
+
+    def _draw_hovered_plant_tooltip(self) -> None:
+        hover = self._hovered_germination_specimen()
+        if hover is None:
+            return
+        _index, plant = hover
+        phenotype = plant.phenotype
+        growth_status = (
+            self._t("Growing")
+            if not self._germination_ready()
+            else self._t("DONE")
+        )
+        lines = [
+            growth_status,
+            f"Genotype: {self._visible_genotype(plant)}",
+            f"Color: {self._trait(phenotype.seed_color)}",
+            f"Texture: {self._trait(phenotype.seed_texture)}",
+            self._harvest_destination_label(plant),
+        ]
+        width = max(len(line) for line in lines) * 4 + 16
+        height = len(lines) * 10 + 12
+        x = min(max(pyxel.mouse_x + 10, 8), WIDTH - width - 8)
+        y = min(max(pyxel.mouse_y - height - 8, 70), HEIGHT - height - 8)
+        panel = Rect(x, y, width, height)
+        pyxel.rect(panel.x + 2, panel.y + 2, panel.width, panel.height, 0)
+        draw_panel(panel)
+        for index, line in enumerate(lines):
+            pyxel.text(
+                panel.x + 8,
+                panel.y + 8 + index * 10,
+                line,
+                PyxelColor.UI_DARK,
+            )
+
+    def _hovered_germination_specimen(self) -> tuple[int, Plant] | None:
+        layout = self._germination_layout()
+        visible_cells = min(len(self.state.current_batch), layout.cell_count)
+        for index in range(visible_cells):
+            if not self._germination_cell_rect(index, layout).contains(
+                pyxel.mouse_x,
+                pyxel.mouse_y,
+            ):
+                continue
+            plant = self.state.current_batch[index]
+            if plant is None:
+                return None
+            return index, plant
+        return None
+
+    def _harvest_destination_label(self, plant: Plant) -> str:
+        if (
+            not self.state.active_contract.completed
+            and self.state.active_contract.matches(plant)
+        ):
+            return self._t("Contract matches")
+        return self._t("Sells after harvest")
 
     def _draw_collection_screen(self) -> None:
         self._draw_scene_shell("Collection", "Discovered genetic records")
@@ -1862,6 +1944,7 @@ class MainGameScene:
                         "Pick two parent plants, cross them, then inspect "
                         "offspring."
                     ),
+                    "Harvest grown plants.",
                     "Use 1/2 to reselect starting parents.",
                 ],
             ),

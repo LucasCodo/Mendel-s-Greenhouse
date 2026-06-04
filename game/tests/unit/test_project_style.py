@@ -4,6 +4,7 @@ import ast
 from pathlib import Path
 
 from mendels_greenhouse.scenes.main_game import (
+    HARVEST_BUTTON,
     NAV_BUTTON_GAP,
     NAV_BUTTON_H,
     NAV_BUTTON_W,
@@ -69,3 +70,4 @@ def test_navigation_rail_bounds_all_destinations() -> None:
         )
         for rect in nav_rects
     )
+    assert HARVEST_BUTTON.x + HARVEST_BUTTON.width <= NAV_RAIL.x

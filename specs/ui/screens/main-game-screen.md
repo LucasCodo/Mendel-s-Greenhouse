@@ -91,10 +91,11 @@ Generation Stats | Selected Specimen | Genetic Help | Bed Controls
 3. Seeds appear in the Germination Bed.
 4. A short growth animation reveals seedlings or adult phenotype sprites.
 5. All cells grow simultaneously over a short timed animation.
-6. Contract progress updates when matching grown specimens are automatically
-   rescued by the active contract.
-7. Non-contract specimens are automatically sold after growth.
-8. Rewards appear when contract or discovery criteria are met.
+6. The player clicks `Harvest` after the growth animation completes.
+7. Contract progress updates when matching grown specimens are rescued by the
+   active contract.
+8. Non-contract specimens are sold during harvest.
+9. Rewards appear when contract or discovery criteria are met.
 
 ## Interaction Model
 
@@ -104,8 +105,9 @@ Expected mouse interactions:
 
 - Click parent slots or plant cards to select parents.
 - Click `Crossbreed` to start the cross.
-- Click a bed specimen or the selected specimen panel to inspect details.
-- Click a growing bed specimen to inspect details while the batch is visible.
+- Hover over a growing bed specimen to inspect details in a floating panel.
+- Click a bed specimen or the selected specimen panel as a non-hover fallback.
+- Click `Harvest` to resolve the grown batch into contract rescues and sales.
 - Click top navigation icons to move between major screens.
 
 Keyboard support is required as an alternative:
@@ -114,7 +116,8 @@ Keyboard support is required as an alternative:
   bed cells, bed controls, and bottom-panel actions.
 - Focused controls can be activated from the keyboard.
 - Cancel/back behavior must be keyboard reachable.
-- Batch growth and contract/sale resolution are automatic after crossbreeding.
+- Batch growth is automatic after crossbreeding; contract/sale resolution
+  requires the visible harvest button.
 
 ## Screen States
 

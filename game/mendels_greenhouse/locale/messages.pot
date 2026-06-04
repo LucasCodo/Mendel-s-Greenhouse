@@ -695,5 +695,25 @@ msgid "Contract matches"
 msgstr ""
 
 #: mendels_greenhouse/scenes/main_game.py
+msgid "Growing"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "HARVEST"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Harvest grown plants."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Ready to harvest."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Sells after harvest"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py
 msgid "are rescued first."
 msgstr ""
