@@ -30,22 +30,16 @@ TOP_BAR_H = 66
 PROBABILITY_PANEL_MAX_Y = 166
 
 CROSS_BUTTON = Rect(267, 158, 106, 22)
-REVEAL_BUTTON = Rect(506, 322, 58, 24)
-STORE_BUTTON = Rect(570, 322, 58, 24)
-SELL_BUTTON = Rect(570, 294, 58, 20)
+REVEAL_BUTTON = Rect(432, 322, 58, 24)
+STORE_BUTTON = Rect(496, 322, 58, 24)
+SELL_BUTTON = Rect(496, 294, 58, 20)
 PARENT_A_CARD = Rect(166, 120, 128, 68)
 PARENT_B_CARD = Rect(346, 120, 128, 68)
-KNOWLEDGE_NAV_BUTTON = Rect(320, 5, 52, 56)
-COLLECTION_NAV_BUTTON = Rect(374, 5, 52, 56)
-GARDEN_NAV_BUTTON = Rect(428, 5, 52, 56)
-SHOP_NAV_BUTTON = Rect(482, 5, 52, 56)
-SETTINGS_NAV_BUTTON = Rect(536, 5, 52, 56)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
 CLAIM_CONTRACT_BUTTON = Rect(420, 84, 64, 18)
 PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
-GARDEN_DISCARD_BUTTON = Rect(500, 211, 80, 22)
+GARDEN_DISCARD_BUTTON = Rect(446, 211, 80, 22)
 SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
-SCENE_BACK_BUTTON = Rect(516, 318, 92, 24)
 LANGUAGE_BUTTON = Rect(338, 112, 86, 20)
 MUSIC_DOWN_BUTTON = Rect(338, 151, 20, 18)
 MUSIC_UP_BUTTON = Rect(404, 151, 20, 18)
@@ -53,6 +47,12 @@ SOUND_DOWN_BUTTON = Rect(338, 194, 20, 18)
 SOUND_UP_BUTTON = Rect(404, 194, 20, 18)
 MUSIC_MUTE_CHECKBOX = Rect(468, 151, 12, 12)
 SOUND_MUTE_CHECKBOX = Rect(468, 194, 12, 12)
+NAV_RAIL = Rect(558, 70, 76, 276)
+NAV_BUTTON_W = 64
+NAV_BUTTON_H = 34
+NAV_BUTTON_GAP = 4
+NAV_BUTTON_X = 564
+NAV_BUTTON_Y = 78
 
 PLANT_SPRITES = {
     ("yellow", "smooth"): (0, 0),
@@ -63,19 +63,22 @@ PLANT_SPRITES = {
 PLANT_SPRITE_W = 56
 PLANT_SPRITE_H = 44
 NAV_ICON_SIZE = 64
-NAV_ICON_SCALE = 0.5
-NAV_ICONS = {
-    "Knowledge": (0, 64),
-    "Collection": (64, 128),
-    "Garden": (64, 64),
-    "Shop": (128, 64),
-    "Settings": (192, 64),
-}
+NAV_ICON_SCALE = 0.25
 SCREEN_MAIN = "main"
+SCREEN_CONTRACTS = "contracts"
 SCREEN_KNOWLEDGE = "knowledge"
 SCREEN_COLLECTION = "collection"
 SCREEN_GARDEN = "garden"
 SCREEN_SHOP = "shop"
+NAV_ITEMS = (
+    (SCREEN_MAIN, "CROSS PLANTS", (0, 128)),
+    (SCREEN_GARDEN, "Garden", (64, 64)),
+    (SCREEN_CONTRACTS, "CONTRACT", (128, 128)),
+    (SCREEN_KNOWLEDGE, "Knowledge", (0, 64)),
+    (SCREEN_SHOP, "Shop", (128, 64)),
+    (SCREEN_COLLECTION, "Collection", (64, 128)),
+    ("settings", "Settings", (192, 64)),
+)
 COLLECTION_TABS = ("Species", "Phenotypes", "Genotypes")
 KNOWLEDGE_STAGES = (
     ("Phenotype", ("Phenotype", "Dominant allele", "Recessive allele"), 1),
@@ -418,7 +421,7 @@ class MainGameScene:
             self._update_settings_panel()
         elif self.parent_picker_target is not None:
             self._update_parent_picker()
-        elif self._update_top_navigation():
+        elif self._update_navigation_rail():
             pass
         elif self.active_screen == SCREEN_KNOWLEDGE:
             self._update_knowledge_screen()
@@ -426,6 +429,8 @@ class MainGameScene:
             self._update_collection_screen()
         elif self.active_screen == SCREEN_GARDEN:
             self._update_garden_screen()
+        elif self.active_screen == SCREEN_CONTRACTS:
+            self._update_contracts_screen()
         elif self.active_screen == SCREEN_SHOP:
             self._update_shop_screen()
         else:
@@ -433,11 +438,6 @@ class MainGameScene:
 
     def _update_main_game(self) -> None:
         """Handle main crossbreeding screen controls."""
-        if clicked(SETTINGS_NAV_BUTTON):
-            self._play_sound(0)
-            self.settings_open = True
-            return
-
         self._handle_auto_reveal()
         self._handle_breeding_buttons()
         self._update_germination_bed_selection()
@@ -508,10 +508,13 @@ class MainGameScene:
             self._draw_collection_screen()
         elif self.active_screen == SCREEN_GARDEN:
             self._draw_garden_screen()
+        elif self.active_screen == SCREEN_CONTRACTS:
+            self._draw_contracts_screen()
         elif self.active_screen == SCREEN_SHOP:
             self._draw_shop_screen()
         else:
             self._draw_main_game_screen()
+        self._draw_navigation_rail()
         if self.intro_open:
             self._draw_intro_panel()
         if self.parent_picker_target is not None:
@@ -540,31 +543,19 @@ class MainGameScene:
         self._draw_germination_bed()
         self._draw_bottom_panels()
 
-    def _update_top_navigation(self) -> bool:
-        if clicked(KNOWLEDGE_NAV_BUTTON):
-            self._play_sound(0)
-            self.active_screen = SCREEN_KNOWLEDGE
-            return True
-        if clicked(COLLECTION_NAV_BUTTON):
-            self._play_sound(0)
-            self.active_screen = SCREEN_COLLECTION
-            return True
-        if clicked(GARDEN_NAV_BUTTON):
-            self._play_sound(0)
-            self.active_screen = SCREEN_GARDEN
-            return True
-        if clicked(SHOP_NAV_BUTTON):
-            self._play_sound(0)
-            self.active_screen = SCREEN_SHOP
-            return True
-        if clicked(SETTINGS_NAV_BUTTON):
-            self._play_sound(0)
-            self.settings_open = True
-            return True
+    def _update_navigation_rail(self) -> bool:
+        for screen, _label, _sprite in NAV_ITEMS:
+            if clicked(self._nav_button_rect(screen)):
+                self._play_sound(0)
+                if screen == "settings":
+                    self.settings_open = True
+                else:
+                    self.active_screen = screen
+                return True
         return False
 
     def _update_knowledge_screen(self) -> None:
-        if clicked(SCENE_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
             self._play_sound(0)
             self.active_screen = SCREEN_MAIN
             return
@@ -579,7 +570,7 @@ class MainGameScene:
                 index += 1
 
     def _update_collection_screen(self) -> None:
-        if clicked(SCENE_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
             self._play_sound(0)
             self.active_screen = SCREEN_MAIN
             return
@@ -589,7 +580,7 @@ class MainGameScene:
                 self.collection_tab = tab
 
     def _update_garden_screen(self) -> None:
-        if clicked(SCENE_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
             self._play_sound(0)
             self.active_screen = SCREEN_MAIN
             return
@@ -624,15 +615,25 @@ class MainGameScene:
             ):
                 self._autosave()
 
+    def _update_contracts_screen(self) -> None:
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
+            self._play_sound(0)
+            self.active_screen = SCREEN_MAIN
+            return
+        if clicked(Rect(408, 250, 96, 24)) or pyxel.btnp(pyxel.KEY_C):
+            self._play_sound(3)
+            if self.breeding.claim_contract_reward():
+                self._autosave()
+
     def _update_shop_screen(self) -> None:
-        if clicked(SCENE_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+        if pyxel.btnp(pyxel.KEY_ESCAPE):
             self._play_sound(0)
             self.active_screen = SCREEN_MAIN
             return
         for item, rect in [
-            ("slot", Rect(36, 120, 170, 42)),
-            ("analyzer", Rect(234, 120, 170, 42)),
-            ("species", Rect(432, 120, 170, 42)),
+            ("slot", Rect(34, 120, 154, 42)),
+            ("analyzer", Rect(210, 120, 154, 42)),
+            ("species", Rect(386, 120, 154, 42)),
         ]:
             if clicked(rect):
                 self._play_sound(0)
@@ -656,7 +657,7 @@ class MainGameScene:
             pyxel.line(x, 258, x + 8, HEIGHT, PyxelColor.FRAME)
 
     def _draw_top_bar(self) -> None:
-        self._draw_runtime_hud_frame(5, 4, 430, 58)
+        self._draw_runtime_hud_frame(5, 4, 544, 58)
         self._draw_runtime_logo(16, 10)
         draw_outlined_text(
             24,
@@ -676,16 +677,8 @@ class MainGameScene:
         garden = f"{self.state.greenhouse.used_slots}/"
         garden += f"{self.state.greenhouse.capacity}"
         self._draw_counter(198, "GDN", garden)
-
-        nav_x = 320
-        self._draw_runtime_hud_frame(nav_x - 7, 4, 315, 58)
-        for index, (label, sprite) in enumerate(NAV_ICONS.items()):
-            self._draw_nav_item(
-                nav_x + index * 54,
-                9,
-                self._nav_label(label),
-                sprite,
-            )
+        screen = self._active_screen_title()
+        pyxel.text(294, 41, self._t(screen).upper()[:18], PyxelColor.ACCENT)
 
     def _draw_runtime_hud_frame(
         self,
@@ -719,17 +712,47 @@ class MainGameScene:
         pyxel.circ(x + 23, y + 16, 7, PyxelColor.PEA_GREEN)
         pyxel.circb(x + 23, y + 16, 7, PyxelColor.SPRITE_OUTLINE)
 
+    def _draw_navigation_rail(self) -> None:
+        self._draw_runtime_hud_frame(
+            NAV_RAIL.x,
+            NAV_RAIL.y,
+            NAV_RAIL.width,
+            NAV_RAIL.height,
+        )
+        for screen, label, sprite in NAV_ITEMS:
+            self._draw_nav_item(
+                self._nav_button_rect(screen),
+                label,
+                sprite,
+                active=screen == self.active_screen
+                or (screen == "settings" and self.settings_open),
+            )
+
     def _draw_nav_item(
         self,
-        x: int,
-        y: int,
+        rect: Rect,
         label: str,
         sprite: tuple[int, int],
+        *,
+        active: bool,
     ) -> None:
+        hovering = rect.contains(pyxel.mouse_x, pyxel.mouse_y)
+        fill = PyxelColor.ACCENT if active else PyxelColor.DARK_WOOD
+        if hovering and not active:
+            fill = PyxelColor.WOOD_MIDTONE
+        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
+        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
+        pyxel.rectb(
+            rect.x + 1,
+            rect.y + 1,
+            rect.width - 2,
+            rect.height - 2,
+            PyxelColor.UI_DARK,
+        )
         u, v = sprite
         pyxel.blt(
-            x + 14,
-            y,
+            rect.x + 4,
+            rect.y + 5,
             0,
             u,
             v,
@@ -738,9 +761,33 @@ class MainGameScene:
             colkey=0,
             scale=NAV_ICON_SCALE,
         )
-        text_x = x + 30 - len(label) * 2
-        pyxel.text(text_x + 1, y + 40, label, PyxelColor.SPRITE_OUTLINE)
-        pyxel.text(text_x, y + 39, label, PyxelColor.PARCHMENT_LIGHT)
+        text = self._t(label).upper()[:10]
+        text_x = rect.x + 24
+        pyxel.text(text_x + 1, rect.y + 15, text, PyxelColor.SPRITE_OUTLINE)
+        pyxel.text(
+            text_x,
+            rect.y + 14,
+            text,
+            PyxelColor.UI_DARK if active else PyxelColor.PARCHMENT_LIGHT,
+        )
+
+    def _nav_button_rect(self, screen: str) -> Rect:
+        index = next(
+            (
+                item_index
+                for item_index, (item_screen, _label, _sprite) in enumerate(
+                    NAV_ITEMS,
+                )
+                if item_screen == screen
+            ),
+            0,
+        )
+        return Rect(
+            NAV_BUTTON_X,
+            NAV_BUTTON_Y + index * (NAV_BUTTON_H + NAV_BUTTON_GAP),
+            NAV_BUTTON_W,
+            NAV_BUTTON_H,
+        )
 
     def _draw_counter(self, x: int, icon: str, value: str) -> None:
         pyxel.rect(x, 41, 72, 14, PyxelColor.UI_DARK)
@@ -1121,7 +1168,7 @@ class MainGameScene:
     def _draw_collection_screen(self) -> None:
         self._draw_scene_shell("Collection", "Discovered genetic records")
         pyxel.text(
-            470,
+            438,
             86,
             self._t(
                 "Discovered: {total}",
@@ -1135,7 +1182,7 @@ class MainGameScene:
             draw_button(rect, self._t(tab).upper(), pressed=active)
 
         list_panel = Rect(148, 108, 220, 178)
-        detail_panel = Rect(386, 108, 222, 178)
+        detail_panel = Rect(386, 108, 154, 178)
         draw_panel(list_panel)
         draw_panel(detail_panel)
         entries = self._collection_entries()
@@ -1158,8 +1205,7 @@ class MainGameScene:
         )
         details = self._collection_details(entries)
         for index, line in enumerate(details):
-            pyxel.text(402, 146 + index * 14, line, PyxelColor.UI_DARK)
-        self._draw_scene_back_button()
+            pyxel.text(402, 146 + index * 14, line[:32], PyxelColor.UI_DARK)
 
     def _draw_knowledge_screen(self) -> None:
         self._draw_scene_shell("Knowledge", "Learned genetics concepts")
@@ -1173,7 +1219,7 @@ class MainGameScene:
             if self.state.analyzer_level >= required_level
         )
         pyxel.text(
-            486,
+            438,
             86,
             self._t(
                 "Learned: {learned}/{total}",
@@ -1184,7 +1230,7 @@ class MainGameScene:
         )
 
         node_panel = Rect(24, 108, 214, 190)
-        detail_panel = Rect(258, 108, 350, 190)
+        detail_panel = Rect(258, 108, 282, 190)
         draw_panel(node_panel)
         draw_panel(detail_panel)
 
@@ -1226,7 +1272,6 @@ class MainGameScene:
                 index += 1
 
         self._draw_knowledge_details(detail_panel)
-        self._draw_scene_back_button()
 
     def _draw_knowledge_details(self, panel: Rect) -> None:
         concept = self.selected_knowledge
@@ -1259,7 +1304,7 @@ class MainGameScene:
             PyxelColor.UI_DARK,
         )
         detail = KNOWLEDGE_DETAILS.get(concept, "")
-        for index, line in enumerate(self._wrap_text(self._t(detail), 68)[:5]):
+        for index, line in enumerate(self._wrap_text(self._t(detail), 58)[:5]):
             pyxel.text(
                 panel.x + 18,
                 panel.y + 64 + index * 13,
@@ -1283,7 +1328,7 @@ class MainGameScene:
             PyxelColor.PARCHMENT_LIGHT,
         )
         grid_panel = Rect(24, 104, 294, 214)
-        detail_panel = Rect(338, 104, 270, 178)
+        detail_panel = Rect(338, 104, 206, 178)
         draw_panel(grid_panel)
         draw_panel(detail_panel)
         for index in range(GREENHOUSE_COLUMNS * GREENHOUSE_ROWS):
@@ -1328,7 +1373,83 @@ class MainGameScene:
                     self.selected_greenhouse_slot,
                 ),
             )
-        self._draw_scene_back_button()
+
+    def _draw_contracts_screen(self) -> None:
+        self._draw_scene_shell(
+            "CONTRACT",
+            "Use contracts to learn how traits pass between generations.",
+        )
+        contract = self.state.active_contract
+        summary_panel = Rect(34, 112, 506, 74)
+        detail_panel = Rect(34, 204, 506, 92)
+        draw_panel(summary_panel)
+        draw_panel(detail_panel)
+
+        pyxel.text(
+            summary_panel.x + 18,
+            summary_panel.y + 14,
+            self._contract_title(),
+            PyxelColor.UI_DARK,
+        )
+        progress = f"{contract.delivered_count}/{contract.target_count}"
+        pyxel.rect(
+            summary_panel.x + 18,
+            summary_panel.y + 38,
+            390,
+            12,
+            PyxelColor.BAR_EMPTY,
+        )
+        progress_width = int(
+            390 * contract.delivered_count / contract.target_count,
+        )
+        pyxel.rect(
+            summary_panel.x + 18,
+            summary_panel.y + 38,
+            progress_width,
+            12,
+            PyxelColor.PROGRESS,
+        )
+        pyxel.text(
+            summary_panel.x + 420,
+            summary_panel.y + 40,
+            progress,
+            PyxelColor.UI_DARK,
+        )
+
+        pyxel.text(
+            detail_panel.x + 18,
+            detail_panel.y + 18,
+            self._t("Credits"),
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            detail_panel.x + 94,
+            detail_panel.y + 18,
+            f"{contract.reward_credits} CR",
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            detail_panel.x + 18,
+            detail_panel.y + 40,
+            self._t("Yellow smooth peas are requested first."),
+            PyxelColor.UI_DARK,
+        )
+        status = (
+            "Contract complete. Claim reward."
+            if contract.completed and not contract.paid
+            else "Use contracts to learn how traits pass between generations."
+        )
+        pyxel.text(
+            detail_panel.x + 18,
+            detail_panel.y + 58,
+            self._t(status),
+            PyxelColor.UI_DARK,
+        )
+        draw_button(
+            Rect(408, 250, 96, 24),
+            self._t("CLAIM"),
+            enabled=contract.completed and not contract.paid,
+        )
 
     def _draw_shop_screen(self) -> None:
         self._draw_scene_shell("Shop", "Spend credits on progression")
@@ -1338,11 +1459,11 @@ class MainGameScene:
             f"{self._t('Credits')}: {self.state.credits}",
             PyxelColor.PARCHMENT_LIGHT,
         )
-        self._draw_shop_card("slot", Rect(36, 120, 170, 42))
-        self._draw_shop_card("analyzer", Rect(234, 120, 170, 42))
-        self._draw_shop_card("species", Rect(432, 120, 170, 42))
+        self._draw_shop_card("slot", Rect(34, 120, 154, 42))
+        self._draw_shop_card("analyzer", Rect(210, 120, 154, 42))
+        self._draw_shop_card("species", Rect(386, 120, 154, 42))
 
-        details_panel = Rect(88, 198, 464, 100)
+        details_panel = Rect(70, 198, 456, 100)
         draw_panel(details_panel)
         for index, line in enumerate(self._shop_details()):
             pyxel.text(
@@ -1356,7 +1477,6 @@ class MainGameScene:
             self._t("BUY"),
             enabled=self._selected_shop_available(),
         )
-        self._draw_scene_back_button()
 
     def _draw_scene_shell(self, title: str, subtitle: str) -> None:
         draw_outlined_text(
@@ -1367,9 +1487,6 @@ class MainGameScene:
             font=self._display_font,
         )
         pyxel.text(26, 91, self._t(subtitle), PyxelColor.PARCHMENT_LIGHT)
-
-    def _draw_scene_back_button(self) -> None:
-        draw_button(SCENE_BACK_BUTTON, self._t("BACK"))
 
     def _update_parent_picker(self) -> None:
         if clicked(PARENT_PICKER_CLOSE_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
@@ -1940,9 +2057,11 @@ class MainGameScene:
             return "PT-BR"
         return "EN"
 
-    def _nav_label(self, key: str) -> str:
-        label = self._t(key).upper()
-        return label[:7]
+    def _active_screen_title(self) -> str:
+        for screen, label, _sprite in NAV_ITEMS:
+            if screen == self.active_screen:
+                return label
+        return "CROSS PLANTS"
 
     def _trait(self, value: str) -> str:
         return self._t(value)
