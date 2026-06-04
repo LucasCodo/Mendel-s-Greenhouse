@@ -302,3 +302,15 @@ assorting, complete-dominance dihybrid crosses such as `AaBb x AaBb`.
 The Progression Screen is specified as a Knowledge Tree that stores learned
 concepts and shows concept details through hover, focus, or selection without
 revealing analyzer-locked information early.
+
+## 2026-06-04: Profile-Scoped Autosave
+
+Autosave must be addressed by profile and slot even while the MVP exposes only
+one local autosave slot. Standalone Pyxel runs may use a default local profile
+such as `local`, stored under Pyxel's user data directory, for example
+`saves/local/slot-1.json`.
+
+Future account integration must keep save ownership tied to the authenticated
+user or profile. One user's save must never overwrite, load, mutate, or expose
+another user's save. File-backed saves should use atomic replacement writes so
+crashes do not leave partially written JSON.

@@ -23,12 +23,18 @@ Recommended conceptual path:
 ```text
 pyxel.user_data_dir("LucasCodo", "MendelsGreenhouse")/
 `-- saves/
-    `-- slot-1.json
+    `-- local/
+        `-- slot-1.json
 ```
 
 The exact application and author strings should be finalized during implementation.
 
 For the MVP, local JSON persistence is enabled. The player starts with `0` credits unless balance testing changes the GBD.
+
+The save service must address saves by profile and slot, even while the MVP
+exposes only one local autosave slot. Standalone Pyxel runs may use a default
+local profile such as `local`; future account integration must inject or resolve
+the authenticated profile through the application shell or backend.
 
 ### Save Schema
 
@@ -56,6 +62,10 @@ Rules:
 - Save migration must be handled by schema version, not by guessing fields.
 - Gameplay logic must not depend on the save storage backend.
 - Future NiceGUI storage should preserve the same conceptual save payload.
+- A save belonging to one profile or user must not overwrite, load, mutate, or
+  expose another profile or user's save data.
+- File-backed saves must use atomic replacement writes to avoid partially
+  written save files.
 
 ### NiceGUI Future Storage
 
@@ -247,6 +257,8 @@ Security requirements for future implementation:
 - Use authenticated sessions.
 - Keep save ownership tied to the authenticated user.
 - Do not expose another user's save data through client-side state.
+- Do not trust a client-supplied profile or user identifier for save ownership
+  without validating it against the authenticated session.
 
 ## Boundaries
 
