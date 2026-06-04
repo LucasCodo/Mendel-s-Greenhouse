@@ -52,7 +52,7 @@ def test_breeding_service_uses_combination_count_for_simple_cross() -> None:
     assert service.start_crossbreeding()
 
     assert len(state.current_batch) == 1
-    assert state.visible_count == 0
+    assert state.visible_count == 1
 
 
 def test_representative_bed_size_uses_available_combinations() -> None:
@@ -62,24 +62,37 @@ def test_representative_bed_size_uses_available_combinations() -> None:
     assert representative_bed_size(parent_a, parent_b) == 16
 
 
-def test_breeding_service_reveal_updates_collection_and_contract() -> None:
+def test_breeding_service_resolves_grown_batch() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)
     service.start_crossbreeding()
 
-    assert service.reveal_next()
+    assert service.resolve_germination_batch()
 
-    assert state.visible_count == 1
+    assert state.visible_count == 0
+    assert state.current_batch == []
     assert state.active_contract.delivered_count == 1
     assert "AaBb" in state.collection.genotypes
     assert state.credits == 0
+
+
+def test_breeding_service_sells_non_contract_specimens_after_growth() -> None:
+    state = GameState.create_initial()
+    state.current_batch = [Plant("AaBb"), Plant("aabb")]
+    state.visible_count = 2
+    service = BreedingService(state)
+
+    assert service.resolve_germination_batch()
+
+    assert state.active_contract.delivered_count == 1
+    assert state.credits == 2
+    assert state.current_batch == []
 
 
 def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)
     service.start_crossbreeding()
-    service.reveal_next()
 
     assert service.store_last_revealed()
 
@@ -91,7 +104,6 @@ def test_sell_selected_offspring_clears_bed_cell_and_adds_credits() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)
     service.start_crossbreeding()
-    service.reveal_next()
 
     assert service.sell_selected_offspring()
 
@@ -135,7 +147,7 @@ def test_completed_contract_requires_manual_reward_claim() -> None:
 
     for _ in range(3):
         service.start_crossbreeding()
-        assert service.reveal_next()
+        assert service.resolve_germination_batch()
 
     assert state.active_contract.completed
     assert state.credits == 0
@@ -169,7 +181,6 @@ def test_save_data_round_trips_state_without_pyxel_objects() -> None:
     state.greenhouse.store(Plant("AaBb"))
     service = BreedingService(state)
     service.start_crossbreeding()
-    service.reveal_next()
 
     payload = state_to_save_data(
         state,

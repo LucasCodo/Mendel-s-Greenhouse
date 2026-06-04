@@ -456,10 +456,6 @@ msgstr ""
 msgid "Slot {slot}"
 msgstr ""
 
-#: mendels_greenhouse/scenes/main_game.py:278
-msgid "SPACE reveals one offspring; S stores the latest plant."
-msgstr ""
-
 #: mendels_greenhouse/scenes/main_game.py:279
 msgid "Species"
 msgstr ""
@@ -694,3 +690,10 @@ msgstr ""
 msgid "Deliver {target} {color} {texture} peas"
 msgstr ""
 
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Contract matches"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "are rescued first."
+msgstr ""

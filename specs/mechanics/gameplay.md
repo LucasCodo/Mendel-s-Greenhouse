@@ -96,8 +96,15 @@ Rules:
 - Offspring display order may still be shuffled, but the final bed must preserve
   the generated batch contents and contract validation data.
 - Contract-matching plants should receive a clear non-color-only highlight.
-- The player can select a bed cell to inspect, store, sell, deliver, wait, or
-  discard the specimen according to the current rules.
+- During the MVP loop, generated specimens appear in the bed simultaneously as
+  seeds and grow over a short timed animation.
+- When the growth animation completes, delivery-contract matches are
+  automatically rescued by the active contract until its remaining requirement
+  is satisfied.
+- Specimens that do not count toward the active delivery contract are
+  automatically sold at the current common sale value.
+- The player can select a growing bed cell to inspect it while the batch is
+  visible.
 - The bed should show only information unlocked by the current analyzer level.
 
 Examples:
@@ -144,7 +151,8 @@ Examples:
 Rules:
 
 - A plant must match the contract requirement to count.
-- Delivered plants are removed from greenhouse storage.
+- Delivered plants are removed from greenhouse storage or from the current
+  Germination Bed batch when they are rescued directly after growth.
 - Partial delivery is not complete unless the contract explicitly supports partial progress.
 - Invalid plants cannot be delivered to a contract.
 

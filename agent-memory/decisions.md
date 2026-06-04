@@ -171,6 +171,11 @@ possible. The Germination Bed shows the current or representative lot. The two
 views must use the same gamete/genotype logic, but the bed is not required to
 match Punnett cell positions.
 
+The MVP Germination Bed grows the whole generated lot simultaneously. After the
+short growth animation, delivery-contract matches are automatically rescued by
+the active contract, and non-contract specimens are automatically sold at the
+common sale value.
+
 ## 2026-05-30: Premium Pixel-Art Interface Target
 
 The UI quality target is a polished pixel-art management screen with dense but

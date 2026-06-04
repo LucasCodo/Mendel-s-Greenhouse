@@ -465,10 +465,6 @@ msgstr "Shop"
 msgid "Slot {slot}"
 msgstr "Slot {slot}"
 
-#: mendels_greenhouse/scenes/main_game.py:278
-msgid "SPACE reveals one offspring; S stores the latest plant."
-msgstr "SPACE reveals one offspring; S stores the latest plant."
-
 #: mendels_greenhouse/scenes/main_game.py:279
 msgid "Species"
 msgstr "Species"
@@ -702,6 +698,14 @@ msgstr "Changes apply immediately."
 #, python-brace-format
 msgid "Deliver {target} {color} {texture} peas"
 msgstr "Deliver {target} {color} {texture} peas"
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Contract matches"
+msgstr "Contract matches"
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "are rescued first."
+msgstr "are rescued first."
 
 #~ msgid "Last offspring"
 #~ msgstr "Last offspring"

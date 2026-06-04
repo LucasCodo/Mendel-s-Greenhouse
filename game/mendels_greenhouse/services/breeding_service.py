@@ -1,4 +1,4 @@
-"""Application service for crossbreeding and offspring reveal."""
+"""Application service for crossbreeding and germination resolution."""
 
 from mendels_greenhouse.core.contracts import generate_next_contract
 from mendels_greenhouse.core.genetics import (
@@ -20,6 +20,9 @@ class BreedingService:
 
     def start_crossbreeding(self) -> bool:
         """Generate one shuffled offspring batch from selected parents."""
+        if self.state.current_batch:
+            self.state.status_message = "Generating offspring..."
+            return False
         if not self.state.can_crossbreed:
             self.state.status_message = "Select two stored parent plants."
             return False
@@ -40,10 +43,52 @@ class BreedingService:
             count=batch_size,
             rng=self.state.rng,
         )
-        self.state.visible_count = 0
+        self.state.visible_count = len(self.state.current_batch)
         self.state.selected_offspring_index = 0
         self.state.status_message = "Generating offspring..."
         return True
+
+    def resolve_germination_batch(self) -> bool:
+        """Deliver contract matches and sell the remaining grown specimens."""
+        if not self.state.current_batch:
+            return False
+
+        delivered_count = 0
+        sold_count = 0
+        discovery_count = 0
+        for plant in self.state.current_batch:
+            if plant is None:
+                continue
+            if self.state.collection.register_plant(plant):
+                discovery_count += 1
+            if (
+                not self.state.active_contract.completed
+                and self.state.active_contract.deliver(plant)
+            ):
+                delivered_count += 1
+            else:
+                sold_count += 1
+
+        if sold_count:
+            self.state.credits += sold_count * SPECIMEN_SALE_VALUE
+        self.state.current_batch = []
+        self.state.visible_count = 0
+        self.state.selected_offspring_index = 0
+
+        if delivered_count and self.state.active_contract.completed:
+            self.state.status_message = "Contract complete. Claim reward."
+        elif delivered_count:
+            remaining = self.state.active_contract.remaining_count
+            self.state.status_message = f"Contract match. {remaining} left."
+        elif discovery_count:
+            self.state.status_message = "New discovery registered."
+        elif sold_count:
+            credits = sold_count * SPECIMEN_SALE_VALUE
+            self.state.status_message = f"Sold specimen for {credits} credits."
+        else:
+            self.state.status_message = "Offspring revealed."
+
+        return delivered_count > 0 or sold_count > 0 or discovery_count > 0
 
     def reveal_next(self) -> bool:
         """Reveal the next offspring and apply discovery/contract checks."""

@@ -30,9 +30,6 @@ TOP_BAR_H = 66
 PROBABILITY_PANEL_MAX_Y = 166
 
 CROSS_BUTTON = Rect(267, 158, 106, 22)
-REVEAL_BUTTON = Rect(432, 322, 58, 24)
-STORE_BUTTON = Rect(496, 322, 58, 24)
-SELL_BUTTON = Rect(496, 294, 58, 20)
 PARENT_A_CARD = Rect(166, 120, 128, 68)
 PARENT_B_CARD = Rect(346, 120, 128, 68)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
@@ -173,12 +170,12 @@ SPECIES_UNLOCKS = {
     "Corn": (4, 10000),
 }
 
-AUTO_REVEAL_INTERVAL = 42
 BUTTON_PRESS_FRAMES = 7
 ANALYZER_GENOTYPE_LEVEL = 2
 ANALYZER_PROBABILITY_LEVEL = 3
 SEED_STAGE_FRAMES = 15
 SEEDLING_STAGE_FRAMES = 30
+GERMINATION_SETTLE_FRAMES = 90
 MAX_BED_CELLS = 20
 BED_MAX_COLUMNS = 5
 BED_ORIGIN_X = 210
@@ -208,6 +205,7 @@ I18N_MARKERS = (
     gettext_noop("Contract complete. Claim reward."),
     gettext_noop("Contract complete. +{reward} credits."),
     gettext_noop("Contract match. {remaining} left."),
+    gettext_noop("Contract matches"),
     gettext_noop("Cost: {cost} credits."),
     gettext_noop("Credits"),
     gettext_noop("Deliver 3 yellow smooth peas"),
@@ -281,7 +279,6 @@ I18N_MARKERS = (
     gettext_noop("Select two stored parent plants."),
     gettext_noop("Shop"),
     gettext_noop("Slot {slot}"),
-    gettext_noop("SPACE reveals one offspring; S stores the latest plant."),
     gettext_noop("Species"),
     gettext_noop("Species found: {count}"),
     gettext_noop("Spend credits on progression"),
@@ -299,6 +296,7 @@ I18N_MARKERS = (
         "Use contracts to learn how traits pass between generations."
     ),
     gettext_noop("Yellow smooth peas are requested first."),
+    gettext_noop("are rescued first."),
     gettext_noop("green"),
     gettext_noop("smooth"),
     gettext_noop("wrinkled"),
@@ -397,9 +395,8 @@ class MainGameScene:
         self.background_image = background_image
         self.fonts = fonts
         self.cross_button_timer = 0
-        self.reveal_button_timer = 0
-        self.store_button_timer = 0
         self._reveal_frames = {}
+        self.germination_started_frame: int | None = None
         self.intro_open = True
         self.settings_open = False
         self.parent_picker_target: str | None = None
@@ -415,6 +412,8 @@ class MainGameScene:
     def update(self) -> None:
         """Handle mouse-first controls and keyboard shortcuts."""
         self._tick_button_timers()
+        if not self.intro_open:
+            self._handle_germination_settlement()
         if self.intro_open:
             self._update_intro_panel()
         elif self.settings_open:
@@ -438,46 +437,40 @@ class MainGameScene:
 
     def _update_main_game(self) -> None:
         """Handle main crossbreeding screen controls."""
-        self._handle_auto_reveal()
         self._handle_breeding_buttons()
         self._update_germination_bed_selection()
         self._track_reveal_frames()
 
-    def _handle_auto_reveal(self) -> None:
-        should_auto_reveal = (
-            self.state.current_batch
-            and pyxel.frame_count % AUTO_REVEAL_INTERVAL == 0
-        )
-        if should_auto_reveal and self.breeding.reveal_next():
+    def _handle_germination_settlement(self) -> None:
+        if not self.state.current_batch:
+            self.germination_started_frame = None
+            return
+        if self.germination_started_frame is None:
+            self.germination_started_frame = pyxel.frame_count
+        elapsed = pyxel.frame_count - self.germination_started_frame
+        if elapsed < GERMINATION_SETTLE_FRAMES:
+            return
+        if self.breeding.resolve_germination_batch():
+            self._play_sound(3)
             self._autosave()
+        self._reveal_frames.clear()
+        self.germination_started_frame = None
 
     def _handle_breeding_buttons(self) -> None:
         if clicked(CROSS_BUTTON) or pyxel.btnp(pyxel.KEY_RETURN):
             self._play_sound(1)
             self.cross_button_timer = BUTTON_PRESS_FRAMES
             if self.breeding.start_crossbreeding():
+                self.germination_started_frame = pyxel.frame_count
+                self._reveal_frames = dict.fromkeys(
+                    range(len(self.state.current_batch)),
+                    pyxel.frame_count,
+                )
                 self._autosave()
 
         if clicked(CLAIM_CONTRACT_BUTTON) or pyxel.btnp(pyxel.KEY_C):
             self._play_sound(3)
             if self.breeding.claim_contract_reward():
-                self._autosave()
-
-        if clicked(REVEAL_BUTTON) or pyxel.btnp(pyxel.KEY_SPACE):
-            self._play_sound(2)
-            self.reveal_button_timer = BUTTON_PRESS_FRAMES
-            if self.breeding.reveal_next():
-                self._autosave()
-
-        if clicked(STORE_BUTTON) or pyxel.btnp(pyxel.KEY_S):
-            self._play_sound(0)
-            self.store_button_timer = BUTTON_PRESS_FRAMES
-            if self.breeding.store_selected_offspring():
-                self._autosave()
-
-        if clicked(SELL_BUTTON):
-            self._play_sound(4)
-            if self.breeding.sell_selected_offspring():
                 self._autosave()
 
         if clicked(PARENT_A_CARD) or pyxel.btnp(pyxel.KEY_1):
@@ -537,7 +530,7 @@ class MainGameScene:
         draw_button(
             CROSS_BUTTON,
             self._t("CROSS PLANTS"),
-            enabled=self.state.can_crossbreed,
+            enabled=self.state.can_crossbreed and not self.state.current_batch,
             pressed=self.cross_button_timer > 0,
         )
         self._draw_germination_bed()
@@ -1047,17 +1040,6 @@ class MainGameScene:
         self._draw_stats_panel()
         self._draw_last_plant_panel()
         self._draw_help_panel()
-        draw_button(
-            REVEAL_BUTTON,
-            self._t("REVEAL"),
-            pressed=self.reveal_button_timer > 0,
-        )
-        draw_button(
-            STORE_BUTTON,
-            self._t("STORE"),
-            enabled=self.state.selected_offspring is not None,
-            pressed=self.store_button_timer > 0,
-        )
 
     def _draw_stats_panel(self) -> None:
         rect = Rect(12, 264, 136, 84)
@@ -1150,19 +1132,14 @@ class MainGameScene:
         pyxel.text(
             334,
             308,
-            self._t("Results are shuffled"),
+            self._t("Contract matches"),
             PyxelColor.UI_DARK,
         )
         pyxel.text(
             334,
             320,
-            self._t("inside the bed."),
+            self._t("are rescued first."),
             PyxelColor.UI_DARK,
-        )
-        draw_button(
-            SELL_BUTTON,
-            self._t("SELL"),
-            enabled=self.state.selected_offspring is not None,
         )
 
     def _draw_collection_screen(self) -> None:
@@ -1881,7 +1858,10 @@ class MainGameScene:
                 "Basic controls",
                 [
                     "Mouse: click buttons and plant cards.",
-                    "SPACE reveals one offspring; S stores the latest plant.",
+                    (
+                        "Pick two parent plants, cross them, then inspect "
+                        "offspring."
+                    ),
                     "Use 1/2 to reselect starting parents.",
                 ],
             ),
@@ -2168,5 +2148,3 @@ class MainGameScene:
 
     def _tick_button_timers(self) -> None:
         self.cross_button_timer = max(self.cross_button_timer - 1, 0)
-        self.reveal_button_timer = max(self.reveal_button_timer - 1, 0)
-        self.store_button_timer = max(self.store_button_timer - 1, 0)

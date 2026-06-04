@@ -11,9 +11,6 @@ from mendels_greenhouse.scenes.main_game import (
     NAV_BUTTON_Y,
     NAV_ITEMS,
     NAV_RAIL,
-    REVEAL_BUTTON,
-    SELL_BUTTON,
-    STORE_BUTTON,
     Rect,
 )
 
@@ -53,7 +50,7 @@ def test_project_does_not_use_future_imports() -> None:
     assert offenders == []
 
 
-def test_navigation_rail_bounds_runtime_actions() -> None:
+def test_navigation_rail_bounds_all_destinations() -> None:
     nav_rects = [
         Rect(
             NAV_BUTTON_X,
@@ -71,8 +68,4 @@ def test_navigation_rail_bounds_runtime_actions() -> None:
             rect.y + rect.height - 1,
         )
         for rect in nav_rects
-    )
-    assert all(
-        rect.x + rect.width <= NAV_RAIL.x
-        for rect in (REVEAL_BUTTON, STORE_BUTTON, SELL_BUTTON)
     )

@@ -90,9 +90,11 @@ Generation Stats | Selected Specimen | Genetic Help | Bed Controls
 2. Offspring batch is generated.
 3. Seeds appear in the Germination Bed.
 4. A short growth animation reveals seedlings or adult phenotype sprites.
-5. Contract progress updates for matching bed specimens.
-6. Visual feedback confirms match, discovery, or invalid delivery.
-7. Rewards appear when contract or discovery criteria are met.
+5. All cells grow simultaneously over a short timed animation.
+6. Contract progress updates when matching grown specimens are automatically
+   rescued by the active contract.
+7. Non-contract specimens are automatically sold after growth.
+8. Rewards appear when contract or discovery criteria are met.
 
 ## Interaction Model
 
@@ -103,7 +105,7 @@ Expected mouse interactions:
 - Click parent slots or plant cards to select parents.
 - Click `Crossbreed` to start the cross.
 - Click a bed specimen or the selected specimen panel to inspect details.
-- Click store, sell, deliver, cancel, and speed controls.
+- Click a growing bed specimen to inspect details while the batch is visible.
 - Click top navigation icons to move between major screens.
 
 Keyboard support is required as an alternative:
@@ -112,7 +114,7 @@ Keyboard support is required as an alternative:
   bed cells, bed controls, and bottom-panel actions.
 - Focused controls can be activated from the keyboard.
 - Cancel/back behavior must be keyboard reachable.
-- Repeated reveal/advance actions may have shortcuts, but those shortcuts must mirror visible controls.
+- Batch growth and contract/sale resolution are automatic after crossbreeding.
 
 ## Screen States
 

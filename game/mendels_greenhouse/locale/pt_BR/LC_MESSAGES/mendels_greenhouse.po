@@ -465,10 +465,6 @@ msgstr "Loja"
 msgid "Slot {slot}"
 msgstr "Espaco {slot}"
 
-#: mendels_greenhouse/scenes/main_game.py:278
-msgid "SPACE reveals one offspring; S stores the latest plant."
-msgstr "SPACE revela um descendente; S guarda a planta atual."
-
 #: mendels_greenhouse/scenes/main_game.py:279
 msgid "Species"
 msgstr "Especies"
@@ -702,6 +698,14 @@ msgstr "Alteracoes aplicam na hora."
 #, python-brace-format
 msgid "Deliver {target} {color} {texture} peas"
 msgstr "Entregue {target} ervilhas {color} {texture}"
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Contract matches"
+msgstr "Plantas do contrato"
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "are rescued first."
+msgstr "sao resgatadas primeiro."
 
 #~ msgid "Last offspring"
 #~ msgstr "Ultimo descendente"
