@@ -1,11 +1,9 @@
 """File-backed profile-scoped autosave service."""
 
-from __future__ import annotations
-
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import Any, Self
 
 import pyxel
 
@@ -45,7 +43,7 @@ class SaveService:
     def for_pyxel_user_data(
         cls,
         identity: SaveIdentity | None = None,
-    ) -> SaveService:
+    ) -> Self:
         """Create a save service rooted in Pyxel's user data directory."""
         root_dir = Path(pyxel.user_data_dir(APP_AUTHOR, APP_NAME)) / "saves"
         return cls(root_dir=root_dir, identity=identity)
