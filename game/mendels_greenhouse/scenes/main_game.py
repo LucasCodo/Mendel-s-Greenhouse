@@ -222,6 +222,7 @@ I18N_MARKERS = (
     gettext_noop("Founder genotypes cannot be discarded."),
     gettext_noop("Garden"),
     gettext_noop("Generating offspring..."),
+    gettext_noop("Genotype already stored."),
     gettext_noop("Genetic Analyzer is already fully upgraded."),
     gettext_noop("Genotypes"),
     gettext_noop("Genotypes found: {count}"),

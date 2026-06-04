@@ -101,6 +101,29 @@ def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
     assert state.current_batch[state.selected_offspring_index] is None
 
 
+def test_greenhouse_rejects_duplicate_genotype_storage() -> None:
+    state = GameState.create_initial()
+
+    assert state.greenhouse.store(Plant("AABB")) is None
+
+    assert state.greenhouse.used_slots == 2
+    assert state.greenhouse.plant_at(2) is None
+
+
+def test_store_selected_offspring_rejects_duplicate_genotype() -> None:
+    state = GameState.create_initial()
+    state.current_batch = [Plant("AABB")]
+    state.visible_count = 1
+    state.selected_offspring_index = 0
+    service = BreedingService(state)
+
+    assert not service.store_selected_offspring()
+
+    assert state.status_message == "Genotype already stored."
+    assert state.greenhouse.used_slots == 2
+    assert state.current_batch[0] == Plant("AABB")
+
+
 def test_sell_selected_offspring_clears_bed_cell_and_adds_credits() -> None:
     state = GameState.create_initial()
     service = BreedingService(state)

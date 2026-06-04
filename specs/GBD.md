@@ -34,6 +34,10 @@ Initial capacity: 4 slots.
 
 Maximum capacity: 20 slots.
 
+Only one plant of each genotype may be stored in the greenhouse. Duplicate
+genotypes must be sold, delivered to contracts, or left out of storage instead
+of occupying another slot.
+
 Final layout: 5 x 4.
 
 | Slot | Cost |

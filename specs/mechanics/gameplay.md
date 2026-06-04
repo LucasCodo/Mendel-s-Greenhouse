@@ -182,6 +182,7 @@ Plants occupy greenhouse slots.
 Rules:
 
 - A slot can hold one plant.
+- The greenhouse can store only one plant for each genotype.
 - The starting greenhouse has 4 slots.
 - The maximum greenhouse has 20 slots.
 - Initial plants are `AABB` and `aabb`.

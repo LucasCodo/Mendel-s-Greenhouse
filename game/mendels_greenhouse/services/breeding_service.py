@@ -148,6 +148,10 @@ class BreedingService:
             self.state.status_message = "No selected specimen to store."
             return False
 
+        if self.state.greenhouse.has_genotype(plant.genotype):
+            self.state.status_message = "Genotype already stored."
+            return False
+
         slot_index = self.state.greenhouse.store(plant)
         if slot_index is None:
             self.state.status_message = "Greenhouse is full."

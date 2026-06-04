@@ -180,6 +180,10 @@ msgid "Generating offspring..."
 msgstr ""
 
 #: mendels_greenhouse/scenes/main_game.py:215
+msgid "Genotype already stored."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:215
 #: mendels_greenhouse/scenes/main_game.py:1536
 msgid "Genetic Analyzer is already fully upgraded."
 msgstr ""

@@ -333,3 +333,9 @@ possible combination, so the main screen never overflows.
 Unlocking a new plant species requires two empty greenhouse slots. The unlock
 immediately occupies those slots with the species' fully dominant and fully
 recessive founder plants, such as `AABBCC` and `aabbcc` for Snapdragon.
+
+## 2026-06-04: Unique Stored Genotypes
+
+The greenhouse stores at most one plant for each genotype. Attempts to store a
+plant whose genotype is already present are rejected instead of consuming an
+additional garden slot.

@@ -158,6 +158,7 @@ Relationships:
 
 Rules:
 
+- Storage accepts at most one plant for each genotype.
 - Initial capacity is 4 slots.
 - Maximum capacity is 20 slots.
 
