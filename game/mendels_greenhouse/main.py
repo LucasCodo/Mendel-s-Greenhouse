@@ -7,6 +7,7 @@ import pyxel
 from mendels_greenhouse.scenes.base import SceneManager
 from mendels_greenhouse.scenes.main_game import HEIGHT, WIDTH, MainGameScene
 from mendels_greenhouse.services.music import init_music
+from mendels_greenhouse.services.save_service import SaveService
 from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.fonts import FontSet
 from mendels_greenhouse.ui.palette import apply_project_palette
@@ -25,13 +26,21 @@ class Game:
         self.assets_dir = Path(__file__).resolve().parent / "assets"
         self.fonts = FontSet(self.assets_dir)
         self.background_image = self._load_background_image()
-        self.state = GameState.create_initial()
+        self.save_service = SaveService.for_pyxel_user_data()
+        loaded = self.save_service.load()
+        saved_settings = {}
+        if loaded is None:
+            self.state = GameState.create_initial()
+        else:
+            self.state, saved_settings = loaded
         self.scenes = SceneManager()
         self.scenes.switch_to(
             MainGameScene(
                 self.state,
                 background_image=self.background_image,
                 fonts=self.fonts,
+                save_service=self.save_service,
+                saved_settings=saved_settings,
             ),
         )
         pyxel.playm(0, loop=True)

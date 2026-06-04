@@ -2,8 +2,14 @@
 
 from mendels_greenhouse.core.contracts import create_tutorial_contract
 from mendels_greenhouse.core.genetics import Plant
+from mendels_greenhouse.core.save_data import (
+    SaveMetadata,
+    state_from_save_data,
+    state_to_save_data,
+)
 from mendels_greenhouse.services.breeding_service import BreedingService
 from mendels_greenhouse.services.greenhouse_service import GreenhouseService
+from mendels_greenhouse.services.save_service import SaveIdentity, SaveService
 from mendels_greenhouse.state.game_state import GameState
 
 
@@ -42,7 +48,7 @@ def test_breeding_service_generates_representative_batch_size() -> None:
 
     assert service.start_crossbreeding()
 
-    assert len(state.current_batch) == 1
+    assert len(state.current_batch) == 20
     assert state.visible_count == 0
 
 
@@ -68,6 +74,19 @@ def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
     assert service.store_last_revealed()
 
     assert state.greenhouse.used_slots == 3
+    assert state.current_batch[state.selected_offspring_index] is None
+
+
+def test_sell_selected_offspring_clears_bed_cell_and_adds_credits() -> None:
+    state = GameState.create_initial()
+    service = BreedingService(state)
+    service.start_crossbreeding()
+    service.reveal_next()
+
+    assert service.sell_selected_offspring()
+
+    assert state.credits == 2
+    assert state.current_batch[state.selected_offspring_index] is None
 
 
 def test_greenhouse_service_discards_only_non_protected_plants() -> None:
@@ -131,3 +150,58 @@ def test_claim_without_complete_contract_does_not_generate_next() -> None:
     assert state.credits == 0
     assert state.completed_contracts == 0
     assert state.active_contract is current_contract
+
+
+def test_save_data_round_trips_state_without_pyxel_objects() -> None:
+    state = GameState.create_initial()
+    state.credits = 25
+    state.analyzer_level = 2
+    state.greenhouse.store(Plant("AaBb"))
+    service = BreedingService(state)
+    service.start_crossbreeding()
+    service.reveal_next()
+
+    payload = state_to_save_data(
+        state,
+        SaveMetadata(
+            profile_id="profile-a",
+            slot_id="slot-1",
+            language="en",
+            settings={"music_volume": 3},
+        ),
+    )
+    restored = state_from_save_data(payload)
+
+    assert restored.credits == 25
+    assert restored.analyzer_level == 2
+    assert restored.greenhouse.used_slots == 3
+    assert restored.current_batch[0] == state.current_batch[0]
+    assert restored.visible_count == 1
+    assert restored.collection.genotypes == state.collection.genotypes
+
+
+def test_save_service_scopes_files_by_profile_and_slot(tmp_path) -> None:
+    profile_a = SaveService(
+        tmp_path,
+        SaveIdentity(profile_id="profile-a", slot_id="slot-1"),
+    )
+    profile_b = SaveService(
+        tmp_path,
+        SaveIdentity(profile_id="profile-b", slot_id="slot-1"),
+    )
+    state_a = GameState.create_initial()
+    state_b = GameState.create_initial()
+    state_a.credits = 10
+    state_b.credits = 99
+
+    profile_a.save(state_a, language="en", settings={})
+    profile_b.save(state_b, language="en", settings={})
+
+    loaded_a = profile_a.load()
+    loaded_b = profile_b.load()
+
+    assert loaded_a is not None
+    assert loaded_b is not None
+    assert loaded_a[0].credits == 10
+    assert loaded_b[0].credits == 99
+    assert profile_a.save_path != profile_b.save_path

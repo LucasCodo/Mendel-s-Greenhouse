@@ -27,8 +27,9 @@ class GameState:
     )
     selected_parent_a: int = 0
     selected_parent_b: int = 1
-    current_batch: list[Plant] = field(default_factory=list)
+    current_batch: list[Plant | None] = field(default_factory=list)
     visible_count: int = 0
+    selected_offspring_index: int = 0
     rng: Random = field(default_factory=Random)
     status_message: str = "Select parents, then cross plants."
 
@@ -66,7 +67,15 @@ class GameState:
     @property
     def last_visible_plant(self) -> Plant | None:
         """Return the last revealed offspring."""
-        if self.visible_count == 0:
-            return None
+        for plant in reversed(self.current_batch[: self.visible_count]):
+            if plant is not None:
+                return plant
 
-        return self.current_batch[self.visible_count - 1]
+        return None
+
+    @property
+    def selected_offspring(self) -> Plant | None:
+        """Return the selected visible offspring, if it still exists."""
+        if self.selected_offspring_index >= self.visible_count:
+            return None
+        return self.current_batch[self.selected_offspring_index]

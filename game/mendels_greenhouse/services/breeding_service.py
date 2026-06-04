@@ -1,8 +1,11 @@
 """Application service for crossbreeding and offspring reveal."""
 
 from mendels_greenhouse.core.contracts import generate_next_contract
-from mendels_greenhouse.core.genetics import crossbreed, expected_distribution
+from mendels_greenhouse.core.genetics import crossbreed
 from mendels_greenhouse.state.game_state import GameState
+
+GERMINATION_BED_SIZE = 20
+SPECIMEN_SALE_VALUE = 2
 
 
 class BreedingService:
@@ -26,14 +29,14 @@ class BreedingService:
             self.state.status_message = "Select parents from the same species."
             return False
 
-        distribution = expected_distribution(parent_a, parent_b)
         self.state.current_batch = crossbreed(
             parent_a,
             parent_b,
-            count=distribution.total_combinations,
+            count=GERMINATION_BED_SIZE,
             rng=self.state.rng,
         )
         self.state.visible_count = 0
+        self.state.selected_offspring_index = 0
         self.state.status_message = "Generating offspring..."
         return True
 
@@ -43,7 +46,9 @@ class BreedingService:
             return False
 
         self.state.visible_count += 1
-        plant = self.state.last_visible_plant
+        revealed_index = self.state.visible_count - 1
+        self.state.selected_offspring_index = revealed_index
+        plant = self.state.current_batch[revealed_index]
         if plant is None:
             return False
 
@@ -84,9 +89,13 @@ class BreedingService:
 
     def store_last_revealed(self) -> bool:
         """Store the latest revealed plant if there is greenhouse space."""
-        plant = self.state.last_visible_plant
+        return self.store_selected_offspring()
+
+    def store_selected_offspring(self) -> bool:
+        """Store the selected offspring and clear its bed cell."""
+        plant = self.state.selected_offspring
         if plant is None:
-            self.state.status_message = "No revealed plant to store."
+            self.state.status_message = "No selected specimen to store."
             return False
 
         slot_index = self.state.greenhouse.store(plant)
@@ -94,5 +103,20 @@ class BreedingService:
             self.state.status_message = "Greenhouse is full."
             return False
 
+        self.state.current_batch[self.state.selected_offspring_index] = None
         self.state.status_message = f"Stored plant in slot {slot_index + 1}."
+        return True
+
+    def sell_selected_offspring(self) -> bool:
+        """Sell the selected offspring and clear its bed cell."""
+        plant = self.state.selected_offspring
+        if plant is None:
+            self.state.status_message = "No selected specimen to sell."
+            return False
+
+        self.state.current_batch[self.state.selected_offspring_index] = None
+        self.state.credits += SPECIMEN_SALE_VALUE
+        self.state.status_message = (
+            f"Sold specimen for {SPECIMEN_SALE_VALUE} credits."
+        )
         return True
