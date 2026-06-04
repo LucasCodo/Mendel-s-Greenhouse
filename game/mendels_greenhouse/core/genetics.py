@@ -8,6 +8,7 @@ from random import Random
 GENE_WIDTH = 2
 MVP_GENES = ("A", "B")
 SPECIES_MENDEL_PEA = "Mendel Pea"
+GENE_SYMBOLS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
 @dataclass(frozen=True)
@@ -60,17 +61,23 @@ class CrossbreedingDistribution:
 
 
 def validate_genotype(genotype: str) -> None:
-    """Validate an MVP genotype."""
-    expected_length = len(MVP_GENES) * GENE_WIDTH
-    if len(genotype) != expected_length:
-        message = f"Genotype must have {expected_length} alleles."
+    """Validate a Mendelian genotype made of ordered allele pairs."""
+    if len(genotype) % GENE_WIDTH != 0:
+        message = "Genotype must be made of allele pairs."
+        raise ValueError(message)
+    gene_count = len(genotype) // GENE_WIDTH
+    if gene_count < len(MVP_GENES):
+        message = f"Genotype must have at least {len(MVP_GENES)} genes."
+        raise ValueError(message)
+    if gene_count > len(GENE_SYMBOLS):
+        message = f"Genotype supports at most {len(GENE_SYMBOLS)} genes."
         raise ValueError(message)
 
     pairs = [
         genotype[index : index + GENE_WIDTH]
-        for index in range(0, expected_length, GENE_WIDTH)
+        for index in range(0, len(genotype), GENE_WIDTH)
     ]
-    for gene, pair in zip(MVP_GENES, pairs, strict=True):
+    for gene, pair in zip(_genes_for_count(gene_count), pairs, strict=True):
         allowed = {gene, gene.lower()}
         if set(pair) - allowed:
             message = f"Invalid alleles for gene {gene}: {pair}"
@@ -80,10 +87,11 @@ def validate_genotype(genotype: str) -> None:
 def genotype_pairs(genotype: str) -> dict[str, str]:
     """Split a genotype string into gene pairs."""
     validate_genotype(genotype)
+    genes = _genes_for_count(len(genotype) // GENE_WIDTH)
     return {
         gene: genotype[index : index + GENE_WIDTH]
         for gene, index in zip(
-            MVP_GENES,
+            genes,
             range(0, len(genotype), 2),
             strict=True,
         )
@@ -99,9 +107,12 @@ def gametes(plant: Plant) -> tuple[str, ...]:
 
 def combine_gametes(gamete_a: str, gamete_b: str) -> str:
     """Combine two gametes into a normalized genotype."""
+    if len(gamete_a) != len(gamete_b):
+        message = "Gametes must have the same gene count."
+        raise ValueError(message)
     pairs = []
     for gene, allele_a, allele_b in zip(
-        MVP_GENES,
+        _genes_for_count(len(gamete_a)),
         gamete_a,
         gamete_b,
         strict=True,
@@ -181,3 +192,21 @@ def _most_likely_genotype(distribution: CrossbreedingDistribution) -> str:
         distribution.genotype_counts,
         key=lambda genotype: distribution.genotype_counts[genotype],
     )
+
+
+def founder_genotypes(gene_count: int) -> tuple[str, str]:
+    """Return fully dominant and recessive founder genotypes."""
+    genes = _genes_for_count(gene_count)
+    dominant = "".join(gene * GENE_WIDTH for gene in genes)
+    recessive = "".join(gene.lower() * GENE_WIDTH for gene in genes)
+    return dominant, recessive
+
+
+def _genes_for_count(gene_count: int) -> tuple[str, ...]:
+    if gene_count < 1:
+        message = "Gene count must be positive."
+        raise ValueError(message)
+    if gene_count > len(GENE_SYMBOLS):
+        message = f"Gene count supports at most {len(GENE_SYMBOLS)} genes."
+        raise ValueError(message)
+    return GENE_SYMBOLS[:gene_count]

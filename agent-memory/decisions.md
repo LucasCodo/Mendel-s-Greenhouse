@@ -327,3 +327,9 @@ The Germination Bed size follows the active cross's number of genetic outcome
 combinations when that count fits on screen. For larger future crosses, the bed
 uses the maximum supported representative cell count instead of drawing every
 possible combination, so the main screen never overflows.
+
+## 2026-06-04: Species Unlock Founder Slots
+
+Unlocking a new plant species requires two empty greenhouse slots. The unlock
+immediately occupies those slots with the species' fully dominant and fully
+recessive founder plants, such as `AABBCC` and `aabbcc` for Snapdragon.

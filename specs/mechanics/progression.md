@@ -171,6 +171,11 @@ Species complexity:
 - Tomato: 5 genes.
 - Orchid: 6 genes.
 
+Unlocking a new species requires two empty greenhouse slots. The unlock places
+two founder specimens into those slots: the fully dominant genotype and the
+fully recessive genotype for that species gene count, such as `AABBCC` and
+`aabbcc` for Snapdragon.
+
 ## Contracts
 
 ```text

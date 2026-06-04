@@ -186,6 +186,9 @@ Rules:
 - The maximum greenhouse has 20 slots.
 - Initial plants are `AABB` and `aabb`.
 - Two initial slots are empty.
+- Unlocking a new species requires two empty slots.
+- The two slots are occupied by the unlocked species' fully dominant and fully
+  recessive founder plants.
 
 ## Sale
 

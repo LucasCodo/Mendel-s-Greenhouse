@@ -7,6 +7,7 @@ from mendels_greenhouse.core.save_data import (
     state_from_save_data,
     state_to_save_data,
 )
+from mendels_greenhouse.scenes.main_game import MainGameScene
 from mendels_greenhouse.services.breeding_service import (
     BreedingService,
     representative_bed_size,
@@ -172,6 +173,51 @@ def test_claim_without_complete_contract_does_not_generate_next() -> None:
     assert state.credits == 0
     assert state.completed_contracts == 0
     assert state.active_contract is current_contract
+
+
+def test_species_unlock_requires_two_free_greenhouse_slots() -> None:
+    state = GameState.create_initial()
+    state.credits = 3000
+    state.greenhouse.store(Plant("AaBb"))
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene._play_sound = lambda _sound_index: None
+
+    assert not scene._buy_species_unlock()
+
+    assert state.credits == 3000
+    assert "Snapdragon" not in state.unlocked_species
+    assert state.status_message == "Requires two empty garden slots."
+
+
+def test_species_unlock_adds_dominant_and_recessive_founders() -> None:
+    state = GameState.create_initial()
+    state.credits = 3000
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene._play_sound = lambda _sound_index: None
+
+    assert scene._buy_species_unlock()
+
+    assert state.credits == 0
+    assert "Snapdragon" in state.unlocked_species
+    assert state.greenhouse.plant_at(2) == Plant(
+        "AABBCC",
+        species="Snapdragon",
+    )
+    assert state.greenhouse.plant_at(3) == Plant(
+        "aabbcc",
+        species="Snapdragon",
+    )
+
+
+def test_species_shop_card_handles_all_unlocked_species() -> None:
+    state = GameState.create_initial()
+    state.unlocked_species.update({"Snapdragon", "Corn"})
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+
+    assert scene._species_card_data() == ("Species", "All unlocked", "DONE")
 
 
 def test_save_data_round_trips_state_without_pyxel_objects() -> None:

@@ -724,6 +724,14 @@ msgid "Sells after harvest"
 msgstr "Vende na colheita"
 
 #: mendels_greenhouse/scenes/main_game.py
+msgid "Adds dominant and recessive founders."
+msgstr "Adiciona fundadores dominante e recessivo."
+
+#: mendels_greenhouse/scenes/main_game.py
+msgid "Requires two empty garden slots."
+msgstr "Requer dois espacos vazios no jardim."
+
+#: mendels_greenhouse/scenes/main_game.py
 msgid "are rescued first."
 msgstr "sao resgatadas primeiro."
 

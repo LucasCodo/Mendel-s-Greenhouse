@@ -76,6 +76,11 @@ Analyzer use is unlimited after a level is unlocked. It has no per-use credit co
 | Tomato | 5 | TBD |
 | Orchid | 6 | TBD |
 
+The player must have two empty greenhouse slots before buying a species unlock.
+Those slots are immediately occupied by the new species' fully dominant and
+fully recessive founder plants. If fewer than two slots are free, the unlock is
+blocked even when the player has enough credits.
+
 ## Offspring Production
 
 Each crossbreeding process displays a batch sized from the active cross's

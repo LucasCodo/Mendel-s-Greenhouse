@@ -5,7 +5,11 @@ from math import ceil, sqrt
 
 import pyxel
 
-from mendels_greenhouse.core.genetics import Plant, expected_distribution
+from mendels_greenhouse.core.genetics import (
+    Plant,
+    expected_distribution,
+    founder_genotypes,
+)
 from mendels_greenhouse.core.i18n import gettext_noop, set_language, t
 from mendels_greenhouse.services.breeding_service import BreedingService
 from mendels_greenhouse.services.greenhouse_service import GreenhouseService
@@ -170,6 +174,7 @@ SPECIES_UNLOCKS = {
     "Snapdragon": (3, 3000),
     "Corn": (4, 10000),
 }
+SPECIES_UNLOCK_REQUIRED_FREE_SLOTS = 2
 
 BUTTON_PRESS_FRAMES = 7
 ANALYZER_GENOTYPE_LEVEL = 2
@@ -225,6 +230,7 @@ I18N_MARKERS = (
     gettext_noop("Greenhouse is already maxed."),
     gettext_noop("Greenhouse is full."),
     gettext_noop("Greenhouse slot"),
+    gettext_noop("Requires two empty garden slots."),
     gettext_noop("Growing"),
     gettext_noop("HARVEST"),
     gettext_noop("Harvest grown plants."),
@@ -281,6 +287,7 @@ I18N_MARKERS = (
     gettext_noop("Select parents from the same species."),
     gettext_noop("Select parents, then cross plants."),
     gettext_noop("Select two stored parent plants."),
+    gettext_noop("Adds dominant and recessive founders."),
     gettext_noop("Sells after harvest"),
     gettext_noop("Shop"),
     gettext_noop("Slot {slot}"),
@@ -1733,29 +1740,43 @@ class MainGameScene:
 
     def _shop_card_data(self, item: str) -> tuple[str, str, str]:
         if item == "slot":
-            next_slot = self.state.greenhouse.capacity + 1
-            if next_slot not in GREENHOUSE_EXPANSION_COSTS:
-                return ("Greenhouse slot", "Max capacity", "DONE")
-            cost = GREENHOUSE_EXPANSION_COSTS[next_slot]
-            return (
-                self._t("Slot {slot}", slot=next_slot),
-                f"{cost} CR",
-                self._afford_label(cost),
-            )
+            return self._greenhouse_slot_card_data()
         if item == "analyzer":
-            next_level = self.state.analyzer_level + 1
-            if next_level not in ANALYZER_UPGRADES:
-                return ("Analyzer", "Max level", "DONE")
-            _name, cost = ANALYZER_UPGRADES[next_level]
-            return (
-                self._t("Analyzer L{level}", level=next_level),
-                f"{cost} CR",
-                self._afford_label(cost),
-            )
+            return self._analyzer_card_data()
+        return self._species_card_data()
 
-        species_name, (_genes, cost) = self._next_species_unlock()
-        if species_name is None:
+    def _greenhouse_slot_card_data(self) -> tuple[str, str, str]:
+        next_slot = self.state.greenhouse.capacity + 1
+        if next_slot not in GREENHOUSE_EXPANSION_COSTS:
+            return ("Greenhouse slot", "Max capacity", "DONE")
+        cost = GREENHOUSE_EXPANSION_COSTS[next_slot]
+        return (
+            self._t("Slot {slot}", slot=next_slot),
+            f"{cost} CR",
+            self._afford_label(cost),
+        )
+
+    def _analyzer_card_data(self) -> tuple[str, str, str]:
+        next_level = self.state.analyzer_level + 1
+        if next_level not in ANALYZER_UPGRADES:
+            return ("Analyzer", "Max level", "DONE")
+        _name, cost = ANALYZER_UPGRADES[next_level]
+        return (
+            self._t("Analyzer L{level}", level=next_level),
+            f"{cost} CR",
+            self._afford_label(cost),
+        )
+
+    def _species_card_data(self) -> tuple[str, str, str]:
+        species_name, data = self._next_species_unlock()
+        if species_name is None or data is None:
             return ("Species", "All unlocked", "DONE")
+        _genes, cost = data
+        if (
+            self.state.greenhouse.free_slots
+            < SPECIES_UNLOCK_REQUIRED_FREE_SLOTS
+        ):
+            return (species_name, f"{cost} CR", "LOCK")
         return (species_name, f"{cost} CR", self._afford_label(cost))
 
     def _shop_details(self) -> list[str]:
@@ -1791,6 +1812,8 @@ class MainGameScene:
         return [
             self._t("Unlock {species}.", species=species_name),
             self._t("Adds a {genes}-gene plant species.", genes=genes),
+            self._t("Adds dominant and recessive founders."),
+            self._t("Requires two empty garden slots."),
             self._t("Cost: {cost} credits.", cost=cost),
         ]
 
@@ -1835,11 +1858,25 @@ class MainGameScene:
         if species_name is None or data is None:
             self.state.status_message = "All specified species are unlocked."
             return False
-        _genes, cost = data
+        genes, cost = data
+        if (
+            self.state.greenhouse.free_slots
+            < SPECIES_UNLOCK_REQUIRED_FREE_SLOTS
+        ):
+            self.state.status_message = "Requires two empty garden slots."
+            self._play_sound(4)
+            return False
         if not self._spend_credits(cost):
             return False
         self.state.unlocked_species.add(species_name)
         self.state.collection.register_species(species_name)
+        dominant, recessive = founder_genotypes(genes)
+        self.state.greenhouse.store(
+            Plant(dominant, species=species_name),
+        )
+        self.state.greenhouse.store(
+            Plant(recessive, species=species_name),
+        )
         self.state.status_message = f"Unlocked {species_name}."
         self._play_sound(3)
         return True
