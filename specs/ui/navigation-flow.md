@@ -58,7 +58,7 @@ Contracts
 -> Start Crossbreeding
 -> Germination Bed
 -> Inspect Offspring
--> Store, Sell, or Deliver
+-> Store selected specimens or Harvest the batch
 -> Reward / Discovery / Upgrade
 -> Main Game Screen
 ```
@@ -71,8 +71,8 @@ flowchart LR
     D --> E["Inspect Results"]
     E --> F{"Use Result?"}
     F -->|Store| G["Greenhouse"]
-    F -->|Sell| H["Credits"]
-    F -->|Deliver| I["Contract Progress"]
+    F -->|Harvest excess| H["Credits"]
+    F -->|Harvest matches| I["Contract Progress"]
     I --> J["Reward"]
     G --> B
     H --> B

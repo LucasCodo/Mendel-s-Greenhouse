@@ -22,16 +22,15 @@ Shows details and actions for the selected Germination Bed specimen.
 - Genotype section when analyzer level allows it.
 - Gene explanation section.
 - Primary action button, such as `Guardar`.
-- Destructive action button, such as `Descartar`.
 
 ## Behavior
 
 - Updates when the player selects a bed cell.
 - Store action moves the specimen into an available greenhouse slot.
-- Discard action removes the specimen when rules allow it.
-- Future delivery/sell actions may appear based on active contract and economy
-  rules.
+- Harvest resolves the grown batch: matching specimens are delivered to the
+  active contract first and excess specimens are sold automatically.
 
 ## Accessibility
 
-Destructive actions need clear color, icon, and text. Color alone is not enough.
+Harvest and store actions need clear color, icon, and text. Color alone is not
+enough.

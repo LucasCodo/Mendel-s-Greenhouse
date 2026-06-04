@@ -173,7 +173,9 @@ Rules:
 
 - The generated batch is validated.
 - No plant is consumed automatically.
-- The player chooses whether to store, sell, or discard descendants afterward.
+- The player may store selected descendants before harvest.
+- Harvesting resolves remaining descendants into contract delivery first and
+  automatic sale for excess specimens.
 
 ## Storage
 
@@ -193,16 +195,18 @@ Rules:
 
 ## Sale
 
-The player may sell stored plants to free space.
+The MVP sells excess Germination Bed specimens automatically during harvest.
+Stored plants are discarded rather than sold when the player needs to free
+space.
 
 Rules:
 
-- Sold plants are removed from storage.
+- Sold excess specimens are removed from the Germination Bed.
 - Sold plants remain registered in the collection if already discovered.
 - Sale values are intentionally low.
 - Common sale should pay 5% to 10% of comparable contract value.
 - Discard value is 0%.
-- Selling exists to avoid waste and free storage, not as the main income source.
+- Automatic sale exists to avoid waste, not as the main income source.
 
 ## Discoveries
 

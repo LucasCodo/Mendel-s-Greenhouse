@@ -46,7 +46,7 @@ The Settings Screen controls player preferences without defining implementation 
 ### Gameplay
 
 - Reset tutorial prompts.
-- Confirmation preferences for selling plants.
+- Reset progression control.
 
 ### Language
 

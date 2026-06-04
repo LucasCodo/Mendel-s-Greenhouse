@@ -87,7 +87,9 @@ Rules:
 
 - The batch is evaluated.
 - Plants are not consumed automatically.
-- The player chooses what to store, sell, or discard afterward.
+- The player chooses what to store before harvest.
+- Harvesting resolves matching specimens into the active contract and sells
+  excess specimens automatically.
 
 ## Customer Types
 

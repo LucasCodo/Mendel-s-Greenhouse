@@ -34,14 +34,16 @@ TOP_BAR_H = 66
 PROBABILITY_PANEL_MAX_Y = 166
 
 CROSS_BUTTON = Rect(267, 158, 106, 22)
-HARVEST_BUTTON = Rect(432, 322, 122, 24)
+STORE_BUTTON = Rect(148, 322, 92, 24)
+HARVEST_BUTTON = Rect(250, 322, 122, 24)
 PARENT_A_CARD = Rect(166, 120, 128, 68)
 PARENT_B_CARD = Rect(346, 120, 128, 68)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
 CLAIM_CONTRACT_BUTTON = Rect(420, 84, 64, 18)
 PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
-GARDEN_DISCARD_BUTTON = Rect(446, 211, 80, 22)
+GARDEN_DISCARD_BUTTON = Rect(392, 257, 96, 22)
 SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
+RESET_PROGRESS_BUTTON = Rect(208, 250, 224, 20)
 LANGUAGE_BUTTON = Rect(338, 112, 86, 20)
 MUSIC_DOWN_BUTTON = Rect(338, 151, 20, 18)
 MUSIC_UP_BUTTON = Rect(404, 151, 20, 18)
@@ -250,9 +252,6 @@ I18N_MARKERS = (
     gettext_noop("Learned genetics concepts"),
     gettext_noop("Learned: {learned}/{total}"),
     gettext_noop("Selected Concept"),
-    gettext_noop("Selected specimen"),
-    gettext_noop("Select a revealed cell."),
-    gettext_noop("SELL"),
     gettext_noop("Sold specimen for {credits} credits."),
     gettext_noop("Upgrade analyzer in Shop."),
     gettext_noop("Unlocked by analyzer level {level}."),
@@ -298,6 +297,8 @@ I18N_MARKERS = (
     gettext_noop("Stored plant in slot {slot}."),
     gettext_noop("Stored plants and parent selection"),
     gettext_noop("Ready to harvest."),
+    gettext_noop("Reset game progression"),
+    gettext_noop("Progress reset."),
     gettext_noop("The goal"),
     gettext_noop("Unlock {species}."),
     gettext_noop("Unlock greenhouse slot {slot}."),
@@ -501,6 +502,13 @@ class MainGameScene:
             self._reveal_frames.clear()
             self.germination_started_frame = None
 
+        if clicked(STORE_BUTTON) or pyxel.btnp(pyxel.KEY_S):
+            if self.breeding.store_selected_offspring():
+                self._play_sound(3)
+                self._autosave()
+            else:
+                self._play_sound(4)
+
         if clicked(PARENT_A_CARD) or pyxel.btnp(pyxel.KEY_1):
             self._play_sound(0)
             self.parent_picker_target = "a"
@@ -616,14 +624,14 @@ class MainGameScene:
         selected = self._selected_greenhouse_plant()
         if selected is None:
             return
-        if clicked(Rect(392, 183, 96, 22)):
+        if clicked(Rect(392, 201, 96, 22)):
             self._play_sound(0)
             if self.greenhouse_service.select_parent(
                 "a",
                 self.selected_greenhouse_slot,
             ):
                 self._autosave()
-        if clicked(Rect(392, 211, 96, 22)):
+        if clicked(Rect(392, 229, 96, 22)):
             self._play_sound(0)
             if self.greenhouse_service.select_parent(
                 "b",
@@ -1066,114 +1074,35 @@ class MainGameScene:
         )
 
     def _draw_bottom_panels(self) -> None:
-        self._draw_stats_panel()
-        self._draw_last_plant_panel()
-        self._draw_help_panel()
+        self._draw_bed_action_bar()
+
+    def _draw_bed_action_bar(self) -> None:
+        pyxel.rect(140, 306, 240, 42, PyxelColor.DARK_WOOD)
+        pyxel.rectb(140, 306, 240, 42, PyxelColor.FRAME)
+        pyxel.rectb(142, 308, 236, 38, PyxelColor.UI_DARK)
+        total = len(self.state.current_batch)
+        contract = self.state.active_contract
+        progress = self._t(
+            "Generated: {visible}/{total}",
+            visible=self.state.visible_count,
+            total=total,
+        )
+        contract_text = (
+            f"{self._t('Matches')}: {contract.delivered_count}  "
+            f"{self._t('Missing')}: {contract.remaining_count}"
+        )
+        pyxel.text(150, 312, progress[:36], PyxelColor.PARCHMENT_LIGHT)
+        pyxel.text(150, 324, contract_text[:44], PyxelColor.PARCHMENT_LIGHT)
+        selected_available = self.state.selected_offspring is not None
+        draw_button(
+            STORE_BUTTON,
+            self._t("STORE"),
+            enabled=selected_available,
+        )
         draw_button(
             HARVEST_BUTTON,
             self._t("HARVEST"),
             enabled=self._germination_ready(),
-        )
-
-    def _draw_stats_panel(self) -> None:
-        rect = Rect(12, 264, 136, 84)
-        draw_panel(rect)
-        draw_outlined_text(
-            18,
-            270,
-            self._t("Generation").upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        total = len(self.state.current_batch)
-        pyxel.text(
-            24,
-            286,
-            self._t(
-                "Generated: {visible}/{total}",
-                visible=self.state.visible_count,
-                total=total,
-            ),
-            PyxelColor.UI_DARK,
-        )
-        contract = self.state.active_contract
-        pyxel.text(
-            24,
-            300,
-            f"{self._t('Matches')}: {contract.delivered_count}",
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            24,
-            314,
-            f"{self._t('Missing')}: {contract.remaining_count}",
-            PyxelColor.UI_DARK,
-        )
-
-    def _draw_last_plant_panel(self) -> None:
-        rect = Rect(160, 264, 150, 84)
-        draw_panel(rect)
-        draw_outlined_text(
-            166,
-            270,
-            self._t("Selected specimen").upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        plant = self.state.selected_offspring
-        if plant is None:
-            pyxel.text(
-                178,
-                296,
-                self._t("Select a revealed cell."),
-                PyxelColor.UI_DARK,
-            )
-            return
-
-        self._draw_plant_preview(190, 334, plant, large=True)
-        phenotype = plant.phenotype
-        pyxel.text(226, 288, self._visible_genotype(plant), PyxelColor.UI_DARK)
-        pyxel.text(
-            226,
-            302,
-            self._trait(phenotype.seed_color),
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            226,
-            316,
-            self._trait(phenotype.seed_texture),
-            PyxelColor.UI_DARK,
-        )
-
-    def _draw_help_panel(self) -> None:
-        rect = Rect(322, 264, 170, 84)
-        draw_panel(rect)
-        draw_outlined_text(
-            328,
-            270,
-            self._t("Help").upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        pyxel.text(334, 284, self._t("Each parent gives"), PyxelColor.UI_DARK)
-        pyxel.text(
-            334,
-            296,
-            self._t("one allele per gene."),
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            334,
-            308,
-            self._t("Contract matches"),
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            334,
-            320,
-            self._t("are rescued first."),
-            PyxelColor.UI_DARK,
         )
 
     def _draw_hovered_plant_tooltip(self) -> None:
@@ -1189,6 +1118,10 @@ class MainGameScene:
         )
         lines = [
             growth_status,
+            self._t(
+                "Generation: {generation}",
+                generation=plant.generation_label,
+            ),
             f"Genotype: {self._visible_genotype(plant)}",
             f"Color: {self._trait(phenotype.seed_color)}",
             f"Texture: {self._trait(phenotype.seed_texture)}",
@@ -1416,23 +1349,32 @@ class MainGameScene:
             pyxel.text(
                 428,
                 146,
-                f"Genotype: {self._visible_genotype(selected)}",
+                self._t(
+                    "Generation: {generation}",
+                    generation=selected.generation_label,
+                ),
                 PyxelColor.UI_DARK,
             )
             pyxel.text(
                 428,
                 160,
-                f"Color: {self._trait(phenotype.seed_color)}",
+                f"Genotype: {self._visible_genotype(selected)}",
                 PyxelColor.UI_DARK,
             )
             pyxel.text(
                 428,
                 174,
+                f"Color: {self._trait(phenotype.seed_color)}",
+                PyxelColor.UI_DARK,
+            )
+            pyxel.text(
+                428,
+                188,
                 f"Texture: {self._trait(phenotype.seed_texture)}",
                 PyxelColor.UI_DARK,
             )
-            draw_button(Rect(392, 183, 96, 22), self._t("PARENT A"))
-            draw_button(Rect(392, 211, 96, 22), self._t("PARENT B"))
+            draw_button(Rect(392, 201, 96, 22), self._t("PARENT A"))
+            draw_button(Rect(392, 229, 96, 22), self._t("PARENT B"))
             draw_button(
                 GARDEN_DISCARD_BUTTON,
                 self._t("DISCARD"),
@@ -2056,6 +1998,10 @@ class MainGameScene:
             self._play_sound(0)
             self._autosave()
 
+        if clicked(RESET_PROGRESS_BUTTON):
+            self._play_sound(3)
+            self._reset_progression()
+
     def _draw_settings_panel(self) -> None:
         pyxel.dither(0.65)
         pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
@@ -2104,11 +2050,30 @@ class MainGameScene:
 
         pyxel.text(
             188,
-            238,
+            232,
             self._t("Changes apply immediately."),
             PyxelColor.UI_DARK,
         )
+        draw_button(
+            RESET_PROGRESS_BUTTON,
+            self._t("Reset game progression"),
+        )
         draw_button(SETTINGS_BACK_BUTTON, self._t("BACK"))
+
+    def _reset_progression(self) -> None:
+        self.state = GameState.create_initial()
+        self.breeding = BreedingService(self.state)
+        self.greenhouse_service = GreenhouseService(self.state)
+        self.parent_picker_target = None
+        self.active_screen = SCREEN_MAIN
+        self.collection_tab = "Species"
+        self.selected_knowledge = "Phenotype"
+        self.selected_greenhouse_slot = 0
+        self.selected_shop_item = "slot"
+        self._reveal_frames.clear()
+        self.germination_started_frame = None
+        self.state.status_message = "Progress reset."
+        self._autosave()
 
     def _draw_volume_control(
         self,

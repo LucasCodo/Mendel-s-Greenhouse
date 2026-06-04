@@ -143,10 +143,14 @@ def save_settings_from_payload(payload: dict[str, Any]) -> dict[str, Any]:
     return settings
 
 
-def _plant_to_data(plant: Plant | None) -> dict[str, str] | None:
+def _plant_to_data(plant: Plant | None) -> dict[str, str | int] | None:
     if plant is None:
         return None
-    return {"genotype": plant.genotype, "species": plant.species}
+    return {
+        "genotype": plant.genotype,
+        "species": plant.species,
+        "generation": plant.generation,
+    }
 
 
 def _plant_from_data(data: object) -> Plant | None:
@@ -158,6 +162,7 @@ def _plant_from_data(data: object) -> Plant | None:
     return Plant(
         genotype=str(data["genotype"]),
         species=str(data.get("species", SPECIES_MENDEL_PEA)),
+        generation=int(data.get("generation", 0)),
     )
 
 

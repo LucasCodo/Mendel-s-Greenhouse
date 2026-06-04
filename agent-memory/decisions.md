@@ -339,3 +339,9 @@ recessive founder plants, such as `AABBCC` and `aabbcc` for Snapdragon.
 The greenhouse stores at most one plant for each genotype. Attempts to store a
 plant whose genotype is already present are rejected instead of consuming an
 additional garden slot.
+
+## 2026-06-04: Harvest Resolves Excess Sale
+
+The Germination Bed has no manual sell button. Players may store selected
+specimens before harvest; harvesting then delivers matching plants to the active
+contract and sells any excess specimens automatically.

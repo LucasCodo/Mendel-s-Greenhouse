@@ -127,7 +127,10 @@ Balance intent:
 
 ## Plant Sale Values
 
-Plant sale values are intentionally low. Sale exists to avoid waste and free greenhouse space, not to become the main income source.
+Plant sale values are intentionally low. In the MVP, sale happens
+automatically during harvest for grown specimens that are not delivered to the
+active contract. Sale exists to avoid waste, not to become the main income
+source.
 
 | Destination | Relative Value |
 | ----------- | -------------: |

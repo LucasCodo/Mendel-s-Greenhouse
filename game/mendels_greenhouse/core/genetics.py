@@ -25,9 +25,13 @@ class Plant:
 
     genotype: str
     species: str = SPECIES_MENDEL_PEA
+    generation: int = 0
 
     def __post_init__(self) -> None:
         validate_genotype(self.genotype)
+        if self.generation < 0:
+            message = "Plant generation cannot be negative."
+            raise ValueError(message)
 
     @property
     def phenotype(self) -> Phenotype:
@@ -42,6 +46,13 @@ class Plant:
     def is_protected_founder(self) -> bool:
         """Return whether this plant is a non-discardable founder genotype."""
         return self.genotype.isupper() or self.genotype.islower()
+
+    @property
+    def generation_label(self) -> str:
+        """Return the display label for the plant generation."""
+        if self.generation == 0:
+            return "P0"
+        return f"F{self.generation}"
 
 
 @dataclass(frozen=True)
@@ -167,8 +178,14 @@ def crossbreed(
     distribution = expected_distribution(parent_a, parent_b)
     genotypes = _expand_distribution(distribution, count)
     randomizer.shuffle(genotypes)
+    offspring_generation = max(parent_a.generation, parent_b.generation) + 1
     return [
-        Plant(genotype, species=parent_a.species) for genotype in genotypes
+        Plant(
+            genotype,
+            species=parent_a.species,
+            generation=offspring_generation,
+        )
+        for genotype in genotypes
     ]
 
 

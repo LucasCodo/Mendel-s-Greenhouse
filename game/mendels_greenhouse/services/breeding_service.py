@@ -161,20 +161,6 @@ class BreedingService:
         self.state.status_message = f"Stored plant in slot {slot_index + 1}."
         return True
 
-    def sell_selected_offspring(self) -> bool:
-        """Sell the selected offspring and clear its bed cell."""
-        plant = self.state.selected_offspring
-        if plant is None:
-            self.state.status_message = "No selected specimen to sell."
-            return False
-
-        self.state.current_batch[self.state.selected_offspring_index] = None
-        self.state.credits += SPECIMEN_SALE_VALUE
-        self.state.status_message = (
-            f"Sold specimen for {SPECIMEN_SALE_VALUE} credits."
-        )
-        return True
-
 
 def representative_bed_size(parent_a: Plant, parent_b: Plant) -> int:
     """Return the displayed batch size for a parent cross."""

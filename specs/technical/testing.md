@@ -165,7 +165,7 @@ Test that:
 - Maximum capacity is 20 slots.
 - Starting plants are `AABB` and `aabb`.
 - Storing fails cleanly when the greenhouse is full.
-- Selling removes the plant and awards the correct low-value reward.
+- Harvest sells excess specimens and awards the correct low-value reward.
 
 ### Progression
 

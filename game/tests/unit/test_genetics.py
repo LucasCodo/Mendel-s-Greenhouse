@@ -38,6 +38,22 @@ def test_crossbreed_preserves_parent_species() -> None:
     assert offspring[0].genotype == "AaBbCc"
 
 
+def test_crossbreed_assigns_next_generation_from_parents() -> None:
+    offspring = crossbreed(
+        Plant("AaBb", generation=1),
+        Plant("AaBb", generation=2),
+        count=1,
+        rng=Random(1),
+    )
+
+    assert offspring[0].generation == 3
+    assert offspring[0].generation_label == "F3"
+
+
+def test_founder_generation_label_is_p0() -> None:
+    assert Plant("AABB").generation_label == "P0"
+
+
 def test_founder_genotypes_use_dominant_and_recessive_pairs() -> None:
     assert founder_genotypes(3) == ("AABBCC", "aabbcc")
 

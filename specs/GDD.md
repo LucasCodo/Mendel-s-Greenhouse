@@ -19,7 +19,7 @@ The player is a greenhouse geneticist responsible for producing plants with requ
 - Accept and complete active contracts.
 - Produce plants with requested visible traits.
 - Learn which parent combinations create useful offspring.
-- Decide which specimens to keep, sell, or deliver.
+- Decide which specimens to keep before harvesting the batch.
 
 ### Mid-Term Goals
 
@@ -112,7 +112,7 @@ Delivery contracts consume delivered plants. Statistical contracts validate the 
 
 ### Greenhouse
 
-The greenhouse is the player's plant inventory. Limited space creates strategic decisions about storage, sale, future breeding, and delivery.
+The greenhouse is the player's plant inventory. Limited space creates strategic decisions about storage, future breeding, and contract delivery.
 
 ### Collection
 

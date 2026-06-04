@@ -215,8 +215,8 @@ Behavior:
 - Supports `4 x 4` and similar beds when proportions such as 75% / 25% or
   `9:3:3:1` need to be visually legible.
 - Highlights contract-matching specimens with icon and outline, not color alone.
-- Selecting a specimen opens detail actions such as wait, store, sell, deliver,
-  or discard.
+- Selecting a specimen exposes store actions. Harvest resolves contract delivery
+  and automatic excess sale for the grown batch.
 - Triggers discovery and contract feedback.
 
 ## PunnettSummary

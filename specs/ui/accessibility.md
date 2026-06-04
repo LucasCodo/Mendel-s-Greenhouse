@@ -24,7 +24,7 @@ Mendel's Greenhouse should be readable, teachable, and playable by a broad audie
 
 - The primary interaction mode is mouse-first, but every core action must also be reachable by keyboard.
 - Important actions must have clear labels or recognizable icons.
-- Destructive actions, such as selling plants, require confirmation or undo support.
+- Destructive progression actions require confirmation or undo support.
 - Contract requirements should remain visible during planning.
 - Hover-only information must also be accessible through selection or focus.
 - Focus states must be visible on all keyboard-reachable controls.

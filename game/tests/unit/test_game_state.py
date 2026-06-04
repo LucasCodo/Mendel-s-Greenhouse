@@ -124,17 +124,6 @@ def test_store_selected_offspring_rejects_duplicate_genotype() -> None:
     assert state.current_batch[0] == Plant("AABB")
 
 
-def test_sell_selected_offspring_clears_bed_cell_and_adds_credits() -> None:
-    state = GameState.create_initial()
-    service = BreedingService(state)
-    service.start_crossbreeding()
-
-    assert service.sell_selected_offspring()
-
-    assert state.credits == 2
-    assert state.current_batch[state.selected_offspring_index] is None
-
-
 def test_greenhouse_service_discards_only_non_protected_plants() -> None:
     state = GameState.create_initial()
     service = GreenhouseService(state)
@@ -243,11 +232,43 @@ def test_species_shop_card_handles_all_unlocked_species() -> None:
     assert scene._species_card_data() == ("Species", "All unlocked", "DONE")
 
 
+def test_reset_progression_restores_initial_game_state() -> None:
+    state = GameState.create_initial()
+    state.credits = 500
+    state.analyzer_level = 3
+    state.current_batch = [Plant("AaBb", generation=1)]
+    state.visible_count = 1
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.breeding = BreedingService(state)
+    scene.greenhouse_service = GreenhouseService(state)
+    scene.save_service = None
+    scene.collection_tab = "Genotypes"
+    scene.selected_knowledge = "Genetic probability"
+    scene.selected_greenhouse_slot = 2
+    scene.selected_shop_item = "analyzer"
+    scene.parent_picker_target = "a"
+    scene.active_screen = "shop"
+    scene._reveal_frames = {0: 10}
+    scene.germination_started_frame = 10
+
+    scene._reset_progression()
+
+    assert scene.state.credits == 0
+    assert scene.state.analyzer_level == 1
+    assert scene.state.current_batch == []
+    assert scene.state.greenhouse.plant_at(0) == Plant("AABB")
+    assert scene.state.greenhouse.plant_at(1) == Plant("aabb")
+    assert scene.state.status_message == "Progress reset."
+    assert scene.parent_picker_target is None
+    assert scene.active_screen == "main"
+
+
 def test_save_data_round_trips_state_without_pyxel_objects() -> None:
     state = GameState.create_initial()
     state.credits = 25
     state.analyzer_level = 2
-    state.greenhouse.store(Plant("AaBb"))
+    state.greenhouse.store(Plant("AaBb", generation=1))
     service = BreedingService(state)
     service.start_crossbreeding()
 
@@ -265,7 +286,9 @@ def test_save_data_round_trips_state_without_pyxel_objects() -> None:
     assert restored.credits == 25
     assert restored.analyzer_level == 2
     assert restored.greenhouse.used_slots == 3
+    assert restored.greenhouse.plant_at(2) == Plant("AaBb", generation=1)
     assert restored.current_batch[0] == state.current_batch[0]
+    assert restored.current_batch[0].generation == 1
     assert restored.visible_count == 1
     assert restored.collection.genotypes == state.collection.genotypes
 
