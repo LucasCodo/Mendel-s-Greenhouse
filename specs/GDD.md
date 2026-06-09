@@ -48,7 +48,7 @@ The first playable prototype validates the core loop:
 7. The player receives rewards.
 8. The player can store useful offspring for future crosses.
 
-MVP content:
+Baseline MVP content:
 
 - Mendel Pea only.
 - 2 independent genes: `A/a` and `B/b`.
@@ -59,6 +59,13 @@ MVP content:
 - Functional progression.
 
 The MVP objective is to teach the Second Law of Mendel without introducing excessive complexity.
+
+The current playable implementation expands beyond this baseline by including
+all official species unlocks, analyzer levels 1 through 4, phenotypic,
+genotypic, and probabilistic/statistical contracts, species-qualified collection
+progress, and a level 4 stored-cross simulator summary. The baseline MVP remains
+the smallest validation slice; the current implementation is the broader
+playable progression target.
 
 ## Core Gameplay Loop
 

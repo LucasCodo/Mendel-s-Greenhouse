@@ -21,6 +21,7 @@ poetry run poe build-assets
 It contains:
 
 - Four Mendel Pea pod sprites for the MVP phenotype combinations.
+- Distinct species sprites for Snapdragon, Corn, Tomato, and Orchid.
 - 64 x 64 top-navigation and resource icons.
 - Initial sound effects for selection, breeding, reveal, completion, invalid
   actions, and conveyor/music loops.

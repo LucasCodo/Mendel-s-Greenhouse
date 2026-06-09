@@ -1,10 +1,18 @@
 """Main gameplay scene for the MVP."""
 
 from dataclasses import dataclass
-from math import ceil, sqrt
 
 import pyxel
 
+from mendels_greenhouse.core.content import (
+    ANALYZER_UPGRADES,
+    DISCOVERY_REWARDS,
+    GREENHOUSE_EXPANSION_COSTS,
+    SPECIES_DEFINITIONS,
+    SPECIES_UNLOCK_ORDER,
+    SPECIES_UNLOCK_REQUIRED_FREE_SLOTS,
+    species_definition,
+)
 from mendels_greenhouse.core.genetics import (
     Plant,
     expected_distribution,
@@ -26,6 +34,15 @@ from mendels_greenhouse.ui.fonts import (
     draw_outlined_text,
     draw_shadow_text,
 )
+from mendels_greenhouse.ui.game_components import (
+    BedGeometry,
+    BedLayout,
+    contract_progress_label,
+    contract_progress_width,
+    germination_cell_rect,
+    germination_layout,
+    plant_trait_lines,
+)
 from mendels_greenhouse.ui.palette import PyxelColor
 
 WIDTH = 640
@@ -44,6 +61,8 @@ PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
 GARDEN_DISCARD_BUTTON = Rect(392, 257, 96, 22)
 SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
 RESET_PROGRESS_BUTTON = Rect(208, 250, 224, 20)
+RESET_CONFIRM_BUTTON = Rect(324, 250, 92, 22)
+RESET_CANCEL_BUTTON = Rect(224, 250, 92, 22)
 LANGUAGE_BUTTON = Rect(338, 112, 86, 20)
 MUSIC_DOWN_BUTTON = Rect(338, 151, 20, 18)
 MUSIC_UP_BUTTON = Rect(404, 151, 20, 18)
@@ -63,6 +82,12 @@ PLANT_SPRITES = {
     ("yellow", "wrinkled"): (64, 0),
     ("green", "smooth"): (128, 0),
     ("green", "wrinkled"): (192, 0),
+}
+SPECIES_PLANT_SPRITES = {
+    "Snapdragon": (0, 192),
+    "Corn": (64, 192),
+    "Tomato": (128, 192),
+    "Orchid": (192, 192),
 }
 PLANT_SPRITE_W = 56
 PLANT_SPRITE_H = 44
@@ -149,38 +174,10 @@ KNOWLEDGE_DETAILS = {
 GREENHOUSE_COLUMNS = 5
 GREENHOUSE_ROWS = 4
 GREENHOUSE_SLOT_SIZE = 44
-GREENHOUSE_EXPANSION_COSTS = {
-    5: 50,
-    6: 75,
-    7: 100,
-    8: 125,
-    9: 150,
-    10: 200,
-    11: 250,
-    12: 300,
-    13: 400,
-    14: 500,
-    15: 600,
-    16: 700,
-    17: 850,
-    18: 1000,
-    19: 1200,
-    20: 1500,
-}
-ANALYZER_UPGRADES = {
-    2: ("Genetic Sequencing", 500),
-    3: ("Probabilistic Analysis", 2000),
-    4: ("Genetic Simulator", 5000),
-}
-SPECIES_UNLOCKS = {
-    "Snapdragon": (3, 3000),
-    "Corn": (4, 10000),
-}
-SPECIES_UNLOCK_REQUIRED_FREE_SLOTS = 2
-
 BUTTON_PRESS_FRAMES = 7
 ANALYZER_GENOTYPE_LEVEL = 2
 ANALYZER_PROBABILITY_LEVEL = 3
+ANALYZER_SIMULATOR_LEVEL = 4
 SEED_STAGE_FRAMES = 15
 SEEDLING_STAGE_FRAMES = 30
 GERMINATION_SETTLE_FRAMES = 90
@@ -193,9 +190,47 @@ BED_MAX_H = 72
 BED_CELL_W = 34
 BED_CELL_H = 15
 BED_GAP = 3
+BED_GEOMETRY = BedGeometry(
+    origin_x=BED_ORIGIN_X + BED_MAX_W // 2,
+    origin_y=BED_ORIGIN_Y,
+    max_columns=BED_MAX_COLUMNS,
+    cell_width=BED_CELL_W,
+    cell_height=BED_CELL_H,
+    gap=BED_GAP,
+)
 MUSIC_CHANNELS = (0, 1, 2)
 SOUND_CHANNEL = 3
 MAX_VOLUME_STEP = 10
+TESTER_MONEY_CODE = "MONEYTREE"
+TESTER_MONEY_CREDITS = 999_999
+TESTER_CODE_KEYS = {
+    "A": pyxel.KEY_A,
+    "B": pyxel.KEY_B,
+    "C": pyxel.KEY_C,
+    "D": pyxel.KEY_D,
+    "E": pyxel.KEY_E,
+    "F": pyxel.KEY_F,
+    "G": pyxel.KEY_G,
+    "H": pyxel.KEY_H,
+    "I": pyxel.KEY_I,
+    "J": pyxel.KEY_J,
+    "K": pyxel.KEY_K,
+    "L": pyxel.KEY_L,
+    "M": pyxel.KEY_M,
+    "N": pyxel.KEY_N,
+    "O": pyxel.KEY_O,
+    "P": pyxel.KEY_P,
+    "Q": pyxel.KEY_Q,
+    "R": pyxel.KEY_R,
+    "S": pyxel.KEY_S,
+    "T": pyxel.KEY_T,
+    "U": pyxel.KEY_U,
+    "V": pyxel.KEY_V,
+    "W": pyxel.KEY_W,
+    "X": pyxel.KEY_X,
+    "Y": pyxel.KEY_Y,
+    "Z": pyxel.KEY_Z,
+}
 
 I18N_MARKERS = (
     gettext_noop("Analyzer"),
@@ -217,7 +252,10 @@ I18N_MARKERS = (
     gettext_noop("Cost: {cost} credits."),
     gettext_noop("Credits"),
     gettext_noop("Deliver 3 yellow smooth peas"),
+    gettext_noop("Deliver {target} {genotype} {species}"),
+    gettext_noop("Deliver {target} {traits} {species}"),
     gettext_noop("Discarded plant from slot {slot}."),
+    gettext_noop("Discovery rewards. +{credits} credits."),
     gettext_noop("Discovered genetic records"),
     gettext_noop("DONE"),
     gettext_noop("Each cross shows the expected genetic combinations."),
@@ -295,10 +333,20 @@ I18N_MARKERS = (
     gettext_noop("Species found: {count}"),
     gettext_noop("Spend credits on progression"),
     gettext_noop("Stored plant in slot {slot}."),
+    gettext_noop("Stored plant in slot {slot}. +{credits} credits."),
+    gettext_noop("Statistical contract complete."),
     gettext_noop("Stored plants and parent selection"),
     gettext_noop("Ready to harvest."),
     gettext_noop("Reset game progression"),
+    gettext_noop("Reset requires confirmation."),
     gettext_noop("Progress reset."),
+    gettext_noop("Dangerous action"),
+    gettext_noop("This will erase all progression data."),
+    gettext_noop("Contracts, credits, discoveries, and plants will reset."),
+    gettext_noop("This cannot be undone."),
+    gettext_noop("CONFIRM RESET"),
+    gettext_noop("CANCEL"),
+    gettext_noop("Tester money code enabled."),
     gettext_noop("The goal"),
     gettext_noop("Unlock {species}."),
     gettext_noop("Unlock greenhouse slot {slot}."),
@@ -311,7 +359,12 @@ I18N_MARKERS = (
         "Use contracts to learn how traits pass between generations."
     ),
     gettext_noop("Yellow smooth peas are requested first."),
+    gettext_noop("Analyzer level 2 reveals exact genotypes."),
+    gettext_noop("Best stored cross"),
     gettext_noop("are rescued first."),
+    gettext_noop("Matching harvest specimens are rescued first."),
+    gettext_noop("Validate the whole generated batch."),
+    gettext_noop("No valid stored cross found."),
     gettext_noop("green"),
     gettext_noop("smooth"),
     gettext_noop("wrinkled"),
@@ -370,27 +423,6 @@ def _clamp_volume(value: object, default: int) -> int:
     return min(max(value, 0), MAX_VOLUME_STEP)
 
 
-@dataclass(frozen=True)
-class BedLayout:
-    """Computed Germination Bed geometry for the current batch."""
-
-    x: int
-    y: int
-    columns: int
-    rows: int
-    cell_count: int
-
-    @property
-    def width(self) -> int:
-        """Return the pixel width occupied by cells."""
-        return self.columns * BED_CELL_W + (self.columns - 1) * BED_GAP
-
-    @property
-    def height(self) -> int:
-        """Return the pixel height occupied by cells."""
-        return self.rows * BED_CELL_H + (self.rows - 1) * BED_GAP
-
-
 class MainGameScene:
     """Mouse-first main game scene with keyboard alternatives."""
 
@@ -414,6 +446,7 @@ class MainGameScene:
         self.germination_started_frame: int | None = None
         self.intro_open = True
         self.settings_open = False
+        self.reset_confirmation_open = False
         self.parent_picker_target: str | None = None
         self.settings = SettingsState.from_dict(saved_settings or {})
         set_language(self.settings.language)
@@ -422,11 +455,13 @@ class MainGameScene:
         self.selected_knowledge = "Phenotype"
         self.selected_greenhouse_slot = 0
         self.selected_shop_item = "slot"
+        self.tester_code_buffer = ""
         self._apply_audio_settings()
 
     def update(self) -> None:
         """Handle mouse-first controls and keyboard shortcuts."""
         self._tick_button_timers()
+        self._update_tester_code()
         if not self.intro_open:
             self._update_germination_readiness()
         if self.intro_open:
@@ -455,6 +490,24 @@ class MainGameScene:
         self._handle_breeding_buttons()
         self._update_germination_bed_selection()
         self._track_reveal_frames()
+
+    def _update_tester_code(self) -> None:
+        for character, key in TESTER_CODE_KEYS.items():
+            if pyxel.btnp(key):
+                self._handle_tester_code_character(character)
+                return
+
+    def _handle_tester_code_character(self, character: str) -> None:
+        self.tester_code_buffer = (self.tester_code_buffer + character)[
+            -len(TESTER_MONEY_CODE) :
+        ]
+        if self.tester_code_buffer != TESTER_MONEY_CODE:
+            return
+        self.state.credits = max(self.state.credits, TESTER_MONEY_CREDITS)
+        self.state.status_message = "Tester money code enabled."
+        self.tester_code_buffer = ""
+        self._play_sound(3)
+        self._autosave()
 
     def _update_germination_readiness(self) -> None:
         if not self.state.current_batch:
@@ -843,9 +896,7 @@ class MainGameScene:
             PyxelColor.UI_DARK,
         )
         pyxel.rect(rect.x + 12, rect.y + 29, 235, 8, PyxelColor.BAR_EMPTY)
-        progress_width = int(
-            235 * contract.delivered_count / contract.target_count,
-        )
+        progress_width = contract_progress_width(contract, 235)
         pyxel.rect(
             rect.x + 12,
             rect.y + 29,
@@ -853,7 +904,7 @@ class MainGameScene:
             8,
             PyxelColor.PROGRESS,
         )
-        progress = f"{contract.delivered_count}/{contract.target_count}"
+        progress = contract_progress_label(contract)
         pyxel.text(rect.x + 260, rect.y + 30, progress, PyxelColor.UI_DARK)
         if contract.completed and not contract.paid:
             draw_button(CLAIM_CONTRACT_BUTTON, self._t("CLAIM"))
@@ -896,6 +947,62 @@ class MainGameScene:
             y += 10
             if y > PROBABILITY_PANEL_MAX_Y:
                 break
+        if self.state.analyzer_level >= ANALYZER_SIMULATOR_LEVEL:
+            best = self._best_contract_cross()
+            pyxel.text(
+                18,
+                168,
+                self._t("Best stored cross"),
+                PyxelColor.UI_DARK,
+            )
+            pyxel.text(
+                18,
+                178,
+                best
+                if best is not None
+                else self._t("No valid stored cross found."),
+                PyxelColor.UI_DARK,
+            )
+
+    def _best_contract_cross(self) -> str | None:
+        """Return the stored parent pair with the best active-contract odds."""
+        stored = [
+            (index, plant)
+            for index, plant in enumerate(self.state.greenhouse.slots)
+            if plant is not None
+        ]
+        best_label: str | None = None
+        best_score = -1.0
+        for index_a, parent_a in stored:
+            for index_b, parent_b in stored:
+                if index_a >= index_b or parent_a.species != parent_b.species:
+                    continue
+                score = self._contract_cross_score(parent_a, parent_b)
+                if score <= best_score:
+                    continue
+                best_score = score
+                best_label = (
+                    f"{index_a + 1} x {index_b + 1}: {int(score * 100)}%"
+                )
+        return best_label
+
+    def _contract_cross_score(self, parent_a: Plant, parent_b: Plant) -> float:
+        contract = self.state.active_contract
+        distribution = expected_distribution(parent_a, parent_b)
+        if contract.ratio is not None:
+            phenotype_counts = {}
+            for genotype, count in distribution.genotype_counts.items():
+                plant = Plant(genotype, species=parent_a.species)
+                key = tuple(sorted(plant.phenotype.traits.items()))
+                phenotype_counts[key] = phenotype_counts.get(key, 0) + count
+            observed = tuple(sorted(phenotype_counts.values(), reverse=True))
+            return 1.0 if observed == contract.ratio else 0.0
+        matches = 0
+        for genotype, count in distribution.genotype_counts.items():
+            plant = Plant(genotype, species=parent_a.species)
+            if contract.matches(plant):
+                matches += count
+        return matches / distribution.total_combinations
 
     def _draw_parent_card(
         self,
@@ -933,7 +1040,7 @@ class MainGameScene:
         pyxel.text(
             rect.x + 65,
             rect.y + 47,
-            self._trait(phenotype.seed_color),
+            self._trait(phenotype.primary_trait_value)[:14],
             PyxelColor.UI_DARK,
         )
 
@@ -1023,9 +1130,10 @@ class MainGameScene:
 
     def _draw_tiny_plant(self, x: int, y: int, plant: Plant) -> None:
         phenotype = plant.phenotype
+        colorful_traits = {"yellow", "red", "purple", "violet"}
         seed_color = (
             PyxelColor.PEA_YELLOW
-            if phenotype.seed_color == "yellow"
+            if phenotype.primary_trait_value in colorful_traits
             else PyxelColor.PEA_GREEN
         )
         pyxel.line(x - 5, y - 3, x + 5, y - 8, PyxelColor.POD_BASE)
@@ -1034,14 +1142,7 @@ class MainGameScene:
             pyxel.pset(x + offset, y - 5, seed_color)
 
     def _germination_cell_rect(self, index: int, layout: BedLayout) -> Rect:
-        col = index % layout.columns
-        row = index // layout.columns
-        return Rect(
-            layout.x + col * (BED_CELL_W + BED_GAP),
-            layout.y + row * (BED_CELL_H + BED_GAP),
-            BED_CELL_W,
-            BED_CELL_H,
-        )
+        return germination_cell_rect(index, layout)
 
     def _update_germination_bed_selection(self) -> None:
         layout = self._germination_layout()
@@ -1052,25 +1153,10 @@ class MainGameScene:
                 return
 
     def _germination_layout(self) -> BedLayout:
-        cell_count = min(
-            max(len(self.state.current_batch), 1),
-            MAX_BED_CELLS,
-        )
-        columns = min(max(ceil(sqrt(cell_count)), 1), BED_MAX_COLUMNS)
-        rows = ceil(cell_count / columns)
-        while rows * BED_CELL_H + (rows - 1) * BED_GAP > BED_MAX_H:
-            columns = min(columns + 1, BED_MAX_COLUMNS)
-            rows = ceil(cell_count / columns)
-            if columns == BED_MAX_COLUMNS:
-                break
-        width = columns * BED_CELL_W + (columns - 1) * BED_GAP
-        height = rows * BED_CELL_H + (rows - 1) * BED_GAP
-        return BedLayout(
-            x=BED_ORIGIN_X + (BED_MAX_W - width) // 2,
-            y=BED_ORIGIN_Y + (BED_MAX_H - height) // 2,
-            columns=columns,
-            rows=rows,
-            cell_count=cell_count,
+        return germination_layout(
+            batch_size=min(len(self.state.current_batch), MAX_BED_CELLS),
+            fallback_cells=1,
+            geometry=BED_GEOMETRY,
         )
 
     def _draw_bottom_panels(self) -> None:
@@ -1088,7 +1174,7 @@ class MainGameScene:
             total=total,
         )
         contract_text = (
-            f"{self._t('Matches')}: {contract.delivered_count}  "
+            f"{self._t('Matches')}: {contract.progress_count}  "
             f"{self._t('Missing')}: {contract.remaining_count}"
         )
         pyxel.text(150, 312, progress[:36], PyxelColor.PARCHMENT_LIGHT)
@@ -1110,7 +1196,6 @@ class MainGameScene:
         if hover is None:
             return
         _index, plant = hover
-        phenotype = plant.phenotype
         growth_status = (
             self._t("Growing")
             if not self._germination_ready()
@@ -1123,8 +1208,7 @@ class MainGameScene:
                 generation=plant.generation_label,
             ),
             f"Genotype: {self._visible_genotype(plant)}",
-            f"Color: {self._trait(phenotype.seed_color)}",
-            f"Texture: {self._trait(phenotype.seed_texture)}",
+            *self._plant_trait_lines(plant, limit=2),
             self._harvest_destination_label(plant),
         ]
         width = max(len(line) for line in lines) * 4 + 16
@@ -1344,7 +1428,6 @@ class MainGameScene:
                 PyxelColor.UI_DARK,
             )
         else:
-            phenotype = selected.phenotype
             self._draw_plant_preview(382, 205, selected, large=True)
             pyxel.text(
                 428,
@@ -1361,18 +1444,15 @@ class MainGameScene:
                 f"Genotype: {self._visible_genotype(selected)}",
                 PyxelColor.UI_DARK,
             )
-            pyxel.text(
-                428,
-                174,
-                f"Color: {self._trait(phenotype.seed_color)}",
-                PyxelColor.UI_DARK,
-            )
-            pyxel.text(
-                428,
-                188,
-                f"Texture: {self._trait(phenotype.seed_texture)}",
-                PyxelColor.UI_DARK,
-            )
+            for line_index, line in enumerate(
+                self._plant_trait_lines(selected, limit=2),
+            ):
+                pyxel.text(
+                    428,
+                    174 + line_index * 14,
+                    line,
+                    PyxelColor.UI_DARK,
+                )
             draw_button(Rect(392, 201, 96, 22), self._t("PARENT A"))
             draw_button(Rect(392, 229, 96, 22), self._t("PARENT B"))
             draw_button(
@@ -1400,7 +1480,7 @@ class MainGameScene:
             self._contract_title(),
             PyxelColor.UI_DARK,
         )
-        progress = f"{contract.delivered_count}/{contract.target_count}"
+        progress = contract_progress_label(contract)
         pyxel.rect(
             summary_panel.x + 18,
             summary_panel.y + 38,
@@ -1408,9 +1488,7 @@ class MainGameScene:
             12,
             PyxelColor.BAR_EMPTY,
         )
-        progress_width = int(
-            390 * contract.delivered_count / contract.target_count,
-        )
+        progress_width = contract_progress_width(contract, 390)
         pyxel.rect(
             summary_panel.x + 18,
             summary_panel.y + 38,
@@ -1440,7 +1518,7 @@ class MainGameScene:
         pyxel.text(
             detail_panel.x + 18,
             detail_panel.y + 40,
-            self._t("Yellow smooth peas are requested first."),
+            self._contract_instruction(),
             PyxelColor.UI_DARK,
         )
         status = (
@@ -1564,13 +1642,13 @@ class MainGameScene:
         pyxel.text(
             rect.x + 48,
             rect.y + 20,
-            self._trait(plant.phenotype.seed_color),
+            self._trait(plant.phenotype.primary_trait_value)[:12],
             PyxelColor.UI_DARK,
         )
         pyxel.text(
             rect.x + 48,
             rect.y + 31,
-            self._trait(plant.phenotype.seed_texture),
+            self._trait(plant.phenotype.secondary_trait_value)[:12],
             PyxelColor.UI_DARK,
         )
 
@@ -1654,10 +1732,13 @@ class MainGameScene:
         if self.collection_tab == "Phenotypes":
             entries = sorted(collection.phenotypes)
             return [
-                f"{self._trait(color)} / {self._trait(texture)}"
-                for color, texture in entries
+                self._format_phenotype_entry(species, traits)
+                for species, traits in entries
             ]
-        return sorted(collection.genotypes)
+        return [
+            f"{species}: {genotype}"
+            for species, genotype in sorted(collection.genotypes)
+        ]
 
     def _collection_details(self, entries: list[str]) -> list[str]:
         if self.collection_tab == "Species":
@@ -1715,6 +1796,8 @@ class MainGameScene:
         if species_name is None or data is None:
             return ("Species", "All unlocked", "DONE")
         _genes, cost = data
+        if cost is None:
+            return (species_name, "TBD", "LOCK")
         if (
             self.state.greenhouse.free_slots
             < SPECIES_UNLOCK_REQUIRED_FREE_SLOTS
@@ -1752,12 +1835,13 @@ class MainGameScene:
         if species_name is None or data is None:
             return [self._t("All currently specified species are unlocked.")]
         genes, cost = data
+        cost_label = "TBD" if cost is None else cost
         return [
             self._t("Unlock {species}.", species=species_name),
             self._t("Adds a {genes}-gene plant species.", genes=genes),
             self._t("Adds dominant and recessive founders."),
             self._t("Requires two empty garden slots."),
-            self._t("Cost: {cost} credits.", cost=cost),
+            self._t("Cost: {cost} credits.", cost=cost_label),
         ]
 
     def _buy_selected_shop_item(self) -> bool:
@@ -1802,6 +1886,9 @@ class MainGameScene:
             self.state.status_message = "All specified species are unlocked."
             return False
         genes, cost = data
+        if cost is None:
+            self.state.status_message = "Species unlock is not priced."
+            return False
         if (
             self.state.greenhouse.free_slots
             < SPECIES_UNLOCK_REQUIRED_FREE_SLOTS
@@ -1812,7 +1899,8 @@ class MainGameScene:
         if not self._spend_credits(cost):
             return False
         self.state.unlocked_species.add(species_name)
-        self.state.collection.register_species(species_name)
+        if self.state.collection.register_species(species_name):
+            self.state.credits += DISCOVERY_REWARDS["species"]
         dominant, recessive = founder_genotypes(genes)
         self.state.greenhouse.store(
             Plant(dominant, species=species_name),
@@ -1843,10 +1931,16 @@ class MainGameScene:
 
     def _next_species_unlock(
         self,
-    ) -> tuple[str | None, tuple[int, int] | None]:
-        for species_name, data in SPECIES_UNLOCKS.items():
+    ) -> tuple[str | None, tuple[int, int | None] | None]:
+        for species_name in SPECIES_UNLOCK_ORDER:
+            if species_name not in SPECIES_DEFINITIONS:
+                continue
             if species_name not in self.state.unlocked_species:
-                return species_name, data
+                definition = species_definition(species_name)
+                return (
+                    species_name,
+                    (definition.gene_count, definition.unlock_cost),
+                )
         return None, None
 
     def _draw_plant_preview(
@@ -1857,8 +1951,7 @@ class MainGameScene:
         *,
         large: bool = False,
     ) -> None:
-        phenotype = plant.phenotype
-        u, v = PLANT_SPRITES[(phenotype.seed_color, phenotype.seed_texture)]
+        u, v = self._plant_sprite_coords(plant)
         vertical_nudge = 2 if large else 0
         pyxel.blt(
             x - PLANT_SPRITE_W // 2,
@@ -1869,6 +1962,16 @@ class MainGameScene:
             PLANT_SPRITE_W,
             PLANT_SPRITE_H,
             colkey=0,
+        )
+
+    def _plant_sprite_coords(self, plant: Plant) -> tuple[int, int]:
+        if plant.species in SPECIES_PLANT_SPRITES:
+            return SPECIES_PLANT_SPRITES[plant.species]
+        phenotype = plant.phenotype
+        sprite_key = (phenotype.seed_color, phenotype.seed_texture)
+        return PLANT_SPRITES.get(
+            sprite_key,
+            PLANT_SPRITES[("yellow", "smooth")],
         )
 
     def _update_intro_panel(self) -> None:
@@ -1941,6 +2044,10 @@ class MainGameScene:
         draw_button(INTRO_OK_BUTTON, self._t("OK"))
 
     def _update_settings_panel(self) -> None:
+        if self.reset_confirmation_open:
+            self._update_reset_confirmation()
+            return
+
         if clicked(SETTINGS_BACK_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
             self._play_sound(0)
             self.settings_open = False
@@ -1999,8 +2106,16 @@ class MainGameScene:
             self._autosave()
 
         if clicked(RESET_PROGRESS_BUTTON):
+            self._request_progress_reset()
+
+    def _update_reset_confirmation(self) -> None:
+        if clicked(RESET_CANCEL_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+            self._play_sound(0)
+            self.reset_confirmation_open = False
+            return
+        if clicked(RESET_CONFIRM_BUTTON):
             self._play_sound(3)
-            self._reset_progression()
+            self._confirm_progress_reset()
 
     def _draw_settings_panel(self) -> None:
         pyxel.dither(0.65)
@@ -2059,12 +2174,53 @@ class MainGameScene:
             self._t("Reset game progression"),
         )
         draw_button(SETTINGS_BACK_BUTTON, self._t("BACK"))
+        if self.reset_confirmation_open:
+            self._draw_reset_confirmation()
+
+    def _draw_reset_confirmation(self) -> None:
+        pyxel.dither(0.82)
+        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
+        pyxel.dither(1)
+
+        panel = Rect(176, 100, 288, 182)
+        draw_panel(panel)
+        draw_outlined_text(
+            panel.x + 76,
+            panel.y + 18,
+            self._t("Dangerous action").upper(),
+            PyxelColor.ERROR_EMBER,
+            font=self._display_font,
+        )
+        lines = [
+            "This will erase all progression data.",
+            "Contracts, credits, discoveries, and plants will reset.",
+            "This cannot be undone.",
+        ]
+        for index, line in enumerate(lines):
+            pyxel.text(
+                panel.x + 24,
+                panel.y + 58 + index * 18,
+                self._t(line),
+                PyxelColor.UI_DARK,
+            )
+        draw_button(RESET_CANCEL_BUTTON, self._t("CANCEL"))
+        draw_button(RESET_CONFIRM_BUTTON, self._t("CONFIRM RESET"))
+
+    def _request_progress_reset(self) -> None:
+        self._play_sound(4)
+        self.reset_confirmation_open = True
+        self.state.status_message = "Reset requires confirmation."
+
+    def _confirm_progress_reset(self) -> None:
+        self.reset_confirmation_open = False
+        self._reset_progression()
 
     def _reset_progression(self) -> None:
         self.state = GameState.create_initial()
         self.breeding = BreedingService(self.state)
         self.greenhouse_service = GreenhouseService(self.state)
         self.parent_picker_target = None
+        self.reset_confirmation_open = False
         self.active_screen = SCREEN_MAIN
         self.collection_tab = "Species"
         self.selected_knowledge = "Phenotype"
@@ -2132,6 +2288,23 @@ class MainGameScene:
     def _trait(self, value: str) -> str:
         return self._t(value)
 
+    def _plant_trait_lines(
+        self,
+        plant: Plant,
+        *,
+        limit: int | None = None,
+    ) -> list[str]:
+        """Return display lines for visible plant traits."""
+        return plant_trait_lines(plant, translate=self._t, limit=limit)
+
+    def _format_phenotype_entry(
+        self,
+        species: str,
+        traits: tuple[tuple[str, str], ...],
+    ) -> str:
+        values = " / ".join(self._trait(value) for _name, value in traits)
+        return f"{species}: {values}"
+
     def _visible_genotype(self, plant: Plant) -> str:
         if self.state.analyzer_level < ANALYZER_GENOTYPE_LEVEL:
             return "????"
@@ -2166,18 +2339,33 @@ class MainGameScene:
 
     def _contract_title(self) -> str:
         contract = self.state.active_contract
-        has_phenotype_goal = (
-            contract.seed_color is not None
-            and contract.seed_texture is not None
-        )
-        if has_phenotype_goal:
+        if contract.kind == "phenotype" and contract.trait_requirements:
+            values = " ".join(
+                self._trait(value)
+                for value in contract.trait_requirements.values()
+            )
             return self._t(
-                "Deliver {target} {color} {texture} peas",
+                "Deliver {target} {traits} {species}",
                 target=contract.target_count,
-                color=self._trait(contract.seed_color),
-                texture=self._trait(contract.seed_texture),
+                traits=values,
+                species=contract.species,
+            )
+        if contract.kind == "genotype":
+            return self._t(
+                "Deliver {target} {genotype} {species}",
+                target=contract.target_count,
+                genotype=contract.genotype,
+                species=contract.species,
             )
         return contract.title
+
+    def _contract_instruction(self) -> str:
+        contract = self.state.active_contract
+        if contract.resolution_mode == "statistical":
+            return self._t("Validate the whole generated batch.")
+        if contract.kind == "genotype":
+            return self._t("Analyzer level 2 reveals exact genotypes.")
+        return self._t("Matching harvest specimens are rescued first.")
 
     def _status_text(self, message: str) -> str:
         dynamic_templates = [
@@ -2193,12 +2381,28 @@ class MainGameScene:
             ("Unlocked greenhouse slot ", ".", "slot"),
             ("Analyzer upgraded to level ", ".", "level"),
             ("Sold specimen for ", " credits.", "credits"),
+            ("Discovery rewards. +", " credits.", "credits"),
         ]
         for prefix, suffix, key in dynamic_templates:
             if message.startswith(prefix) and message.endswith(suffix):
                 value = message.removeprefix(prefix).removesuffix(suffix)
                 template = f"{prefix}{{{key}}}{suffix}"
                 return self._t(template, **{key: value})
+        if (
+            message.startswith("Stored plant in slot ")
+            and " +" in message
+            and message.endswith(" credits.")
+        ):
+            slot, credits = (
+                message.removeprefix("Stored plant in slot ")
+                .removesuffix(" credits.")
+                .split(". +", maxsplit=1)
+            )
+            return self._t(
+                "Stored plant in slot {slot}. +{credits} credits.",
+                slot=slot,
+                credits=credits,
+            )
         if message.startswith("Unlocked ") and message.endswith("."):
             species = message.removeprefix("Unlocked ").removesuffix(".")
             return self._t("Unlocked {species}.", species=species)

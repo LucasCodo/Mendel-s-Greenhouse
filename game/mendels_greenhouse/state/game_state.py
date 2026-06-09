@@ -22,6 +22,7 @@ class GameState:
     credits: int = 0
     analyzer_level: int = 1
     completed_contracts: int = 0
+    claimed_collection_milestones: set[int] = field(default_factory=set)
     unlocked_species: set[str] = field(
         default_factory=lambda: {SPECIES_MENDEL_PEA},
     )

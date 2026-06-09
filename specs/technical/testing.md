@@ -244,6 +244,19 @@ Manual testing remains required for:
 
 Automated tests should protect rules and regressions; manual tests should judge whether the game feels understandable and engaging.
 
+## Tester Shortcuts
+
+Manual testers may use the `MONEYTREE` tester code to set credits to `999999`
+and advance quickly to later species, analyzer levels, and contract tiers.
+
+Rules:
+
+- The shortcut exists for QA speed only.
+- It must not change genetics, contract validation, collection completion, or
+  unlock rules other than making purchases affordable.
+- It should be covered by an automated test so accidental changes are visible.
+- It should be reviewed before any production-oriented build or public release.
+
 ## Acceptance Criteria
 
 - `pytest` is the default test command.

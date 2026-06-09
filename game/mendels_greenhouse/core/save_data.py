@@ -51,16 +51,22 @@ def state_to_save_data(
         },
         "collection": {
             "species": sorted(state.collection.species),
-            "genotypes": sorted(state.collection.genotypes),
+            "genotypes": [
+                {"species": species, "genotype": genotype}
+                for species, genotype in sorted(state.collection.genotypes)
+            ],
             "phenotypes": [
-                {"seed_color": color, "seed_texture": texture}
-                for color, texture in sorted(state.collection.phenotypes)
+                {"species": species, "traits": dict(traits)}
+                for species, traits in sorted(state.collection.phenotypes)
             ],
         },
         "progression": {
             "credits": state.credits,
             "analyzer_level": state.analyzer_level,
             "completed_contracts": state.completed_contracts,
+            "claimed_collection_milestones": sorted(
+                state.claimed_collection_milestones,
+            ),
             "unlocked_species": sorted(state.unlocked_species),
             "selected_parent_a": state.selected_parent_a,
             "selected_parent_b": state.selected_parent_b,
@@ -95,14 +101,12 @@ def state_from_save_data(payload: dict[str, Any]) -> GameState:
     collection_data = payload.get("collection", {})
     collection = Collection(
         species=set(collection_data.get("species", [])),
-        genotypes=set(collection_data.get("genotypes", [])),
-        phenotypes={
-            (
-                phenotype_data["seed_color"],
-                phenotype_data["seed_texture"],
-            )
-            for phenotype_data in collection_data.get("phenotypes", [])
-        },
+        genotypes=_collection_genotypes_from_data(
+            collection_data.get("genotypes", []),
+        ),
+        phenotypes=_collection_phenotypes_from_data(
+            collection_data.get("phenotypes", []),
+        ),
     )
     if not collection.species:
         collection.register_species(SPECIES_MENDEL_PEA)
@@ -117,6 +121,13 @@ def state_from_save_data(payload: dict[str, Any]) -> GameState:
         credits=int(progression.get("credits", 0)),
         analyzer_level=int(progression.get("analyzer_level", 1)),
         completed_contracts=int(progression.get("completed_contracts", 0)),
+        claimed_collection_milestones={
+            int(milestone)
+            for milestone in progression.get(
+                "claimed_collection_milestones",
+                [],
+            )
+        },
         unlocked_species=set(
             progression.get("unlocked_species", [SPECIES_MENDEL_PEA]),
         ),
@@ -141,6 +152,49 @@ def save_settings_from_payload(payload: dict[str, Any]) -> dict[str, Any]:
     if not isinstance(settings, dict):
         return {}
     return settings
+
+
+def _collection_genotypes_from_data(data: object) -> set[tuple[str, str]]:
+    if not isinstance(data, list):
+        return set()
+    genotypes = set()
+    for entry in data:
+        if isinstance(entry, str):
+            genotypes.add((SPECIES_MENDEL_PEA, entry))
+        elif isinstance(entry, dict):
+            genotypes.add(
+                (
+                    str(entry.get("species", SPECIES_MENDEL_PEA)),
+                    str(entry["genotype"]),
+                ),
+            )
+    return genotypes
+
+
+def _collection_phenotypes_from_data(
+    data: object,
+) -> set[tuple[str, tuple[tuple[str, str], ...]]]:
+    if not isinstance(data, list):
+        return set()
+    phenotypes = set()
+    for entry in data:
+        if not isinstance(entry, dict):
+            continue
+        species = str(entry.get("species", SPECIES_MENDEL_PEA))
+        if "traits" in entry and isinstance(entry["traits"], dict):
+            traits = tuple(
+                sorted(
+                    (str(key), str(value))
+                    for key, value in entry["traits"].items()
+                ),
+            )
+        else:
+            traits = (
+                ("seed color", str(entry.get("seed_color", "yellow"))),
+                ("seed texture", str(entry.get("seed_texture", "smooth"))),
+            )
+        phenotypes.add((species, traits))
+    return phenotypes
 
 
 def _plant_to_data(plant: Plant | None) -> dict[str, str | int] | None:
@@ -168,10 +222,16 @@ def _plant_from_data(data: object) -> Plant | None:
 
 def _contract_to_data(contract: PhenotypeContract) -> dict[str, Any]:
     return {
-        "kind": "phenotype",
+        "kind": contract.kind,
+        "resolution_mode": contract.resolution_mode,
         "title": contract.title,
         "target_count": contract.target_count,
         "reward_credits": contract.reward_credits,
+        "species": contract.species,
+        "trait_requirements": contract.trait_requirements,
+        "genotype": contract.genotype,
+        "min_probability": contract.min_probability,
+        "ratio": list(contract.ratio) if contract.ratio is not None else None,
         "seed_color": contract.seed_color,
         "seed_texture": contract.seed_texture,
         "delivered_count": contract.delivered_count,
@@ -183,14 +243,26 @@ def _contract_to_data(contract: PhenotypeContract) -> dict[str, Any]:
 def _contract_from_data(data: object) -> PhenotypeContract:
     if not isinstance(data, dict):
         return create_tutorial_contract()
-    if data.get("kind", "phenotype") != "phenotype":
-        return create_tutorial_contract()
     return PhenotypeContract(
         title=str(data.get("title", "Deliver 3 yellow smooth peas")),
         target_count=int(data.get("target_count", 3)),
         reward_credits=int(data.get("reward_credits", 50)),
         seed_color=data.get("seed_color"),
         seed_texture=data.get("seed_texture"),
+        kind=data.get("kind", "phenotype"),
+        resolution_mode=data.get("resolution_mode", "delivery"),
+        species=str(data.get("species", SPECIES_MENDEL_PEA)),
+        trait_requirements={
+            str(key): str(value)
+            for key, value in data.get("trait_requirements", {}).items()
+        },
+        genotype=data.get("genotype"),
+        min_probability=data.get("min_probability"),
+        ratio=(
+            tuple(int(value) for value in data["ratio"])
+            if isinstance(data.get("ratio"), list)
+            else None
+        ),
         delivered_count=int(data.get("delivered_count", 0)),
         completed=bool(data.get("completed", False)),
         paid=bool(data.get("paid", False)),

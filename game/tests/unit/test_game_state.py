@@ -1,6 +1,10 @@
 """Tests for MVP state, storage, and contract services."""
 
-from mendels_greenhouse.core.contracts import create_tutorial_contract
+from mendels_greenhouse.core.contracts import (
+    PhenotypeContract,
+    create_tutorial_contract,
+    generate_next_contract,
+)
 from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.core.save_data import (
     SaveMetadata,
@@ -73,8 +77,8 @@ def test_breeding_service_harvests_grown_batch() -> None:
     assert state.visible_count == 0
     assert state.current_batch == []
     assert state.active_contract.delivered_count == 1
-    assert "AaBb" in state.collection.genotypes
-    assert state.credits == 0
+    assert ("Mendel Pea", "AaBb") in state.collection.genotypes
+    assert state.credits == 50
 
 
 def test_breeding_service_sells_non_contract_specimens_after_growth() -> None:
@@ -86,7 +90,7 @@ def test_breeding_service_sells_non_contract_specimens_after_growth() -> None:
     assert service.harvest_germination_batch()
 
     assert state.active_contract.delivered_count == 1
-    assert state.credits == 2
+    assert state.credits == 52
     assert state.current_batch == []
 
 
@@ -142,8 +146,8 @@ def test_parent_selection_repairs_incompatible_other_species() -> None:
     state.greenhouse.slots = [
         Plant("AABB", species="Mendel Pea"),
         Plant("aabb", species="Mendel Pea"),
-        Plant("AABB", species="Snapdragon"),
-        Plant("AaBb", species="Snapdragon"),
+        Plant("AABBCC", species="Snapdragon"),
+        Plant("AaBbCc", species="Snapdragon"),
     ]
     state.selected_parent_a = 0
     state.selected_parent_b = 1
@@ -163,16 +167,18 @@ def test_completed_contract_requires_manual_reward_claim() -> None:
         assert service.harvest_germination_batch()
 
     assert state.active_contract.completed
-    assert state.credits == 0
+    assert state.credits == 50
 
     assert service.claim_contract_reward()
 
-    assert state.credits == 50
+    assert state.credits == 100
     assert state.completed_contracts == 1
     assert not state.active_contract.completed
     assert state.active_contract.target_count == 4
-    assert state.active_contract.seed_color == "yellow"
-    assert state.active_contract.seed_texture == "smooth"
+    assert state.active_contract.trait_requirements == {
+        "seed color": "yellow",
+        "seed texture": "smooth",
+    }
 
 
 def test_claim_without_complete_contract_does_not_generate_next() -> None:
@@ -211,7 +217,7 @@ def test_species_unlock_adds_dominant_and_recessive_founders() -> None:
 
     assert scene._buy_species_unlock()
 
-    assert state.credits == 0
+    assert state.credits == 200
     assert "Snapdragon" in state.unlocked_species
     assert state.greenhouse.plant_at(2) == Plant(
         "AABBCC",
@@ -225,7 +231,7 @@ def test_species_unlock_adds_dominant_and_recessive_founders() -> None:
 
 def test_species_shop_card_handles_all_unlocked_species() -> None:
     state = GameState.create_initial()
-    state.unlocked_species.update({"Snapdragon", "Corn"})
+    state.unlocked_species.update({"Snapdragon", "Corn", "Tomato", "Orchid"})
     scene = MainGameScene.__new__(MainGameScene)
     scene.state = state
 
@@ -264,6 +270,73 @@ def test_reset_progression_restores_initial_game_state() -> None:
     assert scene.active_screen == "main"
 
 
+def test_reset_progression_requires_confirmation() -> None:
+    state = GameState.create_initial()
+    state.credits = 500
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.breeding = BreedingService(state)
+    scene.greenhouse_service = GreenhouseService(state)
+    scene.save_service = None
+    scene.collection_tab = "Species"
+    scene.selected_knowledge = "Phenotype"
+    scene.selected_greenhouse_slot = 0
+    scene.selected_shop_item = "slot"
+    scene.parent_picker_target = None
+    scene.active_screen = "settings"
+    scene._reveal_frames = {}
+    scene.germination_started_frame = None
+    scene._play_sound = lambda _sound_index: None
+
+    scene._request_progress_reset()
+
+    assert scene.reset_confirmation_open
+    assert scene.state.credits == 500
+    assert scene.state.status_message == "Reset requires confirmation."
+
+    scene._confirm_progress_reset()
+
+    assert not scene.reset_confirmation_open
+    assert scene.state.credits == 0
+    assert scene.state.status_message == "Progress reset."
+
+
+def test_tester_money_code_grants_large_credit_balance() -> None:
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.save_service = None
+    scene.tester_code_buffer = ""
+    scene._play_sound = lambda _sound_index: None
+
+    for character in "MONEYTRE":
+        scene._handle_tester_code_character(character)
+
+    assert state.credits == 0
+
+    scene._handle_tester_code_character("E")
+
+    assert state.credits == 999_999
+    assert state.status_message == "Tester money code enabled."
+
+
+def test_species_unlocks_use_distinct_plant_sprite_coordinates() -> None:
+    scene = MainGameScene.__new__(MainGameScene)
+
+    snapdragon_coords = scene._plant_sprite_coords(
+        Plant("AABBCC", species="Snapdragon"),
+    )
+
+    assert snapdragon_coords == (
+        0,
+        192,
+    )
+    assert scene._plant_sprite_coords(Plant("AABB", species="Mendel Pea")) == (
+        0,
+        0,
+    )
+
+
 def test_save_data_round_trips_state_without_pyxel_objects() -> None:
     state = GameState.create_initial()
     state.credits = 25
@@ -291,6 +364,62 @@ def test_save_data_round_trips_state_without_pyxel_objects() -> None:
     assert restored.current_batch[0].generation == 1
     assert restored.visible_count == 1
     assert restored.collection.genotypes == state.collection.genotypes
+
+
+def test_genotypic_contract_unlocks_at_analyzer_level_two() -> None:
+    state = GameState.create_initial()
+    state.analyzer_level = 2
+    state.greenhouse.store(Plant("AaBb"))
+    state.collection.register_plant(Plant("AaBb"))
+
+    contract = generate_next_contract(
+        analyzer_level=state.analyzer_level,
+        collection=state.collection,
+        greenhouse=state.greenhouse,
+        completed_contracts=2,
+    )
+
+    assert contract.kind == "genotype"
+    assert contract.genotype in {"AABB", "AaBb", "aabb"}
+
+
+def test_statistical_probability_contract_validates_whole_batch() -> None:
+    contract = PhenotypeContract(
+        title="Produce a 9:3:3:1 phenotype ratio",
+        target_count=1,
+        reward_credits=1500,
+        kind="probability",
+        resolution_mode="statistical",
+        ratio=(9, 3, 3, 1),
+    )
+    batch = cross_batch = BreedingService(GameState.create_initial())
+    state = cross_batch.state
+    state.greenhouse.store(Plant("AaBb"))
+    state.selected_parent_a = 2
+    state.selected_parent_b = 2
+    state.active_contract = contract
+    state.current_batch = [
+        Plant("AABB"),
+        Plant("AABb"),
+        Plant("AABb"),
+        Plant("AAbb"),
+        Plant("AaBB"),
+        Plant("AaBB"),
+        Plant("AaBb"),
+        Plant("AaBb"),
+        Plant("AaBb"),
+        Plant("AaBb"),
+        Plant("Aabb"),
+        Plant("Aabb"),
+        Plant("aaBB"),
+        Plant("aaBb"),
+        Plant("aaBb"),
+        Plant("aabb"),
+    ]
+
+    assert batch.harvest_germination_batch()
+
+    assert state.active_contract.completed
 
 
 def test_save_service_scopes_files_by_profile_and_slot(tmp_path) -> None:

@@ -1,22 +1,55 @@
-"""Mendelian genetics rules for the MVP pea species."""
+"""Mendelian genetics rules for playable plant species."""
 
 from collections import Counter
 from dataclasses import dataclass
 from itertools import product
 from random import Random
 
+from mendels_greenhouse.core.content import (
+    SPECIES_MENDEL_PEA,
+    species_definition,
+)
+
 GENE_WIDTH = 2
+SECOND_TRAIT_COUNT = 2
 MVP_GENES = ("A", "B")
-SPECIES_MENDEL_PEA = "Mendel Pea"
 GENE_SYMBOLS = tuple("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
 
 @dataclass(frozen=True)
 class Phenotype:
-    """Visible MVP traits for Mendel pea plants."""
+    """Visible trait expression for one plant."""
 
-    seed_color: str
-    seed_texture: str
+    species: str
+    traits: dict[str, str]
+
+    @property
+    def seed_color(self) -> str:
+        """Return the Mendel Pea seed color compatibility field."""
+        return self.traits.get("seed color", self.primary_trait_value)
+
+    @property
+    def seed_texture(self) -> str:
+        """Return the Mendel Pea seed texture compatibility field."""
+        return self.traits.get("seed texture", self.secondary_trait_value)
+
+    @property
+    def primary_trait_value(self) -> str:
+        """Return the first visible trait value."""
+        return next(iter(self.traits.values()), "unknown")
+
+    @property
+    def secondary_trait_value(self) -> str:
+        """Return the second visible trait value."""
+        values = tuple(self.traits.values())
+        if len(values) < SECOND_TRAIT_COUNT:
+            return self.primary_trait_value
+        return values[1]
+
+    @property
+    def summary(self) -> str:
+        """Return a compact phenotype summary."""
+        return ", ".join(self.traits.values())
 
 
 @dataclass(frozen=True)
@@ -29,18 +62,31 @@ class Plant:
 
     def __post_init__(self) -> None:
         validate_genotype(self.genotype)
+        expected_gene_count = species_definition(self.species).gene_count
+        actual_gene_count = len(self.genotype) // GENE_WIDTH
+        if actual_gene_count != expected_gene_count:
+            message = (
+                f"{self.species} requires {expected_gene_count} genes, "
+                f"got {actual_gene_count}."
+            )
+            raise ValueError(message)
         if self.generation < 0:
             message = "Plant generation cannot be negative."
             raise ValueError(message)
 
     @property
     def phenotype(self) -> Phenotype:
-        """Return visible traits for the MVP pea species."""
+        """Return visible traits for this plant species."""
         pairs = genotype_pairs(self.genotype)
-        return Phenotype(
-            seed_color="yellow" if "A" in pairs["A"] else "green",
-            seed_texture="smooth" if "B" in pairs["B"] else "wrinkled",
-        )
+        definition = species_definition(self.species)
+        traits = {}
+        for rule in definition.traits:
+            traits[rule.name] = (
+                rule.dominant
+                if rule.gene in pairs[rule.gene]
+                else rule.recessive
+            )
+        return Phenotype(species=self.species, traits=traits)
 
     @property
     def is_protected_founder(self) -> bool:

@@ -86,6 +86,11 @@ game/
 |   `-- collection.py
 `-- ui/
     |-- components.py
+    |-- game_components/
+    |   |-- __init__.py
+    |   |-- contract_summary.py
+    |   |-- germination_bed.py
+    |   `-- plant_info.py
     |-- layout.py
     `-- palette.py
 tests/
@@ -160,3 +165,8 @@ Task definitions are documented in [development-tooling.md](development-tooling.
 ## Current Scope
 
 Implement the game first. NiceGUI account and save integration remains future scope and should not shape the initial package structure beyond keeping game code modular.
+
+Gameplay-specific UI helper modules may live under
+`mendels_greenhouse/ui/game_components/`. This package is intended for
+component-by-component visual refinement of Pyxel UI surfaces while keeping core
+gameplay rules independent from rendering code.

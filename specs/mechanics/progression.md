@@ -17,7 +17,7 @@ Phenotype
 
 The first playable prototype validates the core loop with minimal content.
 
-MVP scope:
+Baseline MVP scope:
 
 - Mendel Pea only.
 - 2 independent genes: `A/a` and `B/b`.
@@ -26,6 +26,29 @@ MVP scope:
 - Small greenhouse.
 - Functional collection.
 - Functional progression.
+
+## Current Playable Implementation Scope
+
+The current playable implementation expands beyond the baseline MVP while
+preserving the official learning progression.
+
+Implemented scope:
+
+- All official species can be unlocked in order.
+- Species unlocks add founder specimens for the fully dominant and fully
+  recessive genotypes.
+- Genetic Analyzer levels 1 through 4 can be purchased.
+- Contract generation progresses from phenotypic goals to genotypic goals and
+  probabilistic/statistical goals as analyzer levels unlock.
+- Collection entries are species-qualified so the same genotype or phenotype
+  pattern in different species is tracked separately.
+- Collection discovery rewards and milestone rewards are granted once.
+- Analyzer level 4 provides a stored-cross simulator summary that identifies the
+  best available parent pair for a selected target probability.
+
+Level 4's current simulator is a playable planning aid, not the final advanced
+optimization interface. Future refinements may add richer comparison controls
+without changing the unlock order.
 
 ## Greenhouse
 

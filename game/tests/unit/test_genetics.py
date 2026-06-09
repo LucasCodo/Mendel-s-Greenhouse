@@ -62,7 +62,7 @@ def test_distribution_rejects_mismatched_parent_species() -> None:
     with pytest.raises(ValueError, match="same species"):
         expected_distribution(
             Plant("AABB", species="Mendel Pea"),
-            Plant("aabb", species="Snapdragon"),
+            Plant("aabbcc", species="Snapdragon"),
         )
 
 

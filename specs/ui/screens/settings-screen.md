@@ -13,7 +13,7 @@ The Settings Screen controls player preferences without defining implementation 
 | Audio                | Volume controls      |
 | Visual               | Motion, effects      |
 | Accessibility        | Text, color support  |
-| Gameplay             | Tutorial reset       |
+| Gameplay             | Tutorial/progression |
 +----------------------+---------------------+
 | [Apply] [Reset Defaults] [Back]            |
 +--------------------------------------------+
@@ -47,6 +47,23 @@ The Settings Screen controls player preferences without defining implementation 
 
 - Reset tutorial prompts.
 - Reset progression control.
+
+Reset progression is a dangerous action. Activating the reset progression
+control must open a confirmation dialog instead of resetting immediately.
+
+Confirmation dialog requirements:
+
+- Clearly warn that the action is dangerous.
+- State that all user progression data will be erased.
+- Require an explicit confirm action before deleting progress.
+- Provide a cancel action that closes the dialog without changing data.
+- Closing the dialog with Back, Escape, or an equivalent dismissal action must
+  behave like cancel.
+
+After confirmation, reset progression returns the save-relevant game state to
+the initial playable state, including credits, contracts, discoveries,
+greenhouse contents, unlocked species, analyzer level, collection milestones,
+and current batch data.
 
 ### Language
 
