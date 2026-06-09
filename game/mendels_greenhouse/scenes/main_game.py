@@ -26,14 +26,8 @@ from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.components import (
     Rect,
     clicked,
-    draw_button,
-    draw_panel,
 )
-from mendels_greenhouse.ui.fonts import (
-    FontSet,
-    draw_outlined_text,
-    draw_shadow_text,
-)
+from mendels_greenhouse.ui.fonts import FontSet
 from mendels_greenhouse.ui.game_components import (
     BedGeometry,
     BedLayout,
@@ -43,7 +37,62 @@ from mendels_greenhouse.ui.game_components import (
     germination_layout,
     plant_trait_lines,
 )
-from mendels_greenhouse.ui.palette import PyxelColor
+from mendels_greenhouse.ui.game_components.collection import (
+    CollectionScreenData,
+    draw_collection_screen,
+)
+from mendels_greenhouse.ui.game_components.contracts import (
+    ContractsScreenData,
+    draw_contracts_screen,
+)
+from mendels_greenhouse.ui.game_components.garden import (
+    GardenScreenData,
+    draw_garden_screen,
+    greenhouse_slot_rect,
+)
+from mendels_greenhouse.ui.game_components.knowledge import (
+    KnowledgeScreenData,
+    KnowledgeStage,
+    draw_knowledge_screen,
+)
+from mendels_greenhouse.ui.game_components.main_game import (
+    AnalyzerPanelData,
+    ContractBannerData,
+    GerminationBedPanelData,
+    NavigationRailConfig,
+    ParentCrossPanelData,
+    TopBarData,
+    draw_analyzer_panel,
+    draw_contract_banner,
+    draw_germination_bed_panel,
+    draw_greenhouse_background,
+    draw_navigation_rail,
+    draw_parent_cross_panel,
+    draw_top_bar,
+    nav_button_rect,
+)
+from mendels_greenhouse.ui.game_components.overlays import (
+    ParentPickerData,
+    TooltipData,
+    draw_intro_panel,
+    draw_parent_picker,
+    draw_plant_tooltip,
+    parent_picker_slot_rect,
+)
+from mendels_greenhouse.ui.game_components.settings import (
+    SettingsOverlayData,
+    VolumeControlData,
+    draw_settings_overlay,
+)
+from mendels_greenhouse.ui.game_components.shared import (
+    DrawContext,
+    draw_scene_shell,
+)
+from mendels_greenhouse.ui.game_components.shop import (
+    ShopCardData,
+    ShopScreenData,
+    draw_shop_screen,
+)
 
 WIDTH = 640
 HEIGHT = 360
@@ -93,6 +142,16 @@ PLANT_SPRITE_W = 56
 PLANT_SPRITE_H = 44
 NAV_ICON_SIZE = 64
 NAV_ICON_SCALE = 0.25
+NAV_RAIL_CONFIG = NavigationRailConfig(
+    rail_rect=NAV_RAIL,
+    button_x=NAV_BUTTON_X,
+    button_y=NAV_BUTTON_Y,
+    button_width=NAV_BUTTON_W,
+    button_height=NAV_BUTTON_H,
+    button_gap=NAV_BUTTON_GAP,
+    icon_size=NAV_ICON_SIZE,
+    icon_scale=NAV_ICON_SCALE,
+)
 SCREEN_MAIN = "main"
 SCREEN_CONTRACTS = "contracts"
 SCREEN_KNOWLEDGE = "knowledge"
@@ -309,6 +368,7 @@ I18N_MARKERS = (
     gettext_noop("Next species unlock in shop."),
     gettext_noop("No completed contract to claim."),
     gettext_noop("No revealed plant to store."),
+    gettext_noop("No specimens to harvest."),
     gettext_noop("Not enough credits."),
     gettext_noop("Offspring revealed."),
     gettext_noop("PARENT A"),
@@ -524,6 +584,8 @@ class MainGameScene:
     def _germination_ready(self) -> bool:
         if not self.state.current_batch:
             return False
+        if not any(plant is not None for plant in self.state.current_batch):
+            return False
         if self.germination_started_frame is None:
             return False
         elapsed = pyxel.frame_count - self.germination_started_frame
@@ -558,6 +620,9 @@ class MainGameScene:
         if clicked(STORE_BUTTON) or pyxel.btnp(pyxel.KEY_S):
             if self.breeding.store_selected_offspring():
                 self._play_sound(3)
+                if not self.state.current_batch:
+                    self._reveal_frames.clear()
+                    self.germination_started_frame = None
                 self._autosave()
             else:
                 self._play_sound(4)
@@ -605,26 +670,65 @@ class MainGameScene:
             self._draw_settings_panel()
 
     def _draw_main_game_screen(self) -> None:
-        self._draw_contract_panel()
-        self._draw_probability_panel()
-        self._draw_parent_card(PARENT_A_CARD, "PARENT A", self.state.parent_a)
-        self._draw_parent_card(PARENT_B_CARD, "PARENT B", self.state.parent_b)
-        draw_shadow_text(
-            316,
-            112,
-            "+",
-            PyxelColor.ACCENT,
-            font=self._display_font,
+        contract = self.state.active_contract
+        draw_contract_banner(
+            self._draw_context(),
+            ContractBannerData(
+                title=self._contract_title(),
+                progress_label=contract_progress_label(contract),
+                progress_width=contract_progress_width(contract, 235),
+                claim_enabled=contract.completed and not contract.paid,
+                claim_button=CLAIM_CONTRACT_BUTTON,
+            ),
         )
-        draw_button(
-            CROSS_BUTTON,
-            self._t("CROSS PLANTS"),
-            enabled=self.state.can_crossbreed and not self.state.current_batch,
-            pressed=self.cross_button_timer > 0,
+        draw_analyzer_panel(
+            self._draw_context(),
+            AnalyzerPanelData(
+                has_parent_pair=(
+                    self.state.parent_a is not None
+                    and self.state.parent_b is not None
+                ),
+                analyzer_level=self.state.analyzer_level,
+                probability_level=ANALYZER_PROBABILITY_LEVEL,
+                simulator_level=ANALYZER_SIMULATOR_LEVEL,
+                probability_lines=self._probability_lines(),
+                best_cross=self._best_contract_cross(),
+                max_probability_y=PROBABILITY_PANEL_MAX_Y,
+            ),
+        )
+        draw_parent_cross_panel(
+            self._draw_context(),
+            ParentCrossPanelData(
+                parent_a_card=PARENT_A_CARD,
+                parent_b_card=PARENT_B_CARD,
+                parent_a=self.state.parent_a,
+                parent_b=self.state.parent_b,
+                cross_button=CROSS_BUTTON,
+                can_crossbreed=self.state.can_crossbreed,
+                has_current_batch=bool(self.state.current_batch),
+                cross_pressed=self.cross_button_timer > 0,
+            ),
+            plant_preview=self._draw_component_plant_preview,
+            visible_genotype=self._visible_genotype,
+            trait=self._trait,
         )
         self._draw_germination_bed()
-        self._draw_bottom_panels()
         self._draw_hovered_plant_tooltip()
+
+    def _draw_context(self) -> DrawContext:
+        return DrawContext(
+            translate=self._t,
+            display_font=self._display_font,
+        )
+
+    def _draw_component_plant_preview(
+        self,
+        x: int,
+        y: int,
+        plant: Plant,
+        large: bool,
+    ) -> None:
+        self._draw_plant_preview(x, y, plant, large=large)
 
     def _update_navigation_rail(self) -> bool:
         for screen, _label, _sprite in NAV_ITEMS:
@@ -726,243 +830,53 @@ class MainGameScene:
             self._autosave()
 
     def _draw_greenhouse_background(self) -> None:
-        if self.background_image is not None:
-            pyxel.blt(0, 0, self.background_image, 0, 0, WIDTH, HEIGHT)
-            return
-
-        pyxel.cls(PyxelColor.GREENHOUSE_BG)
-        for x in range(0, WIDTH, 32):
-            pyxel.line(x, 30, x - 40, 180, PyxelColor.TEXT_MUTED)
-            pyxel.line(x, 30, x + 40, 180, PyxelColor.FIELD)
-
-        pyxel.rect(0, 258, WIDTH, 102, PyxelColor.PANEL_DARK)
-        for x in range(0, WIDTH, 16):
-            pyxel.line(x, 258, x + 8, HEIGHT, PyxelColor.FRAME)
+        draw_greenhouse_background(
+            background_image=self.background_image,
+            width=WIDTH,
+            height=HEIGHT,
+        )
 
     def _draw_top_bar(self) -> None:
-        self._draw_runtime_hud_frame(5, 4, 544, 58)
-        self._draw_runtime_logo(16, 10)
-        draw_outlined_text(
-            24,
-            13,
-            "MENDEL'S",
-            PyxelColor.PEA_GREEN,
-            font=self._display_font,
+        draw_top_bar(
+            data=TopBarData(
+                credits=self.state.credits,
+                greenhouse_used=self.state.greenhouse.used_slots,
+                greenhouse_capacity=self.state.greenhouse.capacity,
+                active_screen_title=self._active_screen_title(),
+            ),
+            translate=self._t,
+            display_font=self._display_font,
         )
-        draw_outlined_text(
-            20,
-            24,
-            "GREENHOUSE",
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        self._draw_counter(118, "CR", str(self.state.credits))
-        garden = f"{self.state.greenhouse.used_slots}/"
-        garden += f"{self.state.greenhouse.capacity}"
-        self._draw_counter(198, "GDN", garden)
-        screen = self._active_screen_title()
-        pyxel.text(294, 41, self._t(screen).upper()[:18], PyxelColor.ACCENT)
-
-    def _draw_runtime_hud_frame(
-        self,
-        x: int,
-        y: int,
-        width: int,
-        height: int,
-    ) -> None:
-        pyxel.rect(x, y, width, height, PyxelColor.PANEL_DARK)
-        pyxel.rectb(x, y, width, height, PyxelColor.SPRITE_OUTLINE)
-        pyxel.rectb(x + 2, y + 2, width - 4, height - 4, PyxelColor.FRAME)
-        for line_y in range(y + 10, y + height - 6, 9):
-            pyxel.line(
-                x + 4,
-                line_y,
-                x + width - 5,
-                line_y,
-                PyxelColor.DARK_WOOD,
-            )
-        for corner_x in [x + 3, x + width - 4]:
-            pyxel.pset(corner_x, y + 3, PyxelColor.ACCENT)
-            pyxel.pset(corner_x, y + height - 4, PyxelColor.ACCENT)
-
-    def _draw_runtime_logo(self, x: int, y: int) -> None:
-        pyxel.rect(x, y + 2, 34, 30, PyxelColor.DARK_WOOD)
-        pyxel.rectb(x, y + 2, 34, 30, PyxelColor.SPRITE_OUTLINE)
-        pyxel.line(x + 5, y + 8, x + 18, y + 4, PyxelColor.POD_HIGHLIGHT)
-        pyxel.line(x + 5, y + 22, x + 18, y + 29, PyxelColor.POD_SHADOW)
-        pyxel.circ(x + 12, y + 17, 7, PyxelColor.SEED_GOLD)
-        pyxel.circb(x + 12, y + 17, 7, PyxelColor.SPRITE_OUTLINE)
-        pyxel.circ(x + 23, y + 16, 7, PyxelColor.PEA_GREEN)
-        pyxel.circb(x + 23, y + 16, 7, PyxelColor.SPRITE_OUTLINE)
 
     def _draw_navigation_rail(self) -> None:
-        self._draw_runtime_hud_frame(
-            NAV_RAIL.x,
-            NAV_RAIL.y,
-            NAV_RAIL.width,
-            NAV_RAIL.height,
-        )
-        for screen, label, sprite in NAV_ITEMS:
-            self._draw_nav_item(
-                self._nav_button_rect(screen),
-                label,
-                sprite,
-                active=screen == self.active_screen
-                or (screen == "settings" and self.settings_open),
-            )
-
-    def _draw_nav_item(
-        self,
-        rect: Rect,
-        label: str,
-        sprite: tuple[int, int],
-        *,
-        active: bool,
-    ) -> None:
-        hovering = rect.contains(pyxel.mouse_x, pyxel.mouse_y)
-        fill = PyxelColor.ACCENT if active else PyxelColor.DARK_WOOD
-        if hovering and not active:
-            fill = PyxelColor.WOOD_MIDTONE
-        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
-        pyxel.rectb(
-            rect.x + 1,
-            rect.y + 1,
-            rect.width - 2,
-            rect.height - 2,
-            PyxelColor.UI_DARK,
-        )
-        u, v = sprite
-        pyxel.blt(
-            rect.x + 4,
-            rect.y + 5,
-            0,
-            u,
-            v,
-            NAV_ICON_SIZE,
-            NAV_ICON_SIZE,
-            colkey=0,
-            scale=NAV_ICON_SCALE,
-        )
-        text = self._t(label).upper()[:10]
-        text_x = rect.x + 24
-        pyxel.text(text_x + 1, rect.y + 15, text, PyxelColor.SPRITE_OUTLINE)
-        pyxel.text(
-            text_x,
-            rect.y + 14,
-            text,
-            PyxelColor.UI_DARK if active else PyxelColor.PARCHMENT_LIGHT,
+        draw_navigation_rail(
+            NAV_RAIL_CONFIG,
+            NAV_ITEMS,
+            active_screen=self.active_screen,
+            settings_open=self.settings_open,
+            translate=self._t,
         )
 
     def _nav_button_rect(self, screen: str) -> Rect:
-        index = next(
-            (
-                item_index
-                for item_index, (item_screen, _label, _sprite) in enumerate(
-                    NAV_ITEMS,
-                )
-                if item_screen == screen
-            ),
-            0,
-        )
-        return Rect(
-            NAV_BUTTON_X,
-            NAV_BUTTON_Y + index * (NAV_BUTTON_H + NAV_BUTTON_GAP),
-            NAV_BUTTON_W,
-            NAV_BUTTON_H,
+        return nav_button_rect(
+            screen,
+            NAV_ITEMS,
+            NAV_RAIL_CONFIG,
         )
 
-    def _draw_counter(self, x: int, icon: str, value: str) -> None:
-        pyxel.rect(x, 41, 72, 14, PyxelColor.UI_DARK)
-        pyxel.rectb(x, 41, 72, 14, PyxelColor.FRAME)
-        pyxel.text(x + 5, 46, icon, PyxelColor.ACCENT)
-        pyxel.text(x + 27, 46, value, PyxelColor.TEXT)
-
-    def _draw_contract_panel(self) -> None:
-        contract = self.state.active_contract
-        rect = Rect(180, 74, 320, 46)
-        draw_panel(rect)
-        draw_outlined_text(
-            286,
-            66,
-            self._t("CONTRACT"),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        pyxel.text(
-            rect.x + 12,
-            rect.y + 12,
-            self._contract_title(),
-            PyxelColor.UI_DARK,
-        )
-        pyxel.rect(rect.x + 12, rect.y + 29, 235, 8, PyxelColor.BAR_EMPTY)
-        progress_width = contract_progress_width(contract, 235)
-        pyxel.rect(
-            rect.x + 12,
-            rect.y + 29,
-            progress_width,
-            8,
-            PyxelColor.PROGRESS,
-        )
-        progress = contract_progress_label(contract)
-        pyxel.text(rect.x + 260, rect.y + 30, progress, PyxelColor.UI_DARK)
-        if contract.completed and not contract.paid:
-            draw_button(CLAIM_CONTRACT_BUTTON, self._t("CLAIM"))
-
-    def _draw_probability_panel(self) -> None:
-        rect = Rect(12, 74, 132, 112)
-        draw_panel(rect)
-        draw_outlined_text(
-            18,
-            80,
-            self._t("PROBABILITIES"),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
+    def _probability_lines(self) -> list[str]:
         parent_a = self.state.parent_a
         parent_b = self.state.parent_b
         if parent_a is None or parent_b is None:
-            pyxel.text(18, 96, self._t("Select parents"), PyxelColor.UI_DARK)
-            return
+            return []
         if self.state.analyzer_level < ANALYZER_PROBABILITY_LEVEL:
-            pyxel.text(
-                18,
-                96,
-                self._t("ANALYZER L3 REQUIRED"),
-                PyxelColor.UI_DARK,
-            )
-            pyxel.text(
-                18,
-                110,
-                self._t("Upgrade analyzer in Shop."),
-                PyxelColor.UI_DARK,
-            )
-            return
+            return []
 
         distribution = expected_distribution(parent_a, parent_b)
-        y = 94
-        for genotype, probability in distribution.probabilities.items():
-            chance = int(probability * 100)
-            pyxel.text(18, y, f"{genotype}: {chance}%", PyxelColor.UI_DARK)
-            y += 10
-            if y > PROBABILITY_PANEL_MAX_Y:
-                break
-        if self.state.analyzer_level >= ANALYZER_SIMULATOR_LEVEL:
-            best = self._best_contract_cross()
-            pyxel.text(
-                18,
-                168,
-                self._t("Best stored cross"),
-                PyxelColor.UI_DARK,
-            )
-            pyxel.text(
-                18,
-                178,
-                best
-                if best is not None
-                else self._t("No valid stored cross found."),
-                PyxelColor.UI_DARK,
-            )
+        return [
+            f"{genotype}: {int(probability * 100)}%"
+            for genotype, probability in distribution.probabilities.items()
+        ]
 
     def _best_contract_cross(self) -> str | None:
         """Return the stored parent pair with the best active-contract odds."""
@@ -1004,142 +918,30 @@ class MainGameScene:
                 matches += count
         return matches / distribution.total_combinations
 
-    def _draw_parent_card(
-        self,
-        rect: Rect,
-        title: str,
-        plant: Plant | None,
-    ) -> None:
-        draw_panel(rect)
-        draw_outlined_text(
-            rect.x + 32,
-            rect.y + 7,
-            self._t(title),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        if plant is None:
-            pyxel.text(
-                rect.x + 20,
-                rect.y + 28,
-                self._t("Empty slot"),
-                PyxelColor.UI_DARK,
-            )
-            return
-
-        self._draw_plant_preview(rect.x + 32, rect.y + 64, plant, large=True)
-        pyxel.rect(rect.x + 65, rect.y + 25, 46, 15, PyxelColor.FIELD)
-        pyxel.rectb(rect.x + 65, rect.y + 25, 46, 15, PyxelColor.FRAME)
-        pyxel.text(
-            rect.x + 73,
-            rect.y + 30,
-            self._visible_genotype(plant),
-            PyxelColor.UI_DARK,
-        )
-        phenotype = plant.phenotype
-        pyxel.text(
-            rect.x + 65,
-            rect.y + 47,
-            self._trait(phenotype.primary_trait_value)[:14],
-            PyxelColor.UI_DARK,
-        )
-
     def _draw_germination_bed(self) -> None:
-        layout = self._germination_layout()
-        frame_x = layout.x - 10
-        frame_y = layout.y - 10
-        frame_w = layout.width + 20
-        frame_h = layout.height + 20
-        pyxel.rect(frame_x, frame_y, frame_w, frame_h, PyxelColor.DARK_WOOD)
-        pyxel.rectb(frame_x, frame_y, frame_w, frame_h, PyxelColor.FRAME)
-        pyxel.rectb(
-            frame_x + 2,
-            frame_y + 2,
-            frame_w - 4,
-            frame_h - 4,
-            PyxelColor.UI_DARK,
+        contract = self.state.active_contract
+        draw_germination_bed_panel(
+            self._draw_context(),
+            GerminationBedPanelData(
+                layout=self._germination_layout(),
+                current_batch=self.state.current_batch,
+                visible_count=self.state.visible_count,
+                selected_index=self.state.selected_offspring_index,
+                status_message=self.state.status_message,
+                reveal_frames=getattr(self, "_reveal_frames", {}),
+                frame_count=pyxel.frame_count,
+                seed_stage_frames=SEED_STAGE_FRAMES,
+                seedling_stage_frames=SEEDLING_STAGE_FRAMES,
+                store_button=STORE_BUTTON,
+                harvest_button=HARVEST_BUTTON,
+                can_store=self.state.selected_offspring is not None,
+                can_harvest=self._germination_ready(),
+                contract_progress_count=contract.progress_count,
+                contract_remaining_count=contract.remaining_count,
+            ),
+            status_text=self._status_text,
+            matches_contract=contract.matches,
         )
-        pyxel.rect(230, 174, 180, 14, PyxelColor.UI_DARK)
-
-        msg = self._status_text(self.state.status_message)[:44]
-        text_width = len(msg) * 4
-        text_x = 320 - text_width // 2
-        pyxel.text(text_x, 179, msg, PyxelColor.ACCENT)
-
-        for index in range(layout.cell_count):
-            self._draw_germination_cell(index, layout)
-
-    def _draw_germination_cell(self, index: int, layout: BedLayout) -> None:
-        rect = self._germination_cell_rect(index, layout)
-        visible = index < self.state.visible_count
-        has_specimen = index < len(self.state.current_batch)
-        plant = (
-            self.state.current_batch[index]
-            if visible and has_specimen
-            else None
-        )
-        selected = index == self.state.selected_offspring_index
-        matches_contract = (
-            plant is not None and self.state.active_contract.matches(plant)
-        )
-
-        fill = PyxelColor.SOIL_DARK
-        if plant is None and visible:
-            fill = PyxelColor.WARM_FLOOR
-        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-        border = PyxelColor.ACCENT if selected else PyxelColor.DARK_WOOD
-        if matches_contract:
-            border = PyxelColor.PROGRESS
-        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, border)
-
-        if not visible:
-            pyxel.circ(rect.x + 17, rect.y + 8, 2, PyxelColor.WOOD_MIDTONE)
-            return
-        if plant is None:
-            pyxel.text(rect.x + 12, rect.y + 5, "-", PyxelColor.TEXT_MUTED)
-            return
-
-        age = pyxel.frame_count - getattr(self, "_reveal_frames", {}).get(
-            index,
-            pyxel.frame_count,
-        )
-        center_x = rect.x + rect.width // 2
-        center_y = rect.y + rect.height // 2
-        if age < SEED_STAGE_FRAMES:
-            pyxel.circ(center_x, center_y + 2, 3, PyxelColor.SEED_GOLD)
-            pyxel.circb(center_x, center_y + 2, 3, PyxelColor.SPRITE_OUTLINE)
-        elif age < SEEDLING_STAGE_FRAMES:
-            pyxel.line(
-                center_x,
-                center_y + 4,
-                center_x,
-                center_y - 2,
-                PyxelColor.LEAF_GREEN,
-            )
-            pyxel.pset(center_x - 2, center_y, PyxelColor.LEAF_HIGHLIGHT)
-            pyxel.pset(center_x + 2, center_y - 1, PyxelColor.LEAF_HIGHLIGHT)
-        else:
-            self._draw_tiny_plant(center_x, center_y + 5, plant)
-        if matches_contract:
-            pyxel.text(
-                rect.x + rect.width - 7,
-                rect.y + 2,
-                "+",
-                PyxelColor.PROGRESS,
-            )
-
-    def _draw_tiny_plant(self, x: int, y: int, plant: Plant) -> None:
-        phenotype = plant.phenotype
-        colorful_traits = {"yellow", "red", "purple", "violet"}
-        seed_color = (
-            PyxelColor.PEA_YELLOW
-            if phenotype.primary_trait_value in colorful_traits
-            else PyxelColor.PEA_GREEN
-        )
-        pyxel.line(x - 5, y - 3, x + 5, y - 8, PyxelColor.POD_BASE)
-        pyxel.line(x - 5, y - 2, x + 5, y - 7, PyxelColor.POD_HIGHLIGHT)
-        for offset in (-3, 0, 3):
-            pyxel.pset(x + offset, y - 5, seed_color)
 
     def _germination_cell_rect(self, index: int, layout: BedLayout) -> Rect:
         return germination_cell_rect(index, layout)
@@ -1157,38 +959,6 @@ class MainGameScene:
             batch_size=min(len(self.state.current_batch), MAX_BED_CELLS),
             fallback_cells=1,
             geometry=BED_GEOMETRY,
-        )
-
-    def _draw_bottom_panels(self) -> None:
-        self._draw_bed_action_bar()
-
-    def _draw_bed_action_bar(self) -> None:
-        pyxel.rect(140, 306, 240, 42, PyxelColor.DARK_WOOD)
-        pyxel.rectb(140, 306, 240, 42, PyxelColor.FRAME)
-        pyxel.rectb(142, 308, 236, 38, PyxelColor.UI_DARK)
-        total = len(self.state.current_batch)
-        contract = self.state.active_contract
-        progress = self._t(
-            "Generated: {visible}/{total}",
-            visible=self.state.visible_count,
-            total=total,
-        )
-        contract_text = (
-            f"{self._t('Matches')}: {contract.progress_count}  "
-            f"{self._t('Missing')}: {contract.remaining_count}"
-        )
-        pyxel.text(150, 312, progress[:36], PyxelColor.PARCHMENT_LIGHT)
-        pyxel.text(150, 324, contract_text[:44], PyxelColor.PARCHMENT_LIGHT)
-        selected_available = self.state.selected_offspring is not None
-        draw_button(
-            STORE_BUTTON,
-            self._t("STORE"),
-            enabled=selected_available,
-        )
-        draw_button(
-            HARVEST_BUTTON,
-            self._t("HARVEST"),
-            enabled=self._germination_ready(),
         )
 
     def _draw_hovered_plant_tooltip(self) -> None:
@@ -1211,20 +981,15 @@ class MainGameScene:
             *self._plant_trait_lines(plant, limit=2),
             self._harvest_destination_label(plant),
         ]
-        width = max(len(line) for line in lines) * 4 + 16
-        height = len(lines) * 10 + 12
-        x = min(max(pyxel.mouse_x + 10, 8), WIDTH - width - 8)
-        y = min(max(pyxel.mouse_y - height - 8, 70), HEIGHT - height - 8)
-        panel = Rect(x, y, width, height)
-        pyxel.rect(panel.x + 2, panel.y + 2, panel.width, panel.height, 0)
-        draw_panel(panel)
-        for index, line in enumerate(lines):
-            pyxel.text(
-                panel.x + 8,
-                panel.y + 8 + index * 10,
-                line,
-                PyxelColor.UI_DARK,
-            )
+        draw_plant_tooltip(
+            TooltipData(
+                lines=lines,
+                mouse_x=pyxel.mouse_x,
+                mouse_y=pyxel.mouse_y,
+                screen_width=WIDTH,
+                screen_height=HEIGHT,
+            ),
+        )
 
     def _hovered_germination_specimen(self) -> tuple[int, Plant] | None:
         layout = self._germination_layout()
@@ -1250,49 +1015,19 @@ class MainGameScene:
         return self._t("Sells after harvest")
 
     def _draw_collection_screen(self) -> None:
-        self._draw_scene_shell("Collection", "Discovered genetic records")
-        pyxel.text(
-            438,
-            86,
-            self._t(
-                "Discovered: {total}",
-                total=self.state.collection.total_entries,
-            ),
-            PyxelColor.PARCHMENT_LIGHT,
-        )
-        for index, tab in enumerate(COLLECTION_TABS):
-            rect = Rect(24, 108 + index * 30, 104, 22)
-            active = self.collection_tab == tab
-            draw_button(rect, self._t(tab).upper(), pressed=active)
-
-        list_panel = Rect(148, 108, 220, 178)
-        detail_panel = Rect(386, 108, 154, 178)
-        draw_panel(list_panel)
-        draw_panel(detail_panel)
         entries = self._collection_entries()
-        if not entries:
-            pyxel.text(
-                166,
-                132,
-                self._t("No discoveries yet."),
-                PyxelColor.UI_DARK,
-            )
-        for index, line in enumerate(entries[:12]):
-            y = 122 + index * 12
-            pyxel.text(164, y, line[:44], PyxelColor.UI_DARK)
-
-        pyxel.text(
-            402,
-            126,
-            self._t(self.collection_tab).upper(),
-            PyxelColor.UI_DARK,
+        draw_collection_screen(
+            self._draw_context(),
+            CollectionScreenData(
+                total_entries=self.state.collection.total_entries,
+                tabs=COLLECTION_TABS,
+                active_tab=self.collection_tab,
+                entries=entries,
+                details=self._collection_details(entries),
+            ),
         )
-        details = self._collection_details(entries)
-        for index, line in enumerate(details):
-            pyxel.text(402, 146 + index * 14, line[:32], PyxelColor.UI_DARK)
 
     def _draw_knowledge_screen(self) -> None:
-        self._draw_scene_shell("Knowledge", "Learned genetics concepts")
         total = sum(
             len(concepts) for _stage, concepts, _level in KNOWLEDGE_STAGES
         )
@@ -1302,278 +1037,82 @@ class MainGameScene:
             for _concept in concepts
             if self.state.analyzer_level >= required_level
         )
-        pyxel.text(
-            438,
-            86,
-            self._t(
-                "Learned: {learned}/{total}",
-                learned=learned,
-                total=total,
+        draw_knowledge_screen(
+            self._draw_context(),
+            KnowledgeScreenData(
+                stages=tuple(
+                    KnowledgeStage(stage, concepts, required_level)
+                    for stage, concepts, required_level in KNOWLEDGE_STAGES
+                ),
+                analyzer_level=self.state.analyzer_level,
+                selected_concept=self.selected_knowledge,
+                detail_texts=KNOWLEDGE_DETAILS,
+                learned_count=learned,
+                total_count=total,
+                wrap_text=self._wrap_text,
             ),
-            PyxelColor.PARCHMENT_LIGHT,
-        )
-
-        node_panel = Rect(24, 108, 214, 190)
-        detail_panel = Rect(258, 108, 282, 190)
-        draw_panel(node_panel)
-        draw_panel(detail_panel)
-
-        index = 0
-        for stage, concepts, required_level in KNOWLEDGE_STAGES:
-            stage_unlocked = self.state.analyzer_level >= required_level
-            y = 116 + index * 11
-            pyxel.text(38, y, self._t(stage).upper(), PyxelColor.ACCENT)
-            index += 1
-            for concept in concepts:
-                unlocked = self.state.analyzer_level >= required_level
-                selected = concept == self.selected_knowledge
-                rect = Rect(28, 116 + index * 11, 196, 10)
-                fill = PyxelColor.ACCENT if selected else PyxelColor.PARCHMENT
-                if not unlocked:
-                    fill = PyxelColor.TEXT_MUTED
-                pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-                pyxel.rectb(
-                    rect.x,
-                    rect.y,
-                    rect.width,
-                    rect.height,
-                    PyxelColor.FRAME,
-                )
-                label = self._t(concept) if unlocked else self._t("Locked")
-                pyxel.text(
-                    rect.x + 6,
-                    rect.y + 3,
-                    label[:44],
-                    PyxelColor.UI_DARK,
-                )
-                if not stage_unlocked:
-                    pyxel.text(
-                        rect.x + 166,
-                        rect.y + 3,
-                        f"L{required_level}",
-                        PyxelColor.UI_DARK,
-                    )
-                index += 1
-
-        self._draw_knowledge_details(detail_panel)
-
-    def _draw_knowledge_details(self, panel: Rect) -> None:
-        concept = self.selected_knowledge
-        required_level = self._knowledge_required_level(concept)
-        pyxel.text(
-            panel.x + 18,
-            panel.y + 18,
-            self._t("Selected Concept"),
-            PyxelColor.UI_DARK,
-        )
-        if self.state.analyzer_level < required_level:
-            pyxel.text(
-                panel.x + 18,
-                panel.y + 42,
-                self._t("Locked"),
-                PyxelColor.UI_DARK,
-            )
-            pyxel.text(
-                panel.x + 18,
-                panel.y + 58,
-                self._t("Analyzer L{level} required.", level=required_level),
-                PyxelColor.UI_DARK,
-            )
-            return
-
-        pyxel.text(
-            panel.x + 18,
-            panel.y + 42,
-            self._t(concept).upper(),
-            PyxelColor.UI_DARK,
-        )
-        detail = KNOWLEDGE_DETAILS.get(concept, "")
-        for index, line in enumerate(self._wrap_text(self._t(detail), 58)[:5]):
-            pyxel.text(
-                panel.x + 18,
-                panel.y + 64 + index * 13,
-                line,
-                PyxelColor.UI_DARK,
-            )
-        source = self._knowledge_unlock_source(required_level)
-        pyxel.text(
-            panel.x + 18,
-            panel.y + 154,
-            self._t(source),
-            PyxelColor.UI_DARK,
         )
 
     def _draw_garden_screen(self) -> None:
-        self._draw_scene_shell("Garden", "Stored plants and parent selection")
-        pyxel.text(
-            476,
-            86,
-            f"Slots: {self.state.greenhouse.used_slots}/20",
-            PyxelColor.PARCHMENT_LIGHT,
-        )
-        grid_panel = Rect(24, 104, 294, 214)
-        detail_panel = Rect(338, 104, 206, 178)
-        draw_panel(grid_panel)
-        draw_panel(detail_panel)
-        for index in range(GREENHOUSE_COLUMNS * GREENHOUSE_ROWS):
-            self._draw_greenhouse_slot(index)
-
-        selected = self._selected_greenhouse_plant()
-        pyxel.text(354, 122, self._t("SELECTED PLANT"), PyxelColor.UI_DARK)
-        if selected is None:
-            pyxel.text(
-                354,
-                146,
-                self._t("Empty or locked slot."),
-                PyxelColor.UI_DARK,
-            )
-        else:
-            self._draw_plant_preview(382, 205, selected, large=True)
-            pyxel.text(
-                428,
-                146,
-                self._t(
-                    "Generation: {generation}",
-                    generation=selected.generation_label,
-                ),
-                PyxelColor.UI_DARK,
-            )
-            pyxel.text(
-                428,
-                160,
-                f"Genotype: {self._visible_genotype(selected)}",
-                PyxelColor.UI_DARK,
-            )
-            for line_index, line in enumerate(
-                self._plant_trait_lines(selected, limit=2),
-            ):
-                pyxel.text(
-                    428,
-                    174 + line_index * 14,
-                    line,
-                    PyxelColor.UI_DARK,
-                )
-            draw_button(Rect(392, 201, 96, 22), self._t("PARENT A"))
-            draw_button(Rect(392, 229, 96, 22), self._t("PARENT B"))
-            draw_button(
-                GARDEN_DISCARD_BUTTON,
-                self._t("DISCARD"),
-                enabled=self.state.greenhouse.can_discard(
+        draw_garden_screen(
+            self._draw_context(),
+            GardenScreenData(
+                slots=self.state.greenhouse.slots,
+                capacity=self.state.greenhouse.capacity,
+                used_slots=self.state.greenhouse.used_slots,
+                selected_slot=self.selected_greenhouse_slot,
+                selected_plant=self._selected_greenhouse_plant(),
+                can_discard_selected=self.state.greenhouse.can_discard(
                     self.selected_greenhouse_slot,
                 ),
-            )
+                discard_button=GARDEN_DISCARD_BUTTON,
+            ),
+            plant_preview=self._draw_component_plant_preview,
+            visible_genotype=self._visible_genotype,
+            trait_lines=lambda plant: self._plant_trait_lines(plant, limit=2),
+        )
 
     def _draw_contracts_screen(self) -> None:
-        self._draw_scene_shell(
-            "CONTRACT",
-            "Use contracts to learn how traits pass between generations.",
-        )
         contract = self.state.active_contract
-        summary_panel = Rect(34, 112, 506, 74)
-        detail_panel = Rect(34, 204, 506, 92)
-        draw_panel(summary_panel)
-        draw_panel(detail_panel)
-
-        pyxel.text(
-            summary_panel.x + 18,
-            summary_panel.y + 14,
-            self._contract_title(),
-            PyxelColor.UI_DARK,
-        )
-        progress = contract_progress_label(contract)
-        pyxel.rect(
-            summary_panel.x + 18,
-            summary_panel.y + 38,
-            390,
-            12,
-            PyxelColor.BAR_EMPTY,
-        )
-        progress_width = contract_progress_width(contract, 390)
-        pyxel.rect(
-            summary_panel.x + 18,
-            summary_panel.y + 38,
-            progress_width,
-            12,
-            PyxelColor.PROGRESS,
-        )
-        pyxel.text(
-            summary_panel.x + 420,
-            summary_panel.y + 40,
-            progress,
-            PyxelColor.UI_DARK,
-        )
-
-        pyxel.text(
-            detail_panel.x + 18,
-            detail_panel.y + 18,
-            self._t("Credits"),
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            detail_panel.x + 94,
-            detail_panel.y + 18,
-            f"{contract.reward_credits} CR",
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            detail_panel.x + 18,
-            detail_panel.y + 40,
-            self._contract_instruction(),
-            PyxelColor.UI_DARK,
-        )
-        status = (
-            "Contract complete. Claim reward."
-            if contract.completed and not contract.paid
-            else "Use contracts to learn how traits pass between generations."
-        )
-        pyxel.text(
-            detail_panel.x + 18,
-            detail_panel.y + 58,
-            self._t(status),
-            PyxelColor.UI_DARK,
-        )
-        draw_button(
-            Rect(408, 250, 96, 24),
-            self._t("CLAIM"),
-            enabled=contract.completed and not contract.paid,
+        draw_contracts_screen(
+            self._draw_context(),
+            ContractsScreenData(
+                title=self._contract_title(),
+                progress_label=contract_progress_label(contract),
+                progress_width=contract_progress_width(contract, 390),
+                reward_credits=contract.reward_credits,
+                instruction=self._contract_instruction(),
+                claim_enabled=contract.completed and not contract.paid,
+            ),
         )
 
     def _draw_shop_screen(self) -> None:
-        self._draw_scene_shell("Shop", "Spend credits on progression")
-        pyxel.text(
-            510,
-            86,
-            f"{self._t('Credits')}: {self.state.credits}",
-            PyxelColor.PARCHMENT_LIGHT,
-        )
-        self._draw_shop_card("slot", Rect(34, 120, 154, 42))
-        self._draw_shop_card("analyzer", Rect(210, 120, 154, 42))
-        self._draw_shop_card("species", Rect(386, 120, 154, 42))
-
-        details_panel = Rect(70, 198, 456, 100)
-        draw_panel(details_panel)
-        for index, line in enumerate(self._shop_details()):
-            pyxel.text(
-                108,
-                216 + index * 14,
-                self._t(line),
-                PyxelColor.UI_DARK,
-            )
-        draw_button(
-            Rect(392, 284, 96, 24),
-            self._t("BUY"),
-            enabled=self._selected_shop_available(),
+        draw_shop_screen(
+            self._draw_context(),
+            ShopScreenData(
+                credits=self.state.credits,
+                selected_item=self.selected_shop_item,
+                cards=(
+                    self._shop_card_display_data(
+                        "slot",
+                        Rect(34, 120, 154, 42),
+                    ),
+                    self._shop_card_display_data(
+                        "analyzer",
+                        Rect(210, 120, 154, 42),
+                    ),
+                    self._shop_card_display_data(
+                        "species",
+                        Rect(386, 120, 154, 42),
+                    ),
+                ),
+                details=self._shop_details(),
+                buy_enabled=self._selected_shop_available(),
+            ),
         )
 
     def _draw_scene_shell(self, title: str, subtitle: str) -> None:
-        draw_outlined_text(
-            24,
-            76,
-            self._t(title).upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        pyxel.text(26, 91, self._t(subtitle), PyxelColor.PARCHMENT_LIGHT)
+        draw_scene_shell(self._draw_context(), title, subtitle)
 
     def _update_parent_picker(self) -> None:
         if clicked(PARENT_PICKER_CLOSE_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
@@ -1596,125 +1135,29 @@ class MainGameScene:
                 return
 
     def _draw_parent_picker(self) -> None:
-        pyxel.dither(0.68)
-        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
-        pyxel.dither(1)
-
-        panel = Rect(88, 74, 496, 250)
-        draw_panel(panel)
-        title = (
-            "Select Parent A"
-            if self.parent_picker_target == "a"
-            else "Select Parent B"
-        )
-        draw_outlined_text(
-            116,
-            92,
-            self._t(title).upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-        pyxel.text(118, 112, self._t("Garden plants"), PyxelColor.UI_DARK)
-        for index in range(self.state.greenhouse.capacity):
-            self._draw_parent_picker_slot(index)
-        draw_button(PARENT_PICKER_CLOSE_BUTTON, self._t("BACK"))
-
-    def _draw_parent_picker_slot(self, index: int) -> None:
-        rect = self._parent_picker_slot_rect(index)
-        plant = self.state.greenhouse.plant_at(index)
-        selected = index in {
-            self.state.selected_parent_a,
-            self.state.selected_parent_b,
-        }
-        fill = PyxelColor.ACCENT if selected else PyxelColor.PARCHMENT
-        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
-        if plant is None:
-            pyxel.text(rect.x + 10, rect.y + 26, self._t("Empty slot"), 1)
-            return
-        self._draw_plant_preview(rect.x + 24, rect.y + 47, plant)
-        pyxel.text(
-            rect.x + 48,
-            rect.y + 8,
-            self._visible_genotype(plant),
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            rect.x + 48,
-            rect.y + 20,
-            self._trait(plant.phenotype.primary_trait_value)[:12],
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            rect.x + 48,
-            rect.y + 31,
-            self._trait(plant.phenotype.secondary_trait_value)[:12],
-            PyxelColor.UI_DARK,
+        draw_parent_picker(
+            self._draw_context(),
+            ParentPickerData(
+                target=self.parent_picker_target,
+                slots=self.state.greenhouse.slots,
+                capacity=self.state.greenhouse.capacity,
+                selected_parent_a=self.state.selected_parent_a,
+                selected_parent_b=self.state.selected_parent_b,
+                close_button=PARENT_PICKER_CLOSE_BUTTON,
+            ),
+            plant_preview=self._draw_component_plant_preview,
+            visible_genotype=self._visible_genotype,
+            trait=self._trait,
         )
 
     def _parent_picker_slot_rect(self, index: int) -> Rect:
-        col = index % 5
-        row = index // 5
-        return Rect(112 + col * 90, 130 + row * 42, 82, 36)
-
-    def _draw_greenhouse_slot(self, index: int) -> None:
-        rect = self._greenhouse_slot_rect(index)
-        unlocked = index < self.state.greenhouse.capacity
-        selected = index == self.selected_greenhouse_slot
-        fill = PyxelColor.PARCHMENT if unlocked else PyxelColor.TEXT_MUTED
-        if selected:
-            fill = PyxelColor.ACCENT
-        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
-        pyxel.rectb(
-            rect.x + 1,
-            rect.y + 1,
-            rect.width - 2,
-            rect.height - 2,
-            PyxelColor.UI_DARK,
-        )
-        if not unlocked:
-            pyxel.text(
-                rect.x + 13,
-                rect.y + 19,
-                self._t("LOCK"),
-                PyxelColor.UI_DARK,
-            )
-            return
-        plant = self.state.greenhouse.slots[index]
-        if plant is None:
-            pyxel.text(
-                rect.x + 14,
-                rect.y + 19,
-                self._t("Empty slot").upper()[:5],
-                PyxelColor.UI_DARK,
-            )
-            return
-        self._draw_plant_preview(rect.x + 22, rect.y + 42, plant)
-
-    def _draw_shop_card(self, item: str, rect: Rect) -> None:
-        selected = self.selected_shop_item == item
-        fill = PyxelColor.ACCENT if selected else PyxelColor.PARCHMENT
-        pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-        pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
-        title, cost, status = self._shop_card_data(item)
-        pyxel.text(rect.x + 8, rect.y + 9, self._t(title), PyxelColor.UI_DARK)
-        pyxel.text(rect.x + 8, rect.y + 23, cost, PyxelColor.UI_DARK)
-        pyxel.text(
-            rect.x + 92,
-            rect.y + 23,
-            self._t(status),
-            PyxelColor.UI_DARK,
-        )
+        return parent_picker_slot_rect(index)
 
     def _greenhouse_slot_rect(self, index: int) -> Rect:
-        col = index % GREENHOUSE_COLUMNS
-        row = index // GREENHOUSE_COLUMNS
-        return Rect(
-            38 + col * 54,
-            118 + row * 46,
-            GREENHOUSE_SLOT_SIZE,
-            GREENHOUSE_SLOT_SIZE,
+        return greenhouse_slot_rect(
+            index,
+            columns=GREENHOUSE_COLUMNS,
+            slot_size=GREENHOUSE_SLOT_SIZE,
         )
 
     def _selected_greenhouse_plant(self) -> Plant | None:
@@ -1768,6 +1211,16 @@ class MainGameScene:
         if item == "analyzer":
             return self._analyzer_card_data()
         return self._species_card_data()
+
+    def _shop_card_display_data(self, item: str, rect: Rect) -> ShopCardData:
+        title, cost, status = self._shop_card_data(item)
+        return ShopCardData(
+            item=item,
+            rect=rect,
+            title=title,
+            cost=cost,
+            status=status,
+        )
 
     def _greenhouse_slot_card_data(self) -> tuple[str, str, str]:
         next_slot = self.state.greenhouse.capacity + 1
@@ -1984,64 +1437,7 @@ class MainGameScene:
             self.intro_open = False
 
     def _draw_intro_panel(self) -> None:
-        pyxel.dither(0.72)
-        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
-        pyxel.dither(1)
-
-        panel = Rect(92, 56, 456, 272)
-        draw_panel(panel)
-        draw_outlined_text(
-            222,
-            78,
-            self._t("Before playing").upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
-        )
-
-        sections = [
-            (
-                "The goal",
-                [
-                    (
-                        "Use contracts to learn how traits pass "
-                        "between generations."
-                    ),
-                    "Yellow smooth peas are requested first.",
-                ],
-            ),
-            (
-                "How to play",
-                [
-                    (
-                        "Pick two parent plants, cross them, then inspect "
-                        "offspring."
-                    ),
-                    "Each cross shows the expected genetic combinations.",
-                ],
-            ),
-            (
-                "Basic controls",
-                [
-                    "Mouse: click buttons and plant cards.",
-                    (
-                        "Pick two parent plants, cross them, then inspect "
-                        "offspring."
-                    ),
-                    "Harvest grown plants.",
-                    "Use 1/2 to reselect starting parents.",
-                ],
-            ),
-        ]
-        y = 112
-        for title, lines in sections:
-            pyxel.text(126, y, self._t(title).upper(), PyxelColor.UI_DARK)
-            y += 13
-            for line in lines:
-                pyxel.text(138, y, self._t(line), PyxelColor.UI_DARK)
-                y += 12
-            y += 7
-
-        draw_button(INTRO_OK_BUTTON, self._t("OK"))
+        draw_intro_panel(self._draw_context(), INTRO_OK_BUTTON)
 
     def _update_settings_panel(self) -> None:
         if self.reset_confirmation_open:
@@ -2118,93 +1514,45 @@ class MainGameScene:
             self._confirm_progress_reset()
 
     def _draw_settings_panel(self) -> None:
-        pyxel.dither(0.65)
-        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
-        pyxel.dither(1)
-
-        panel = Rect(100, 70, 440, 242)
-        draw_panel(panel)
-        draw_outlined_text(
-            254,
-            84,
-            self._t("Settings").upper(),
-            PyxelColor.ACCENT,
-            font=self._display_font,
+        draw_settings_overlay(
+            self._draw_context(),
+            self._settings_overlay_data(),
         )
-        pyxel.text(
-            188,
-            106,
-            self._t("Language"),
-            PyxelColor.UI_DARK,
-        )
-        draw_button(LANGUAGE_BUTTON, self._language_label())
-
-        self._draw_volume_control(
-            143,
-            self._t("Music volume"),
-            self.settings.music_volume,
-            (MUSIC_DOWN_BUTTON, MUSIC_UP_BUTTON),
-        )
-        self._draw_checkbox(
-            MUSIC_MUTE_CHECKBOX,
-            self.settings.music_muted,
-            self._t("Mute music"),
-        )
-
-        self._draw_volume_control(
-            186,
-            self._t("Effects volume"),
-            self.settings.sound_volume,
-            (SOUND_DOWN_BUTTON, SOUND_UP_BUTTON),
-        )
-        self._draw_checkbox(
-            SOUND_MUTE_CHECKBOX,
-            self.settings.sound_muted,
-            self._t("Mute sounds"),
-        )
-
-        pyxel.text(
-            188,
-            232,
-            self._t("Changes apply immediately."),
-            PyxelColor.UI_DARK,
-        )
-        draw_button(
-            RESET_PROGRESS_BUTTON,
-            self._t("Reset game progression"),
-        )
-        draw_button(SETTINGS_BACK_BUTTON, self._t("BACK"))
-        if self.reset_confirmation_open:
-            self._draw_reset_confirmation()
 
     def _draw_reset_confirmation(self) -> None:
-        pyxel.dither(0.82)
-        pyxel.rect(0, 0, WIDTH, HEIGHT, PyxelColor.UI_DARK)
-        pyxel.dither(1)
-
-        panel = Rect(176, 100, 288, 182)
-        draw_panel(panel)
-        draw_outlined_text(
-            panel.x + 76,
-            panel.y + 18,
-            self._t("Dangerous action").upper(),
-            PyxelColor.ERROR_EMBER,
-            font=self._display_font,
+        draw_settings_overlay(
+            self._draw_context(),
+            self._settings_overlay_data(),
         )
-        lines = [
-            "This will erase all progression data.",
-            "Contracts, credits, discoveries, and plants will reset.",
-            "This cannot be undone.",
-        ]
-        for index, line in enumerate(lines):
-            pyxel.text(
-                panel.x + 24,
-                panel.y + 58 + index * 18,
-                self._t(line),
-                PyxelColor.UI_DARK,
-            )
-        draw_button(RESET_CANCEL_BUTTON, self._t("CANCEL"))
-        draw_button(RESET_CONFIRM_BUTTON, self._t("CONFIRM RESET"))
+
+    def _settings_overlay_data(self) -> SettingsOverlayData:
+        return SettingsOverlayData(
+            language_label=self._language_label(),
+            language_button=LANGUAGE_BUTTON,
+            music=VolumeControlData(
+                y=143,
+                label=self._t("Music volume"),
+                value=self.settings.music_volume,
+                down_button=MUSIC_DOWN_BUTTON,
+                up_button=MUSIC_UP_BUTTON,
+            ),
+            sound=VolumeControlData(
+                y=186,
+                label=self._t("Effects volume"),
+                value=self.settings.sound_volume,
+                down_button=SOUND_DOWN_BUTTON,
+                up_button=SOUND_UP_BUTTON,
+            ),
+            music_mute_checkbox=MUSIC_MUTE_CHECKBOX,
+            sound_mute_checkbox=SOUND_MUTE_CHECKBOX,
+            music_muted=self.settings.music_muted,
+            sound_muted=self.settings.sound_muted,
+            reset_button=RESET_PROGRESS_BUTTON,
+            back_button=SETTINGS_BACK_BUTTON,
+            reset_confirmation_open=self.reset_confirmation_open,
+            reset_cancel_button=RESET_CANCEL_BUTTON,
+            reset_confirm_button=RESET_CONFIRM_BUTTON,
+        )
 
     def _request_progress_reset(self) -> None:
         self._play_sound(4)
@@ -2230,49 +1578,6 @@ class MainGameScene:
         self.germination_started_frame = None
         self.state.status_message = "Progress reset."
         self._autosave()
-
-    def _draw_volume_control(
-        self,
-        y: int,
-        label: str,
-        value: int,
-        buttons: tuple[Rect, Rect],
-    ) -> None:
-        x = 188
-        down_button, up_button = buttons
-        pyxel.text(x, y, label, PyxelColor.UI_DARK)
-        draw_button(down_button, "-")
-        pyxel.rect(x + 176, y + 11, 40, 6, PyxelColor.BAR_EMPTY)
-        pyxel.rect(x + 176, y + 11, value * 4, 6, PyxelColor.PROGRESS)
-        pyxel.rectb(x + 176, y + 11, 40, 6, PyxelColor.UI_DARK)
-        pyxel.text(x + 224, y + 9, f"{value * 10:3d}%", PyxelColor.UI_DARK)
-        draw_button(up_button, "+")
-
-    def _draw_checkbox(self, rect: Rect, checked: bool, label: str) -> None:
-        pyxel.rect(rect.x, rect.y, rect.width, rect.height, PyxelColor.FIELD)
-        pyxel.rectb(
-            rect.x,
-            rect.y,
-            rect.width,
-            rect.height,
-            PyxelColor.UI_DARK,
-        )
-        if checked:
-            pyxel.line(
-                rect.x + 2,
-                rect.y + 6,
-                rect.x + 5,
-                rect.y + 9,
-                PyxelColor.PROGRESS,
-            )
-            pyxel.line(
-                rect.x + 5,
-                rect.y + 9,
-                rect.x + 10,
-                rect.y + 2,
-                PyxelColor.PROGRESS,
-            )
-        pyxel.text(rect.x + 18, rect.y + 3, label, PyxelColor.UI_DARK)
 
     def _language_label(self) -> str:
         if self.settings.language == "pt-BR":
