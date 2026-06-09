@@ -87,7 +87,9 @@ Rules:
 
 - The batch is evaluated.
 - Plants are not consumed automatically.
-- The player chooses what to store, sell, or discard afterward.
+- The player chooses what to store before harvest.
+- Harvesting resolves matching specimens into the active contract and sells
+  excess specimens automatically.
 
 ## Customer Types
 
@@ -144,3 +146,25 @@ Probabilistic
 ```
 
 Detailed percentages are defined in [../GBD.md](../GBD.md).
+
+The current deterministic implementation uses completed-contract slots to
+produce a predictable learning ramp:
+
+- Early slots and fallback candidates generate phenotypic contracts.
+- When analyzer level 2 is unlocked, intermediate slots may generate genotypic
+  contracts.
+- When analyzer level 3 is unlocked, every fifth slot may generate a
+  probabilistic or statistical contract.
+- If a higher-level candidate cannot be generated from unlocked, discovered,
+  reachable content, the generator falls back to a valid phenotypic contract.
+
+Current probabilistic/statistical candidates include:
+
+- `9:3:3:1` ratio objectives when the biological validity criteria are met.
+- Minimum-probability objectives that require at least 25% chance for a reachable
+  visible trait.
+
+Statistical contract completion marks the contract complete after a generated
+batch satisfies the objective. It does not consume matching specimens
+automatically; the player still chooses which specimens to store before
+harvesting or selling excess plants.

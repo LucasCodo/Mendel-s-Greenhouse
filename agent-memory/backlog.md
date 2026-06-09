@@ -5,7 +5,7 @@ tags:
 type: backlog
 project: mendels-greenhouse
 status: active
-updated: 2026-05-31
+updated: 2026-06-09
 ---
 
 # Implementation Backlog
@@ -64,9 +64,17 @@ Backlog for the first playable implementation of Mendel's Greenhouse.
 - [x] Replace code-drawn plant placeholders with Pyxel asset sprites.
 - [x] Add an MVP custom BDF display font.
 - [ ] Implement Main Game, Greenhouse, Contracts, and Collection scenes.
-- [ ] Add dedicated Greenhouse, Contracts, and Collection scenes.
-- [ ] Add clickable parent selection from all stored greenhouse slots.
-- [ ] Add initial English and Brazilian Portuguese message catalogs.
-- [ ] Add save data skeleton for the future local autosave slot.
-- [ ] Add property-based tests for inheritance invariants.
-- [ ] Add integration tests for crossbreeding plus contract delivery.
+- [x] Add dedicated Greenhouse, Contracts, and Collection scenes.
+- [x] Add clickable parent selection from all stored greenhouse slots.
+- [x] Add initial English and Brazilian Portuguese message catalogs.
+- [x] Add save data skeleton for the future local autosave slot.
+- [x] Add property-based tests for inheritance invariants.
+- [x] Add integration tests for crossbreeding plus contract delivery.
+- [x] Add species-qualified collection entries and collection rewards.
+- [x] Add genotypic and statistical/probabilistic contract support.
+- [x] Add level 4 analyzer simulator support for stored-cross planning.
+- [x] Split gameplay UI helpers into component modules for visual refinement.
+- [x] Require confirmation before resetting progression.
+- [x] Add the `MONEYTREE` tester money shortcut for QA.
+- [x] Add distinct generated sprites for shop-unlocked species.
+- [x] Update specs to match the expanded playable mechanics and QA changes.

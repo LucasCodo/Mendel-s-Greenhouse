@@ -45,8 +45,18 @@ class Greenhouse:
                 return index
         return None
 
+    def has_genotype(self, genotype: str) -> bool:
+        """Return whether the greenhouse already stores the genotype."""
+        return any(
+            stored_plant is not None and stored_plant.genotype == genotype
+            for stored_plant in self.slots
+        )
+
     def store(self, plant: Plant) -> int | None:
         """Store a plant and return the slot index used."""
+        if self.has_genotype(plant.genotype):
+            return None
+
         slot_index = self.first_empty_slot()
         if slot_index is None:
             return None

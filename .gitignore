@@ -175,6 +175,10 @@ cython_debug/
 
 # Game saves
 saves/
+.mendels_greenhouse/
+MendelsGreenhouse/
+game/saves/
+game/MendelsGreenhouse/
 mendels_greenhouse/saves/
 game/mendels_greenhouse/saves/
 

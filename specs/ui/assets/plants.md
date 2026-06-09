@@ -121,6 +121,29 @@ Adds endgame collection traits:
 - Shape.
 - Blooming time.
 
+## Current Generated Atlas
+
+The current `.pyxres` asset build uses 64 x 64 plant cells for readable
+high-detail plant views.
+
+Generated atlas coordinates:
+
+| Species / Variant | Atlas origin |
+| ----------------- | ------------ |
+| Mendel Pea yellow smooth | `(0, 0)` |
+| Mendel Pea yellow wrinkled | `(64, 0)` |
+| Mendel Pea green smooth | `(128, 0)` |
+| Mendel Pea green wrinkled | `(192, 0)` |
+| Snapdragon | `(0, 192)` |
+| Corn | `(64, 192)` |
+| Tomato | `(128, 192)` |
+| Orchid | `(192, 192)` |
+
+Mendel Pea keeps phenotype-specific pod variants because its first contracts
+teach seed color and seed texture directly. Later species must use distinct
+species sprites and must not fall back to the Mendel Pea sprite when bought in
+the shop.
+
 ## Asset States
 
 Each plant visual may need:

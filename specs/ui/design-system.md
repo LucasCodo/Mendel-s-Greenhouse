@@ -137,7 +137,8 @@ Players should be able to complete the core loop by pointing and clicking:
 - Select parent plants.
 - Start crossbreeding.
 - Inspect offspring.
-- Store, sell, or deliver plants.
+- Store selected specimens or harvest a batch into contract delivery and
+  automatic excess sale.
 - Navigate to contracts, greenhouse, analyzer, collection, shop, and settings.
 - Select Germination Bed specimens and control bed reveal/clear actions.
 - Confirm or cancel modal actions.

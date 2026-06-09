@@ -42,7 +42,7 @@ aabb
 | [Locked][Locked][Locked][Locked][Locked]         |
 +--------------------------+-----------------------+
 | Selected Plant Details   | Actions               |
-| Phenotype / Genotype     | Select Parent / Sell  |
+| Phenotype / Genotype     | Select Parent / Discard |
 +--------------------------+-----------------------+
 ```
 
@@ -60,7 +60,7 @@ aabb
 - Select as Parent A.
 - Select as Parent B.
 - Inspect.
-- Sell.
+- Discard non-founder plants when rules allow it.
 - Reserve for contract.
 - Move to another slot.
 

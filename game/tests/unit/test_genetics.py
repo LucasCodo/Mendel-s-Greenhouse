@@ -9,6 +9,7 @@ from mendels_greenhouse.core.genetics import (
     combine_gametes,
     crossbreed,
     expected_distribution,
+    founder_genotypes,
     gametes,
 )
 
@@ -27,20 +28,41 @@ def test_pure_parent_cross_produces_only_double_heterozygotes() -> None:
 
 def test_crossbreed_preserves_parent_species() -> None:
     offspring = crossbreed(
-        Plant("AABB", species="Snapdragon"),
-        Plant("aabb", species="Snapdragon"),
+        Plant("AABBCC", species="Snapdragon"),
+        Plant("aabbcc", species="Snapdragon"),
         count=1,
         rng=Random(1),
     )
 
     assert offspring[0].species == "Snapdragon"
+    assert offspring[0].genotype == "AaBbCc"
+
+
+def test_crossbreed_assigns_next_generation_from_parents() -> None:
+    offspring = crossbreed(
+        Plant("AaBb", generation=1),
+        Plant("AaBb", generation=2),
+        count=1,
+        rng=Random(1),
+    )
+
+    assert offspring[0].generation == 3
+    assert offspring[0].generation_label == "F3"
+
+
+def test_founder_generation_label_is_p0() -> None:
+    assert Plant("AABB").generation_label == "P0"
+
+
+def test_founder_genotypes_use_dominant_and_recessive_pairs() -> None:
+    assert founder_genotypes(3) == ("AABBCC", "aabbcc")
 
 
 def test_distribution_rejects_mismatched_parent_species() -> None:
     with pytest.raises(ValueError, match="same species"):
         expected_distribution(
             Plant("AABB", species="Mendel Pea"),
-            Plant("aabb", species="Snapdragon"),
+            Plant("aabbcc", species="Snapdragon"),
         )
 
 

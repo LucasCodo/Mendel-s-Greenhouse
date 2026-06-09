@@ -34,6 +34,10 @@ Initial capacity: 4 slots.
 
 Maximum capacity: 20 slots.
 
+Only one plant of each genotype may be stored in the greenhouse. Duplicate
+genotypes must be sold, delivered to contracts, or left out of storage instead
+of occupying another slot.
+
 Final layout: 5 x 4.
 
 | Slot | Cost |
@@ -73,17 +77,25 @@ Analyzer use is unlimited after a level is unlocked. It has no per-use credit co
 | Mendel Pea | 2 | 0 |
 | Snapdragon | 3 | 3000 |
 | Corn | 4 | 10000 |
-| Tomato | 5 | TBD |
-| Orchid | 6 | TBD |
+| Tomato | 5 | 25000 |
+| Orchid | 6 | 60000 |
+
+The player must have two empty greenhouse slots before buying a species unlock.
+Those slots are immediately occupied by the new species' fully dominant and
+fully recessive founder plants. If fewer than two slots are free, the unlock is
+blocked even when the player has enough credits.
 
 ## Offspring Production
 
-Each crossbreeding process produces 20 offspring.
+Each crossbreeding process displays a batch sized from the active cross's
+genetic outcome combinations when that count fits on screen. If the combination
+count is too large, the Germination Bed uses a capped representative batch.
 
 Balance intent:
 
-- Large enough for visible statistical patterns.
+- Large enough for visible statistical patterns when probabilities matter.
 - Small enough to keep results readable.
+- Variable enough that simple crosses do not add visual noise.
 - Compatible with greenhouse storage pressure.
 - Useful for contract fulfillment without removing strategic scarcity.
 
@@ -115,7 +127,10 @@ Balance intent:
 
 ## Plant Sale Values
 
-Plant sale values are intentionally low. Sale exists to avoid waste and free greenhouse space, not to become the main income source.
+Plant sale values are intentionally low. In the MVP, sale happens
+automatically during harvest for grown specimens that are not delivered to the
+active contract. Sale exists to avoid waste, not to become the main income
+source.
 
 | Destination | Relative Value |
 | ----------- | -------------: |
@@ -221,7 +236,8 @@ Example:
 Playtests should verify:
 
 - The player can reach 8 slots during the first hour.
-- 20 offspring per cross makes patterns visible.
+- Variable representative bed sizes make patterns visible without overflowing
+  the main screen.
 - The initial 4-slot greenhouse creates decisions without frustration.
 - Analyzer level 2 arrives before phenotypic contracts feel repetitive.
 - Probabilistic contracts appear only after players understand genotypes.

@@ -51,6 +51,7 @@ lint-fix = "ruff check . --fix"
 format = "ruff format ."
 check-format = "ruff format --check ."
 check = ["lint", "check-format", "test"]
+build-assets = "python tools/build_assets.py"
 i18n-extract = "pybabel extract -o locale/messages.pot mendels_greenhouse"
 i18n-update = "pybabel update -i locale/messages.pot -d mendels_greenhouse/locale -D mendels_greenhouse"
 i18n-compile = "pybabel compile -d mendels_greenhouse/locale -D mendels_greenhouse"
@@ -60,9 +61,24 @@ Rules:
 
 - Use `poe test` for the default test command.
 - Use `poe check` before commits that touch implementation code.
+- Use `poe build-assets` after changing generated `.pyxres` assets.
 - Use `poe i18n-compile` whenever `.po` files change.
 - Keep task names short and stable so future agents can run them without guessing.
 - Use `poe start` to run the Pyxel game entrypoint.
+
+## Tester Shortcuts
+
+Runtime tester shortcuts are allowed only for local QA and manual playtesting.
+They must not be presented as normal player-facing progression.
+
+Current tester code:
+
+| Code | Effect | Purpose |
+| ---- | ------ | ------- |
+| `MONEYTREE` | Sets credits to `999999` | Lets testers buy unlocks and jump quickly to later progression segments. |
+
+Tester shortcuts should be covered by targeted tests and should remain easy to
+remove or disable for a production distribution.
 
 ## Pyxel Agent Tooling
 

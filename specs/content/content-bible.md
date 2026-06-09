@@ -4,7 +4,10 @@
 
 This document defines the official genetic content for Mendel's Greenhouse.
 
-The MVP starts small on purpose: Mendel Pea only, with 2 independent genes. Later species increase gene count without introducing new fundamental mechanics beyond Mendelian inheritance.
+The baseline MVP starts small on purpose: Mendel Pea only, with 2 independent
+genes. The current playable implementation includes the later species listed in
+this content bible. Later species increase gene count without introducing new
+fundamental mechanics beyond Mendelian inheritance.
 
 ## Naming Rules
 
@@ -77,13 +80,13 @@ Genes:
 - `B`: plant height.
 - `C`: petal shape.
 
-Trait examples:
+Trait tables:
 
-- Red flower vs white flower.
-- Tall plant vs short plant.
-- Wide petal vs narrow petal.
-
-Detailed genotype-to-phenotype tables should be finalized when Snapdragon enters implementation scope.
+| Gene | Dominant phenotype | Recessive phenotype |
+| ---- | ------------------ | ------------------- |
+| `A` | Red flower | White flower |
+| `B` | Tall plant | Short plant |
+| `C` | Wide petal | Narrow petal |
 
 ## Species 3: Corn
 
@@ -98,7 +101,14 @@ Genes:
 - `C`: plant height.
 - `D`: row count.
 
-Detailed genotype-to-phenotype tables should be finalized when Corn enters implementation scope.
+Trait tables:
+
+| Gene | Dominant phenotype | Recessive phenotype |
+| ---- | ------------------ | ------------------- |
+| `A` | Purple kernel | Yellow kernel |
+| `B` | Large ear | Small ear |
+| `C` | Tall plant | Short plant |
+| `D` | Many-row ear | Few-row ear |
 
 ## Species 4: Tomato
 
@@ -114,7 +124,15 @@ Genes:
 - `D`: resistance.
 - `E`: maturation time.
 
-Detailed genotype-to-phenotype tables should be finalized when Tomato enters implementation scope.
+Trait tables:
+
+| Gene | Dominant phenotype | Recessive phenotype |
+| ---- | ------------------ | ------------------- |
+| `A` | Red fruit | Yellow fruit |
+| `B` | Large fruit | Small fruit |
+| `C` | Round fruit | Pear-shaped fruit |
+| `D` | Disease resistant | Disease susceptible |
+| `E` | Early maturation | Late maturation |
 
 ## Species 5: Orchid
 
@@ -131,7 +149,16 @@ Genes:
 - `E`: flower shape.
 - `F`: blooming time.
 
-Detailed genotype-to-phenotype tables should be finalized when Orchid enters implementation scope.
+Trait tables:
+
+| Gene | Dominant phenotype | Recessive phenotype |
+| ---- | ------------------ | ------------------- |
+| `A` | Violet flower | White flower |
+| `B` | Large flower | Small flower |
+| `C` | Many-petal bloom | Few-petal bloom |
+| `D` | Fragrant bloom | Neutral aroma |
+| `E` | Star-shaped flower | Round flower |
+| `F` | Early blooming | Late blooming |
 
 ## Content Boundaries
 

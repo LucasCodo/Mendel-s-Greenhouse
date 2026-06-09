@@ -13,7 +13,11 @@ Requirements:
 - Both parent slots must contain valid plants.
 - Parent plants must belong to the same species unless a future spec explicitly allows hybrid species.
 - The crossbreeding action generates one offspring batch.
-- Each batch contains 20 offspring.
+- The displayed offspring batch size follows the number of genetic outcome
+  combinations for the selected parents when that count fits on screen.
+- If the number of genetic combinations is too large for the main screen, the
+  Germination Bed uses a capped representative batch that preserves the active
+  cross distribution as well as possible without overflowing the UI.
 
 ## Allele Inheritance
 
@@ -79,15 +83,31 @@ Rules:
 - Each visible bed cell represents one generated offspring specimen.
 - The bed should use a representative grid for the active cross instead of an
   arbitrary fixed visual count.
+- The bed dimensions are variable and are derived from the current displayed
+  batch size.
+- The bed must never grow beyond the available main-screen area.
 - For simple equal-probability crosses, the visual bed may show one specimen per
   distinct expected outcome.
+- For crosses with more possible combinations than can fit on the main screen,
+  the bed uses the maximum supported representative cell count instead of
+  drawing every possible combination.
 - For percentage-based contracts, the bed may expand to enough cells to make the
   target proportion readable, such as a `4 x 4` bed for 75% / 25% patterns.
 - Offspring display order may still be shuffled, but the final bed must preserve
   the generated batch contents and contract validation data.
 - Contract-matching plants should receive a clear non-color-only highlight.
-- The player can select a bed cell to inspect, store, sell, deliver, wait, or
-  discard the specimen according to the current rules.
+- During the MVP loop, generated specimens appear in the bed simultaneously as
+  seeds and grow over a short timed animation.
+- When the growth animation completes, the player can press the harvest button
+  to resolve the grown batch.
+- Harvesting rescues delivery-contract matches into the active contract until
+  its remaining requirement is satisfied.
+- Harvesting sells specimens that do not count toward the active delivery
+  contract at the current common sale value.
+- The player can select a growing bed cell to inspect it while the batch is
+  visible.
+- Hovering a growing bed cell shows a floating information panel with the
+  plant information currently unlocked by the analyzer level.
 - The bed should show only information unlocked by the current analyzer level.
 
 Examples:
@@ -134,7 +154,8 @@ Examples:
 Rules:
 
 - A plant must match the contract requirement to count.
-- Delivered plants are removed from greenhouse storage.
+- Delivered plants are removed from greenhouse storage or from the current
+  Germination Bed batch when they are rescued directly after growth.
 - Partial delivery is not complete unless the contract explicitly supports partial progress.
 - Invalid plants cannot be delivered to a contract.
 
@@ -152,7 +173,9 @@ Rules:
 
 - The generated batch is validated.
 - No plant is consumed automatically.
-- The player chooses whether to store, sell, or discard descendants afterward.
+- The player may store selected descendants before harvest.
+- Harvesting resolves remaining descendants into contract delivery first and
+  automatic sale for excess specimens.
 
 ## Storage
 
@@ -161,23 +184,29 @@ Plants occupy greenhouse slots.
 Rules:
 
 - A slot can hold one plant.
+- The greenhouse can store only one plant for each genotype.
 - The starting greenhouse has 4 slots.
 - The maximum greenhouse has 20 slots.
 - Initial plants are `AABB` and `aabb`.
 - Two initial slots are empty.
+- Unlocking a new species requires two empty slots.
+- The two slots are occupied by the unlocked species' fully dominant and fully
+  recessive founder plants.
 
 ## Sale
 
-The player may sell stored plants to free space.
+The MVP sells excess Germination Bed specimens automatically during harvest.
+Stored plants are discarded rather than sold when the player needs to free
+space.
 
 Rules:
 
-- Sold plants are removed from storage.
+- Sold excess specimens are removed from the Germination Bed.
 - Sold plants remain registered in the collection if already discovered.
 - Sale values are intentionally low.
 - Common sale should pay 5% to 10% of comparable contract value.
 - Discard value is 0%.
-- Selling exists to avoid waste and free storage, not as the main income source.
+- Automatic sale exists to avoid waste, not as the main income source.
 
 ## Discoveries
 

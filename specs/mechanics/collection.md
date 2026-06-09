@@ -51,10 +51,15 @@ Registers visible traits discovered through play.
 
 Phenotype entries should show:
 
+- Species identifier.
 - Trait name.
 - Related gene when known.
 - Species availability.
 - Discovery status.
+
+Phenotype discovery keys are species-qualified. A yellow, smooth Mendel Pea and
+an equivalent dominant-trait pattern in another species are separate collection
+entries.
 
 ### Genotypes
 
@@ -67,6 +72,10 @@ Genotype entries should show:
 - Derived phenotype summary.
 - Discovery status.
 
+Genotype discovery keys are species-qualified. The same allele string is not
+treated as the same collection entry across different species because each
+species has its own gene count, trait mapping, and unlock context.
+
 ## Discovery Rules
 
 A discovery is recorded the first time the player obtains a valid plant, phenotype, genotype, or species entry.
@@ -76,6 +85,8 @@ Rules:
 - Discovery remains registered even if the plant is sold or delivered.
 - Hidden entries should not reveal exact undiscovered details unless intentionally designed.
 - Discovery rewards are granted once.
+- Collection milestone rewards are granted once and tracked independently from
+  regular discovery rewards.
 - The first specimen record for a discovered plant stores its generation label.
 - Later specimens with the same genotype may update observed lineage history but
   do not grant duplicate genotype discovery rewards.

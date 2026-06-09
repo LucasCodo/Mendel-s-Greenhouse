@@ -158,6 +158,7 @@ Relationships:
 
 Rules:
 
+- Storage accepts at most one plant for each genotype.
 - Initial capacity is 4 slots.
 - Maximum capacity is 20 slots.
 
@@ -190,5 +191,8 @@ Relationships:
 
 Rules:
 
-- Contains 20 offspring.
+- Contains displayed offspring generated for the active cross.
+- The displayed count follows the number of genetic outcome combinations when
+  that count fits on screen.
+- Larger future crosses may use a capped representative count.
 - Display order is shuffled after valid combinations are generated.

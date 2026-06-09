@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-02 11:46-0300\n"
+"POT-Creation-Date: 2026-06-04 20:48-0300\n"
 "PO-Revision-Date: 2026-06-02 11:43-0300\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language: pt_BR\n"
@@ -18,533 +18,732 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: Babel 2.18.0\n"
 
+#: mendels_greenhouse/scenes/main_game.py:113
+msgid "Visible traits are what you can observe on a plant."
+msgstr ""
+
 #: mendels_greenhouse/scenes/main_game.py:116
+msgid "A dominant allele can shape the visible trait when present."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:119
+msgid "A recessive allele appears only when no dominant allele masks it."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:122
+msgid "Each gene is represented by two alleles, one from each parent."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:125
+msgid "A genotype records the allele pair for each tracked gene."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:128
+msgid "A homozygous gene has two matching alleles."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:131
+msgid "A heterozygous gene has two different alleles."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:134
+msgid "Parents pass one allele from each gene to each offspring."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:137
+msgid "Different genes can be inherited independently."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:140
+msgid "AaBb x AaBb can produce four phenotype classes."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:143
+msgid "Expected percentages help plan before breeding."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:146
+msgid "Planning compares crosses against a target result."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:201
 msgid "Analyzer"
 msgstr "Analisador"
 
-#: mendels_greenhouse/scenes/main_game.py:117
-#: mendels_greenhouse/scenes/main_game.py:1119
+#: mendels_greenhouse/scenes/main_game.py:202
+#: mendels_greenhouse/scenes/main_game.py:1681
 msgid "Analyzer upgrades reveal more data."
 msgstr "Melhorias do analisador revelam mais dados."
 
-#: mendels_greenhouse/scenes/main_game.py:118
+#: mendels_greenhouse/scenes/main_game.py:203
 msgid "Analyzer is already maxed."
 msgstr "Analisador ja esta no maximo."
 
-#: mendels_greenhouse/scenes/main_game.py:119
-#: mendels_greenhouse/scenes/main_game.py:1139
+#: mendels_greenhouse/scenes/main_game.py:204
+#: mendels_greenhouse/scenes/main_game.py:1708
 #, python-brace-format
 msgid "Analyzer L{level}"
 msgstr "Analisador N{level}"
 
-#: mendels_greenhouse/scenes/main_game.py:120
+#: mendels_greenhouse/scenes/main_game.py:205
 #, python-brace-format
 msgid "Analyzer upgraded to level {level}."
 msgstr "Analisador melhorado para nivel {level}."
 
-#: mendels_greenhouse/scenes/main_game.py:121
-#: mendels_greenhouse/scenes/main_game.py:1181
+#: mendels_greenhouse/scenes/main_game.py:206
+#: mendels_greenhouse/scenes/main_game.py:1757
 #, python-brace-format
 msgid "Adds a {genes}-gene plant species."
 msgstr "Adiciona uma especie com {genes} genes."
 
-#: mendels_greenhouse/scenes/main_game.py:122
-#: mendels_greenhouse/scenes/main_game.py:1177
+#: mendels_greenhouse/scenes/main_game.py:207
+#: mendels_greenhouse/scenes/main_game.py:1753
 msgid "All currently specified species are unlocked."
 msgstr "Todas as especies especificadas ja estao desbloqueadas."
 
-#: mendels_greenhouse/scenes/main_game.py:123
+#: mendels_greenhouse/scenes/main_game.py:208
 msgid "All specified species are unlocked."
 msgstr "Todas as especies especificadas estao desbloqueadas."
 
-#: mendels_greenhouse/scenes/main_game.py:124
+#: mendels_greenhouse/scenes/main_game.py:209
 msgid "Back to game"
 msgstr "Voltar ao jogo"
 
-#: mendels_greenhouse/scenes/main_game.py:125
+#: mendels_greenhouse/scenes/main_game.py:210
 msgid "Basic controls"
 msgstr "Comandos basicos"
 
-#: mendels_greenhouse/scenes/main_game.py:126
+#: mendels_greenhouse/scenes/main_game.py:211
 msgid "Choose an occupied garden slot."
 msgstr "Escolha um espaco ocupado no jardim."
 
-#: mendels_greenhouse/scenes/main_game.py:127
+#: mendels_greenhouse/scenes/main_game.py:212
 msgid "Collection"
 msgstr "Colecao"
 
-#: mendels_greenhouse/scenes/main_game.py:128
+#: mendels_greenhouse/scenes/main_game.py:213
 msgid "Contract complete. Claim reward."
 msgstr "Contrato completo. Resgate a recompensa."
 
-#: mendels_greenhouse/scenes/main_game.py:129
+#: mendels_greenhouse/scenes/main_game.py:214
 #, python-brace-format
 msgid "Contract complete. +{reward} credits."
 msgstr "Contrato completo. +{reward} creditos."
 
-#: mendels_greenhouse/scenes/main_game.py:130
+#: mendels_greenhouse/scenes/main_game.py:215
 #, python-brace-format
 msgid "Contract match. {remaining} left."
 msgstr "Contrato aceito. Faltam {remaining}."
 
-#: mendels_greenhouse/scenes/main_game.py:131
-#: mendels_greenhouse/scenes/main_game.py:1158
-#: mendels_greenhouse/scenes/main_game.py:1173
-#: mendels_greenhouse/scenes/main_game.py:1182
+#: mendels_greenhouse/scenes/main_game.py:216
+#: mendels_greenhouse/scenes/main_game.py:1165
+msgid "Contract matches"
+msgstr "Plantas do contrato"
+
+#: mendels_greenhouse/scenes/main_game.py:217
+#: mendels_greenhouse/scenes/main_game.py:1734
+#: mendels_greenhouse/scenes/main_game.py:1749
+#: mendels_greenhouse/scenes/main_game.py:1760
 #, python-brace-format
 msgid "Cost: {cost} credits."
 msgstr "Custo: {cost} creditos."
 
-#: mendels_greenhouse/scenes/main_game.py:132
+#: mendels_greenhouse/scenes/main_game.py:218
+#: mendels_greenhouse/scenes/main_game.py:1431
 msgid "Credits"
 msgstr "Creditos"
 
-#: mendels_greenhouse/scenes/main_game.py:133
+#: mendels_greenhouse/scenes/main_game.py:219
 msgid "Deliver 3 yellow smooth peas"
 msgstr "Entregue 3 ervilhas amarelas lisas"
 
-#: mendels_greenhouse/scenes/main_game.py:134
+#: mendels_greenhouse/scenes/main_game.py:220
 #, python-brace-format
 msgid "Discarded plant from slot {slot}."
 msgstr "Planta do espaco {slot} descartada."
 
-#: mendels_greenhouse/scenes/main_game.py:135
+#: mendels_greenhouse/scenes/main_game.py:221
 msgid "Discovered genetic records"
 msgstr "Registros geneticos descobertos"
 
-#: mendels_greenhouse/scenes/main_game.py:136
+#: mendels_greenhouse/scenes/main_game.py:222
+#: mendels_greenhouse/scenes/main_game.py:1117
 msgid "DONE"
 msgstr "OK"
 
-#: mendels_greenhouse/scenes/main_game.py:137
+#: mendels_greenhouse/scenes/main_game.py:223
 msgid "Each cross shows the expected genetic combinations."
 msgstr "Cada cruzamento mostra as combinacoes geneticas esperadas."
 
-#: mendels_greenhouse/scenes/main_game.py:138
+#: mendels_greenhouse/scenes/main_game.py:224
 msgid "Founder genotypes cannot be discarded."
 msgstr "Genotipos fundadores nao podem ser descartados."
 
-#: mendels_greenhouse/scenes/main_game.py:139
+#: mendels_greenhouse/scenes/main_game.py:225
 msgid "Garden"
 msgstr "Jardim"
 
-#: mendels_greenhouse/scenes/main_game.py:140
+#: mendels_greenhouse/scenes/main_game.py:226
 msgid "Generating offspring..."
 msgstr "Gerando descendentes..."
 
-#: mendels_greenhouse/scenes/main_game.py:141
-#: mendels_greenhouse/scenes/main_game.py:1164
+#: mendels_greenhouse/scenes/main_game.py:227
+msgid "Genotype already stored."
+msgstr "Genotipo ja guardado."
+
+#: mendels_greenhouse/scenes/main_game.py:228
+#: mendels_greenhouse/scenes/main_game.py:1740
 msgid "Genetic Analyzer is already fully upgraded."
 msgstr "Analisador genetico ja esta completo."
 
-#: mendels_greenhouse/scenes/main_game.py:142
+#: mendels_greenhouse/scenes/main_game.py:229
 msgid "Genotypes"
 msgstr "Genotipos"
 
-#: mendels_greenhouse/scenes/main_game.py:143
-#: mendels_greenhouse/scenes/main_game.py:1117
+#: mendels_greenhouse/scenes/main_game.py:230
+#: mendels_greenhouse/scenes/main_game.py:1679
 #, python-brace-format
 msgid "Genotypes found: {count}"
 msgstr "Genotipos encontrados: {count}"
 
-#: mendels_greenhouse/scenes/main_game.py:144
-#: mendels_greenhouse/scenes/main_game.py:1118
+#: mendels_greenhouse/scenes/main_game.py:231
+#: mendels_greenhouse/scenes/main_game.py:1680
 msgid "Generated offspring register here."
 msgstr "Descendentes gerados ficam registrados aqui."
 
-#: mendels_greenhouse/scenes/main_game.py:145
-#: mendels_greenhouse/scenes/main_game.py:1154
+#: mendels_greenhouse/scenes/main_game.py:232
+#: mendels_greenhouse/scenes/main_game.py:1730
 msgid "Greenhouse is already at maximum capacity."
 msgstr "A estufa ja esta na capacidade maxima."
 
-#: mendels_greenhouse/scenes/main_game.py:146
+#: mendels_greenhouse/scenes/main_game.py:233
 msgid "Greenhouse is already maxed."
 msgstr "A estufa ja esta no maximo."
 
-#: mendels_greenhouse/scenes/main_game.py:147
+#: mendels_greenhouse/scenes/main_game.py:234
 msgid "Greenhouse is full."
 msgstr "A estufa esta cheia."
 
-#: mendels_greenhouse/scenes/main_game.py:148
+#: mendels_greenhouse/scenes/main_game.py:235
 msgid "Greenhouse slot"
 msgstr "Espaco da estufa"
 
-#: mendels_greenhouse/scenes/main_game.py:149
-#: mendels_greenhouse/scenes/main_game.py:1114
+#: mendels_greenhouse/scenes/main_game.py:236
+#: mendels_greenhouse/scenes/main_game.py:1759
+msgid "Requires two empty garden slots."
+msgstr "Requer dois espacos vazios no jardim."
+
+#: mendels_greenhouse/scenes/main_game.py:237
+#: mendels_greenhouse/scenes/main_game.py:1115
+msgid "Growing"
+msgstr "Crescendo"
+
+#: mendels_greenhouse/scenes/main_game.py:238
+#: mendels_greenhouse/scenes/main_game.py:1104
+msgid "HARVEST"
+msgstr "COLHER"
+
+#: mendels_greenhouse/scenes/main_game.py:239
+msgid "Harvest grown plants."
+msgstr "Colha as plantas crescidas."
+
+#: mendels_greenhouse/scenes/main_game.py:240
+#: mendels_greenhouse/scenes/main_game.py:1676
 msgid "Hidden entries stay unknown."
 msgstr "Entradas ocultas continuam desconhecidas."
 
-#: mendels_greenhouse/scenes/main_game.py:150
+#: mendels_greenhouse/scenes/main_game.py:241
 msgid "How to play"
 msgstr "Como jogar"
 
-#: mendels_greenhouse/scenes/main_game.py:151
-#: mendels_greenhouse/scenes/main_game.py:1040
+#: mendels_greenhouse/scenes/main_game.py:242
+#: mendels_greenhouse/scenes/main_game.py:880
+msgid "ANALYZER L3 REQUIRED"
+msgstr "ANALISADOR N3 NECESSARIO"
+
+#: mendels_greenhouse/scenes/main_game.py:243
+#: mendels_greenhouse/scenes/main_game.py:1295
+#, python-brace-format
+msgid "Analyzer L{level} required."
+msgstr "Analisador N{level} necessario."
+
+#: mendels_greenhouse/scenes/main_game.py:244
+msgid "Dominant allele"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:245
+msgid "Genetic Planning"
+msgstr "Planejamento genetico"
+
+#: mendels_greenhouse/scenes/main_game.py:246
+msgid "Genetic planning"
+msgstr "Planejamento genetico"
+
+#: mendels_greenhouse/scenes/main_game.py:247
+msgid "Genetic probability"
+msgstr "Probabilidade genetica"
+
+#: mendels_greenhouse/scenes/main_game.py:248
+msgid "Heterozygous"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:249
+msgid "Homozygous"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:250
+msgid "Independent assortment"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:251
+msgid "Knowledge"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:252
+msgid "Learned genetics concepts"
+msgstr "Conceitos geneticos aprendidos"
+
+#: mendels_greenhouse/scenes/main_game.py:253
+#: mendels_greenhouse/scenes/main_game.py:1225
+#, python-brace-format
+msgid "Learned: {learned}/{total}"
+msgstr "Aprendido: {learned}/{total}"
+
+#: mendels_greenhouse/scenes/main_game.py:254
+#: mendels_greenhouse/scenes/main_game.py:1282
+msgid "Selected Concept"
+msgstr "Conceito selecionado"
+
+#: mendels_greenhouse/scenes/main_game.py:255
+#, python-brace-format
+msgid "Sold specimen for {credits} credits."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:256
+#: mendels_greenhouse/scenes/main_game.py:886
+msgid "Upgrade analyzer in Shop."
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:257
+#: mendels_greenhouse/scenes/main_game.py:2148
+#, python-brace-format
+msgid "Unlocked by analyzer level {level}."
+msgstr "Desbloqueado pelo analisador nivel {level}."
+
+#: mendels_greenhouse/scenes/main_game.py:258
+msgid "Allele pair"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:259
+msgid "Allele segregation"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:260
+msgid "9:3:3:1 dihybrid ratio"
+msgstr ""
+
+#: mendels_greenhouse/scenes/main_game.py:261
+#: mendels_greenhouse/scenes/main_game.py:1602
 msgid "LOCK"
 msgstr "BLOQ"
 
-#: mendels_greenhouse/scenes/main_game.py:152
+#: mendels_greenhouse/scenes/main_game.py:262
+#: mendels_greenhouse/scenes/main_game.py:1258
+#: mendels_greenhouse/scenes/main_game.py:1289
 msgid "Locked"
 msgstr "Bloqueado"
 
-#: mendels_greenhouse/scenes/main_game.py:153
+#: mendels_greenhouse/scenes/main_game.py:263
 msgid "Matches"
 msgstr "Aceitos"
 
-#: mendels_greenhouse/scenes/main_game.py:154
+#: mendels_greenhouse/scenes/main_game.py:264
 msgid "Max capacity"
 msgstr "Capacidade maxima"
 
-#: mendels_greenhouse/scenes/main_game.py:155
+#: mendels_greenhouse/scenes/main_game.py:265
 msgid "Max level"
 msgstr "Nivel maximo"
 
-#: mendels_greenhouse/scenes/main_game.py:156
-#: mendels_greenhouse/scenes/main_game.py:1103
+#: mendels_greenhouse/scenes/main_game.py:266
+#: mendels_greenhouse/scenes/main_game.py:1665
 msgid "Mendel Pea unlocked."
 msgstr "Ervilha de Mendel desbloqueada."
 
-#: mendels_greenhouse/scenes/main_game.py:157
+#: mendels_greenhouse/scenes/main_game.py:267
 msgid "Missing"
 msgstr "Faltam"
 
-#: mendels_greenhouse/scenes/main_game.py:158
-#: mendels_greenhouse/scenes/main_game.py:1157
+#: mendels_greenhouse/scenes/main_game.py:268
+#: mendels_greenhouse/scenes/main_game.py:1733
 msgid "More slots let you store more offspring."
 msgstr "Mais espacos permitem guardar mais descendentes."
 
-#: mendels_greenhouse/scenes/main_game.py:159
+#: mendels_greenhouse/scenes/main_game.py:269
 msgid "Mouse: click buttons and plant cards."
 msgstr "Mouse: clique em botoes e cartoes de plantas."
 
-#: mendels_greenhouse/scenes/main_game.py:160
+#: mendels_greenhouse/scenes/main_game.py:270
 msgid "New discovery registered."
 msgstr "Nova descoberta registrada."
 
-#: mendels_greenhouse/scenes/main_game.py:161
-#: mendels_greenhouse/scenes/main_game.py:1108
+#: mendels_greenhouse/scenes/main_game.py:271
+#: mendels_greenhouse/scenes/main_game.py:1670
 msgid "Next species unlock in shop."
 msgstr "Proxima especie desbloqueia na loja."
 
-#: mendels_greenhouse/scenes/main_game.py:162
+#: mendels_greenhouse/scenes/main_game.py:272
 msgid "No completed contract to claim."
 msgstr "Nenhum contrato completo para resgatar."
 
-#: mendels_greenhouse/scenes/main_game.py:163
+#: mendels_greenhouse/scenes/main_game.py:273
 msgid "No revealed plant to store."
 msgstr "Nenhuma planta revelada para guardar."
 
-#: mendels_greenhouse/scenes/main_game.py:164
+#: mendels_greenhouse/scenes/main_game.py:274
 msgid "Not enough credits."
 msgstr "Creditos insuficientes."
 
-#: mendels_greenhouse/scenes/main_game.py:165
+#: mendels_greenhouse/scenes/main_game.py:275
 msgid "Offspring revealed."
 msgstr "Descendente revelado."
 
-#: mendels_greenhouse/scenes/main_game.py:166
-#: mendels_greenhouse/scenes/main_game.py:895
+#: mendels_greenhouse/scenes/main_game.py:276
+#: mendels_greenhouse/scenes/main_game.py:1376
 msgid "PARENT A"
 msgstr "PAI A"
 
-#: mendels_greenhouse/scenes/main_game.py:167
-#: mendels_greenhouse/scenes/main_game.py:896
+#: mendels_greenhouse/scenes/main_game.py:277
+#: mendels_greenhouse/scenes/main_game.py:1377
 msgid "PARENT B"
 msgstr "PAI B"
 
-#: mendels_greenhouse/scenes/main_game.py:168
+#: mendels_greenhouse/scenes/main_game.py:278
 msgid "Phenotypes"
 msgstr "Fenotipos"
 
-#: mendels_greenhouse/scenes/main_game.py:169
-#: mendels_greenhouse/scenes/main_game.py:1112
+#: mendels_greenhouse/scenes/main_game.py:279
+#: mendels_greenhouse/scenes/main_game.py:1674
 #, python-brace-format
 msgid "Phenotypes found: {count}"
 msgstr "Fenotipos encontrados: {count}"
 
-#: mendels_greenhouse/scenes/main_game.py:171
+#: mendels_greenhouse/scenes/main_game.py:281
 msgid "Pick two parent plants, cross them, then inspect offspring."
 msgstr "Escolha dois pais, cruze e observe os descendentes."
 
-#: mendels_greenhouse/scenes/main_game.py:173
+#: mendels_greenhouse/scenes/main_game.py:283
 #, python-brace-format
 msgid "Reward claimed. +{reward} credits. New contract ready."
 msgstr "Recompensa resgatada. +{reward} creditos. Novo contrato pronto."
 
-#: mendels_greenhouse/scenes/main_game.py:174
-#: mendels_greenhouse/scenes/main_game.py:1113
+#: mendels_greenhouse/scenes/main_game.py:284
+#: mendels_greenhouse/scenes/main_game.py:1675
 msgid "Seed color + texture."
 msgstr "Cor da semente + textura."
 
-#: mendels_greenhouse/scenes/main_game.py:175
+#: mendels_greenhouse/scenes/main_game.py:285
 msgid "Select Parent A"
 msgstr "Escolha o Pai A"
 
-#: mendels_greenhouse/scenes/main_game.py:176
+#: mendels_greenhouse/scenes/main_game.py:286
 msgid "Select Parent B"
 msgstr "Escolha o Pai B"
 
-#: mendels_greenhouse/scenes/main_game.py:177
+#: mendels_greenhouse/scenes/main_game.py:287
 msgid "Select parents from the same species."
 msgstr "Escolha pais da mesma especie."
 
-#: mendels_greenhouse/scenes/main_game.py:178
+#: mendels_greenhouse/scenes/main_game.py:288
 msgid "Select parents, then cross plants."
 msgstr "Escolha os pais e cruze as plantas."
 
-#: mendels_greenhouse/scenes/main_game.py:179
+#: mendels_greenhouse/scenes/main_game.py:289
 msgid "Select two stored parent plants."
 msgstr "Escolha duas plantas guardadas como pais."
 
-#: mendels_greenhouse/scenes/main_game.py:180
+#: mendels_greenhouse/scenes/main_game.py:290
+#: mendels_greenhouse/scenes/main_game.py:1758
+msgid "Adds dominant and recessive founders."
+msgstr "Adiciona fundadores dominante e recessivo."
+
+#: mendels_greenhouse/scenes/main_game.py:291
+#: mendels_greenhouse/scenes/main_game.py:1166
+msgid "Sells after harvest"
+msgstr "Vende na colheita"
+
+#: mendels_greenhouse/scenes/main_game.py:292
 msgid "Shop"
 msgstr "Loja"
 
-#: mendels_greenhouse/scenes/main_game.py:181
-#: mendels_greenhouse/scenes/main_game.py:1129
+#: mendels_greenhouse/scenes/main_game.py:293
+#: mendels_greenhouse/scenes/main_game.py:1697
 #, python-brace-format
 msgid "Slot {slot}"
 msgstr "Espaco {slot}"
 
-#: mendels_greenhouse/scenes/main_game.py:182
-msgid "SPACE reveals one offspring; S stores the latest plant."
-msgstr "SPACE revela um descendente; S guarda a planta atual."
-
-#: mendels_greenhouse/scenes/main_game.py:183
+#: mendels_greenhouse/scenes/main_game.py:294
 msgid "Species"
 msgstr "Especies"
 
-#: mendels_greenhouse/scenes/main_game.py:184
-#: mendels_greenhouse/scenes/main_game.py:1105
+#: mendels_greenhouse/scenes/main_game.py:295
+#: mendels_greenhouse/scenes/main_game.py:1667
 #, python-brace-format
 msgid "Species found: {count}"
 msgstr "Especies encontradas: {count}"
 
-#: mendels_greenhouse/scenes/main_game.py:185
+#: mendels_greenhouse/scenes/main_game.py:296
 msgid "Spend credits on progression"
 msgstr "Gaste creditos em progresso"
 
-#: mendels_greenhouse/scenes/main_game.py:186
+#: mendels_greenhouse/scenes/main_game.py:297
 #, python-brace-format
 msgid "Stored plant in slot {slot}."
 msgstr "Planta guardada no espaco {slot}."
 
-#: mendels_greenhouse/scenes/main_game.py:187
+#: mendels_greenhouse/scenes/main_game.py:298
 msgid "Stored plants and parent selection"
 msgstr "Plantas guardadas e selecao de pais"
 
-#: mendels_greenhouse/scenes/main_game.py:188
+#: mendels_greenhouse/scenes/main_game.py:299
+msgid "Ready to harvest."
+msgstr "Pronto para colher."
+
+#: mendels_greenhouse/scenes/main_game.py:300
+#: mendels_greenhouse/scenes/main_game.py:2059
+msgid "Reset game progression"
+msgstr "Resetar progresso do jogo"
+
+#: mendels_greenhouse/scenes/main_game.py:301
+msgid "Progress reset."
+msgstr "Progresso resetado."
+
+#: mendels_greenhouse/scenes/main_game.py:302
 msgid "The goal"
 msgstr "Objetivo"
 
-#: mendels_greenhouse/scenes/main_game.py:189
-#: mendels_greenhouse/scenes/main_game.py:1180
+#: mendels_greenhouse/scenes/main_game.py:303
+#: mendels_greenhouse/scenes/main_game.py:1756
 #, python-brace-format
 msgid "Unlock {species}."
 msgstr "Desbloqueie {species}."
 
-#: mendels_greenhouse/scenes/main_game.py:190
-#: mendels_greenhouse/scenes/main_game.py:1156
+#: mendels_greenhouse/scenes/main_game.py:304
+#: mendels_greenhouse/scenes/main_game.py:1732
 #, python-brace-format
 msgid "Unlock greenhouse slot {slot}."
 msgstr "Desbloqueie o espaco {slot} da estufa."
 
-#: mendels_greenhouse/scenes/main_game.py:191
-#: mendels_greenhouse/scenes/main_game.py:1542
+#: mendels_greenhouse/scenes/main_game.py:305
+#: mendels_greenhouse/scenes/main_game.py:2204
 #, python-brace-format
 msgid "Unlocked {species}."
 msgstr "{species} desbloqueado."
 
-#: mendels_greenhouse/scenes/main_game.py:192
+#: mendels_greenhouse/scenes/main_game.py:306
 #, python-brace-format
 msgid "Unlocked greenhouse slot {slot}."
 msgstr "Espaco {slot} da estufa desbloqueado."
 
-#: mendels_greenhouse/scenes/main_game.py:193
-#: mendels_greenhouse/scenes/main_game.py:1172
+#: mendels_greenhouse/scenes/main_game.py:307
+#: mendels_greenhouse/scenes/main_game.py:1748
 msgid "Unlocks deeper genetic information."
 msgstr "Desbloqueia informacoes geneticas mais detalhadas."
 
-#: mendels_greenhouse/scenes/main_game.py:194
-#: mendels_greenhouse/scenes/main_game.py:1168
+#: mendels_greenhouse/scenes/main_game.py:308
+#: mendels_greenhouse/scenes/main_game.py:1744
 #, python-brace-format
 msgid "Upgrade to level {level}: {name}."
 msgstr "Melhore para o nivel {level}: {name}."
 
-#: mendels_greenhouse/scenes/main_game.py:195
+#: mendels_greenhouse/scenes/main_game.py:309
 msgid "Use 1/2 to reselect starting parents."
 msgstr "Use 1/2 para escolher os pais iniciais."
 
-#: mendels_greenhouse/scenes/main_game.py:197
+#: mendels_greenhouse/scenes/main_game.py:311
 msgid "Use contracts to learn how traits pass between generations."
 msgstr "Use contratos para aprender como tracos passam entre geracoes."
 
-#: mendels_greenhouse/scenes/main_game.py:199
+#: mendels_greenhouse/scenes/main_game.py:313
+#: mendels_greenhouse/scenes/main_game.py:1443
 msgid "Yellow smooth peas are requested first."
 msgstr "Ervilhas amarelas lisas sao pedidas primeiro."
 
-#: mendels_greenhouse/scenes/main_game.py:200
+#: mendels_greenhouse/scenes/main_game.py:314
+msgid "are rescued first."
+msgstr "sao resgatadas primeiro."
+
+#: mendels_greenhouse/scenes/main_game.py:315
 msgid "green"
 msgstr "verde"
 
-#: mendels_greenhouse/scenes/main_game.py:201
+#: mendels_greenhouse/scenes/main_game.py:316
 msgid "smooth"
 msgstr "lisa"
 
-#: mendels_greenhouse/scenes/main_game.py:202
+#: mendels_greenhouse/scenes/main_game.py:317
 msgid "wrinkled"
 msgstr "rugosa"
 
-#: mendels_greenhouse/scenes/main_game.py:203
+#: mendels_greenhouse/scenes/main_game.py:318
 msgid "yellow"
 msgstr "amarela"
 
-#: mendels_greenhouse/scenes/main_game.py:204
-#: mendels_greenhouse/scenes/main_game.py:1090
+#: mendels_greenhouse/scenes/main_game.py:319
+#: mendels_greenhouse/scenes/main_game.py:1652
 #, python-brace-format
 msgid "{name} - discovered"
 msgstr "{name} - descoberto"
 
-#: mendels_greenhouse/scenes/main_game.py:363
+#: mendels_greenhouse/scenes/main_game.py:568
 msgid "CROSS PLANTS"
 msgstr "CRUZAR"
 
-#: mendels_greenhouse/scenes/main_game.py:563
+#: mendels_greenhouse/scenes/main_game.py:835
 msgid "CONTRACT"
 msgstr "CONTRATO"
 
-#: mendels_greenhouse/scenes/main_game.py:587
+#: mendels_greenhouse/scenes/main_game.py:859
+#: mendels_greenhouse/scenes/main_game.py:1459
 msgid "CLAIM"
 msgstr "RESGATAR"
 
-#: mendels_greenhouse/scenes/main_game.py:595
+#: mendels_greenhouse/scenes/main_game.py:867
 msgid "PROBABILITIES"
 msgstr "PROBABILIDADES"
 
-#: mendels_greenhouse/scenes/main_game.py:602
+#: mendels_greenhouse/scenes/main_game.py:874
 msgid "Select parents"
 msgstr "Escolha os pais"
 
-#: mendels_greenhouse/scenes/main_game.py:632
-#: mendels_greenhouse/scenes/main_game.py:998
-#: mendels_greenhouse/scenes/main_game.py:1049
+#: mendels_greenhouse/scenes/main_game.py:918
+#: mendels_greenhouse/scenes/main_game.py:1555
+#: mendels_greenhouse/scenes/main_game.py:1611
 msgid "Empty slot"
 msgstr "Espaco vazio"
 
-#: mendels_greenhouse/scenes/main_game.py:697
-#: mendels_greenhouse/scenes/main_game.py:756
-msgid "REVEAL"
-msgstr "REVELAR"
-
-#: mendels_greenhouse/scenes/main_game.py:702
-msgid "STORE"
-msgstr "GUARDAR"
-
-#: mendels_greenhouse/scenes/main_game.py:712
-msgid "Generation"
-msgstr "Geracao"
-
-#: mendels_greenhouse/scenes/main_game.py:721
+#: mendels_greenhouse/scenes/main_game.py:1086
 #, python-brace-format
 msgid "Generated: {visible}/{total}"
 msgstr "Gerado: {visible}/{total}"
 
-#: mendels_greenhouse/scenes/main_game.py:747
-msgid "Last offspring"
-msgstr "Ultimo descendente"
+#: mendels_greenhouse/scenes/main_game.py:1099
+msgid "STORE"
+msgstr "GUARDAR"
 
-#: mendels_greenhouse/scenes/main_game.py:783
-msgid "Help"
-msgstr "Ajuda"
+#: mendels_greenhouse/scenes/main_game.py:1122
+#: mendels_greenhouse/scenes/main_game.py:1353
+#, python-brace-format
+msgid "Generation: {generation}"
+msgstr "Geracao: {generation}"
 
-#: mendels_greenhouse/scenes/main_game.py:787
-msgid "Each parent gives"
-msgstr "Cada planta fornece"
-
-#: mendels_greenhouse/scenes/main_game.py:791
-msgid "one allele per gene."
-msgstr "um alelo por gene."
-
-#: mendels_greenhouse/scenes/main_game.py:797
-msgid "Results are shuffled"
-msgstr "Resultados sao embaralhados"
-
-#: mendels_greenhouse/scenes/main_game.py:803
-msgid "before the conveyor."
-msgstr "antes da esteira."
-
-#: mendels_greenhouse/scenes/main_game.py:813
+#: mendels_greenhouse/scenes/main_game.py:1174
 #, python-brace-format
 msgid "Discovered: {total}"
 msgstr "Descobertos: {total}"
 
-#: mendels_greenhouse/scenes/main_game.py:832
+#: mendels_greenhouse/scenes/main_game.py:1193
 msgid "No discoveries yet."
 msgstr "Nenhuma descoberta ainda."
 
-#: mendels_greenhouse/scenes/main_game.py:866
+#: mendels_greenhouse/scenes/main_game.py:1338
 msgid "SELECTED PLANT"
 msgstr "PLANTA SELECIONADA"
 
-#: mendels_greenhouse/scenes/main_game.py:871
+#: mendels_greenhouse/scenes/main_game.py:1343
 msgid "Empty or locked slot."
 msgstr "Vazio ou bloqueado."
 
-#: mendels_greenhouse/scenes/main_game.py:899
+#: mendels_greenhouse/scenes/main_game.py:1380
 msgid "DISCARD"
 msgstr "DESCARTAR"
 
-#: mendels_greenhouse/scenes/main_game.py:929
+#: mendels_greenhouse/scenes/main_game.py:1486
 msgid "BUY"
 msgstr "COMPRAR"
 
-#: mendels_greenhouse/scenes/main_game.py:945
-#: mendels_greenhouse/scenes/main_game.py:985
-#: mendels_greenhouse/scenes/main_game.py:1449
-msgid "BACK"
-msgstr "VOLTAR"
-
-#: mendels_greenhouse/scenes/main_game.py:982
+#: mendels_greenhouse/scenes/main_game.py:1539
 msgid "Garden plants"
 msgstr "Plantas do jardim"
 
-#: mendels_greenhouse/scenes/main_game.py:1300
+#: mendels_greenhouse/scenes/main_game.py:1542
+#: mendels_greenhouse/scenes/main_game.py:2061
+msgid "BACK"
+msgstr "VOLTAR"
+
+#: mendels_greenhouse/scenes/main_game.py:1893
 msgid "Before playing"
 msgstr "Antes de jogar"
 
-#: mendels_greenhouse/scenes/main_game.py:1344
+#: mendels_greenhouse/scenes/main_game.py:1941
 msgid "OK"
 msgstr "OK"
 
-#: mendels_greenhouse/scenes/main_game.py:1407
+#: mendels_greenhouse/scenes/main_game.py:2015
 msgid "Settings"
 msgstr "Configuracoes"
 
-#: mendels_greenhouse/scenes/main_game.py:1414
+#: mendels_greenhouse/scenes/main_game.py:2022
 msgid "Language"
 msgstr "Idioma"
 
-#: mendels_greenhouse/scenes/main_game.py:1421
+#: mendels_greenhouse/scenes/main_game.py:2029
 msgid "Music volume"
 msgstr "Volume musica"
 
-#: mendels_greenhouse/scenes/main_game.py:1428
+#: mendels_greenhouse/scenes/main_game.py:2036
 msgid "Mute music"
 msgstr "Mutar musica"
 
-#: mendels_greenhouse/scenes/main_game.py:1433
+#: mendels_greenhouse/scenes/main_game.py:2041
 msgid "Effects volume"
 msgstr "Volume efeitos"
 
-#: mendels_greenhouse/scenes/main_game.py:1440
+#: mendels_greenhouse/scenes/main_game.py:2048
 msgid "Mute sounds"
 msgstr "Mutar sons"
 
-#: mendels_greenhouse/scenes/main_game.py:1446
+#: mendels_greenhouse/scenes/main_game.py:2054
 msgid "Changes apply immediately."
 msgstr "Alteracoes aplicam na hora."
 
-#: mendels_greenhouse/scenes/main_game.py:1514
+#: mendels_greenhouse/scenes/main_game.py:2175
 #, python-brace-format
 msgid "Deliver {target} {color} {texture} peas"
 msgstr "Entregue {target} ervilhas {color} {texture}"
+
+#~ msgid "Last offspring"
+#~ msgstr "Ultimo descendente"
+
+#~ msgid "before the conveyor."
+#~ msgstr "antes da esteira."
+
+#~ msgid "REVEAL"
+#~ msgstr "REVELAR"
+
+#~ msgid "Results are shuffled"
+#~ msgstr "Resultados sao embaralhados"
+
+#~ msgid "inside the bed."
+#~ msgstr ""
+
+#~ msgid "SELL"
+#~ msgstr "amarela"
+
+#~ msgid "Generation"
+#~ msgstr "Geracao"
+
+#~ msgid "Help"
+#~ msgstr "Ajuda"
+
+#~ msgid "Each parent gives"
+#~ msgstr "Cada planta fornece"
+
+#~ msgid "one allele per gene."
+#~ msgstr "um alelo por gene."
+
+#~ msgid "Selected specimen"
+#~ msgstr "PLANTA SELECIONADA"
+
+#~ msgid "Select a revealed cell."
+#~ msgstr ""

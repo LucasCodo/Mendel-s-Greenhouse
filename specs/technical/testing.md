@@ -142,7 +142,9 @@ Test that:
 - Phenotypes are derived from genotypes according to the content bible.
 - Crossbreeding distributions match expected Mendelian outcomes.
 - Expected probabilities sum to 100%.
-- A generated batch contains exactly 20 offspring.
+- A generated display batch uses the active cross's combination count when it
+  fits the main screen.
+- Larger combination counts are capped to a representative visual batch.
 - Shuffling offspring order does not change the underlying distribution.
 
 ### Contracts
@@ -163,7 +165,7 @@ Test that:
 - Maximum capacity is 20 slots.
 - Starting plants are `AABB` and `aabb`.
 - Storing fails cleanly when the greenhouse is full.
-- Selling removes the plant and awards the correct low-value reward.
+- Harvest sells excess specimens and awards the correct low-value reward.
 
 ### Progression
 
@@ -241,6 +243,19 @@ Manual testing remains required for:
 - Visual feedback quality.
 
 Automated tests should protect rules and regressions; manual tests should judge whether the game feels understandable and engaging.
+
+## Tester Shortcuts
+
+Manual testers may use the `MONEYTREE` tester code to set credits to `999999`
+and advance quickly to later species, analyzer levels, and contract tiers.
+
+Rules:
+
+- The shortcut exists for QA speed only.
+- It must not change genetics, contract validation, collection completion, or
+  unlock rules other than making purchases affordable.
+- It should be covered by an automated test so accidental changes are visible.
+- It should be reviewed before any production-oriented build or public release.
 
 ## Acceptance Criteria
 

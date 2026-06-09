@@ -27,6 +27,12 @@ PLANT_SPRITES = {
     ("green", "smooth"): (128, 0),
     ("green", "wrinkled"): (192, 0),
 }
+SPECIES_PLANT_SPRITES = {
+    "Snapdragon": (0, 192),
+    "Corn": (64, 192),
+    "Tomato": (128, 192),
+    "Orchid": (192, 192),
+}
 
 ICONS = {
     "guide": (0, 64),
@@ -119,6 +125,7 @@ def main() -> None:
 def _draw_image_bank() -> None:
     pyxel.images[0].cls(0)
     _draw_plant_variants()
+    _draw_species_variants()
     _draw_icons()
 
 
@@ -126,6 +133,19 @@ def _draw_plant_variants() -> None:
     for traits, (u, v) in PLANT_SPRITES.items():
         color, texture = traits
         _draw_plant_sprite(u, v, color, texture)
+
+
+def _draw_species_variants() -> None:
+    for species, (u, v) in SPECIES_PLANT_SPRITES.items():
+        pyxel.images[0].rect(u, v, 64, 64, 0)
+        if species == "Snapdragon":
+            _snapdragon_sprite(u, v)
+        elif species == "Corn":
+            _corn_sprite(u, v)
+        elif species == "Tomato":
+            _tomato_sprite(u, v)
+        else:
+            _orchid_sprite(u, v)
 
 
 def _draw_plant_sprite(u: int, v: int, color: str, texture: str) -> None:
@@ -145,6 +165,86 @@ def _draw_plant_sprite(u: int, v: int, color: str, texture: str) -> None:
         seed_style,
     )
     _pod(image, u + 2, v + 4, pod_style)
+
+
+def _snapdragon_sprite(u: int, v: int) -> None:
+    image = pyxel.images[0]
+    _pot(image, u + 21, v + 47)
+    _stem(image, u + 32, v + 18)
+    _leaf_cluster(image, u + 29, v + 37, flip=True)
+    _leaf_cluster(image, u + 34, v + 31, flip=False)
+    _flower(image, u + 32, v + 18, PyxelColor.TOMATO_RED)
+    image.circ(u + 25, v + 23, 5, PyxelColor.SPRITE_OUTLINE)
+    image.circ(u + 25, v + 23, 4, PyxelColor.PINK_FLOWER)
+    image.circ(u + 40, v + 24, 5, PyxelColor.SPRITE_OUTLINE)
+    image.circ(u + 40, v + 24, 4, PyxelColor.PINK_FLOWER)
+
+
+def _corn_sprite(u: int, v: int) -> None:
+    image = pyxel.images[0]
+    _pot(image, u + 21, v + 47)
+    image.rect(u + 29, v + 8, 7, 42, PyxelColor.SPRITE_OUTLINE)
+    image.rect(u + 31, v + 9, 3, 40, PyxelColor.CORN_HUSK)
+    for y in [16, 24, 32, 40]:
+        image.tri(
+            u + 31,
+            v + y,
+            u + 11,
+            v + y + 11,
+            u + 30,
+            v + y + 4,
+            PyxelColor.LEAF_GREEN,
+        )
+        image.tri(
+            u + 34,
+            v + y - 2,
+            u + 53,
+            v + y + 8,
+            u + 35,
+            v + y + 3,
+            PyxelColor.LEAF_HIGHLIGHT,
+        )
+    image.rect(u + 27, v + 19, 11, 20, PyxelColor.SPRITE_OUTLINE)
+    image.rect(u + 29, v + 21, 7, 16, PyxelColor.CORN_YELLOW)
+    for row in range(22, 36, 4):
+        image.line(u + 30, v + row, u + 35, v + row, PyxelColor.TERRACOTTA)
+
+
+def _tomato_sprite(u: int, v: int) -> None:
+    image = pyxel.images[0]
+    _pot(image, u + 21, v + 47)
+    _stem(image, u + 32, v + 20)
+    for x, y in [(23, 26), (40, 24), (31, 17)]:
+        image.line(u + 32, v + 31, u + x, v + y, PyxelColor.POD_SHADOW)
+        image.circ(u + x, v + y, 7, PyxelColor.SPRITE_OUTLINE)
+        image.circ(u + x, v + y, 5, PyxelColor.TOMATO_RED_BRIGHT)
+        image.pset(u + x - 2, v + y - 3, PyxelColor.PARCHMENT_LIGHT)
+    _leaf_cluster(image, u + 29, v + 39, flip=True)
+    _leaf_cluster(image, u + 35, v + 34, flip=False)
+
+
+def _orchid_sprite(u: int, v: int) -> None:
+    image = pyxel.images[0]
+    _pot(image, u + 21, v + 47)
+    _stem(image, u + 32, v + 20)
+    image.line(u + 32, v + 24, u + 45, v + 12, PyxelColor.POD_SHADOW)
+    image.line(u + 32, v + 27, u + 19, v + 14, PyxelColor.POD_SHADOW)
+    _orchid_flower(image, u + 45, v + 12)
+    _orchid_flower(image, u + 19, v + 14)
+    _leaf_cluster(image, u + 28, v + 40, flip=True)
+    _leaf_cluster(image, u + 35, v + 36, flip=False)
+
+
+def _orchid_flower(image: pyxel.Image, x: int, y: int) -> None:
+    image.circ(x, y - 5, 5, PyxelColor.SPRITE_OUTLINE)
+    image.circ(x - 6, y, 5, PyxelColor.SPRITE_OUTLINE)
+    image.circ(x + 6, y, 5, PyxelColor.SPRITE_OUTLINE)
+    image.circ(x, y + 5, 5, PyxelColor.SPRITE_OUTLINE)
+    image.circ(x, y - 5, 3, PyxelColor.ORCHID_VIOLET)
+    image.circ(x - 5, y, 3, PyxelColor.ORCHID_VIOLET)
+    image.circ(x + 5, y, 3, PyxelColor.ORCHID_VIOLET)
+    image.circ(x, y + 4, 3, PyxelColor.PINK_FLOWER)
+    image.circ(x, y, 2, PyxelColor.ACCENT)
 
 
 def _leaf_cluster(image: pyxel.Image, x: int, y: int, *, flip: bool) -> None:

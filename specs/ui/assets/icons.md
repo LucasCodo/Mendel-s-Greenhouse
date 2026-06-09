@@ -26,7 +26,7 @@ Icons support fast recognition of systems, traits, and actions. They must remain
 | ---- | ------- |
 | Crossbreed | Start cross |
 | Store | Keep plant |
-| Sell | Remove for credits |
+| Harvest | Resolve delivery and excess sale |
 | Deliver | Submit to contract |
 | Inspect | Open details |
 | Simulate | Preview cross |

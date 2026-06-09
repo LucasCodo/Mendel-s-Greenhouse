@@ -19,7 +19,7 @@ The player is a greenhouse geneticist responsible for producing plants with requ
 - Accept and complete active contracts.
 - Produce plants with requested visible traits.
 - Learn which parent combinations create useful offspring.
-- Decide which specimens to keep, sell, or deliver.
+- Decide which specimens to keep before harvesting the batch.
 
 ### Mid-Term Goals
 
@@ -48,7 +48,7 @@ The first playable prototype validates the core loop:
 7. The player receives rewards.
 8. The player can store useful offspring for future crosses.
 
-MVP content:
+Baseline MVP content:
 
 - Mendel Pea only.
 - 2 independent genes: `A/a` and `B/b`.
@@ -59,6 +59,13 @@ MVP content:
 - Functional progression.
 
 The MVP objective is to teach the Second Law of Mendel without introducing excessive complexity.
+
+The current playable implementation expands beyond this baseline by including
+all official species unlocks, analyzer levels 1 through 4, phenotypic,
+genotypic, and probabilistic/statistical contracts, species-qualified collection
+progress, and a level 4 stored-cross simulator summary. The baseline MVP remains
+the smallest validation slice; the current implementation is the broader
+playable progression target.
 
 ## Core Gameplay Loop
 
@@ -112,7 +119,7 @@ Delivery contracts consume delivered plants. Statistical contracts validate the 
 
 ### Greenhouse
 
-The greenhouse is the player's plant inventory. Limited space creates strategic decisions about storage, sale, future breeding, and delivery.
+The greenhouse is the player's plant inventory. Limited space creates strategic decisions about storage, future breeding, and contract delivery.
 
 ### Collection
 

@@ -171,6 +171,12 @@ possible. The Germination Bed shows the current or representative lot. The two
 views must use the same gamete/genotype logic, but the bed is not required to
 match Punnett cell positions.
 
+The MVP Germination Bed grows the whole generated lot simultaneously. After the
+short growth animation, the player clicks a harvest button to resolve the lot:
+delivery-contract matches are rescued by the active contract, and non-contract
+specimens are sold at the common sale value. Hovering a growing bed plant shows
+a floating detail panel with analyzer-level-appropriate information.
+
 ## 2026-05-30: Premium Pixel-Art Interface Target
 
 The UI quality target is a polished pixel-art management screen with dense but
@@ -302,3 +308,40 @@ assorting, complete-dominance dihybrid crosses such as `AaBb x AaBb`.
 The Progression Screen is specified as a Knowledge Tree that stores learned
 concepts and shows concept details through hover, focus, or selection without
 revealing analyzer-locked information early.
+
+## 2026-06-04: Profile-Scoped Autosave
+
+Autosave must be addressed by profile and slot even while the MVP exposes only
+one local autosave slot. Standalone Pyxel runs may use a default local profile
+such as `local`, stored under Pyxel's user data directory, for example
+`saves/local/slot-1.json`.
+
+Future account integration must keep save ownership tied to the authenticated
+user or profile. One user's save must never overwrite, load, mutate, or expose
+another user's save. File-backed saves should use atomic replacement writes so
+crashes do not leave partially written JSON.
+
+## 2026-06-04: Variable Germination Bed Size
+
+The Germination Bed size follows the active cross's number of genetic outcome
+combinations when that count fits on screen. For larger future crosses, the bed
+uses the maximum supported representative cell count instead of drawing every
+possible combination, so the main screen never overflows.
+
+## 2026-06-04: Species Unlock Founder Slots
+
+Unlocking a new plant species requires two empty greenhouse slots. The unlock
+immediately occupies those slots with the species' fully dominant and fully
+recessive founder plants, such as `AABBCC` and `aabbcc` for Snapdragon.
+
+## 2026-06-04: Unique Stored Genotypes
+
+The greenhouse stores at most one plant for each genotype. Attempts to store a
+plant whose genotype is already present are rejected instead of consuming an
+additional garden slot.
+
+## 2026-06-04: Harvest Resolves Excess Sale
+
+The Germination Bed has no manual sell button. Players may store selected
+specimens before harvest; harvesting then delivers matching plants to the active
+contract and sells any excess specimens automatically.
