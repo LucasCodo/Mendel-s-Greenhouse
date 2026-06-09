@@ -60,6 +60,13 @@ class BreedingService:
         plants = [
             plant for plant in self.state.current_batch if plant is not None
         ]
+        if not plants:
+            self.state.current_batch = []
+            self.state.visible_count = 0
+            self.state.selected_offspring_index = 0
+            self.state.status_message = "No specimens to harvest."
+            return False
+
         statistical_completed = self.state.active_contract.validate_batch(
             plants,
         )
@@ -207,6 +214,10 @@ class BreedingService:
         if reward:
             self.state.credits += reward
         self.state.current_batch[self.state.selected_offspring_index] = None
+        if not any(plant is not None for plant in self.state.current_batch):
+            self.state.current_batch = []
+            self.state.visible_count = 0
+            self.state.selected_offspring_index = 0
         if reward:
             self.state.status_message = (
                 f"Stored plant in slot {slot_index + 1}. +{reward} credits."
