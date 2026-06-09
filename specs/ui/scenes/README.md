@@ -41,3 +41,8 @@ Each scene should have its own folder with:
 - [[main-game/README|Main Game Scene]]
 - [[garden/README|Garden Scene]]
 - [[collection/README|Collection Scene]]
+- [[knowledge/README|Knowledge Scene]]
+- [[contracts/README|Contracts Scene]]
+- [[shop/README|Shop Scene]]
+- [[settings/README|Settings Overlay]]
+- [[overlays/README|Runtime Overlays]]
