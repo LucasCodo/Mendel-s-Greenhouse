@@ -5,7 +5,7 @@ tags:
 type: state
 project: mendels-greenhouse
 status: active
-updated: 2026-05-31
+updated: 2026-06-09
 ---
 
 # Project State
@@ -33,20 +33,33 @@ alternative path for all core actions.
 
 Current settings implementation: clicking the top-bar gear opens a runtime
 settings panel with language selection, music volume, sound-effect volume,
-music mute, sound mute, and a Back button. Music gain is applied to Pyxel
-channels `0` and `1`; sound effects use channel `3`.
+music mute, sound mute, a reset progression control, and a Back button. Reset
+progression opens a dangerous-action confirmation dialog before clearing
+progress. Music gain is applied to Pyxel channels `0` and `1`; sound effects
+use channel `3`.
 
 Current playable implementation: the Pyxel game package has an MVP Main Game
 scene at `640 x 360`, a scene manager, initial `GameState`, greenhouse slots,
-starting plants `AABB` and `aabb`, the first phenotype delivery contract,
-offspring generation/reveal, automatic contract progress, rewards, and
-collection registration for species, genotypes, and phenotypes.
+starting plants `AABB` and `aabb`, phenotype, genotype, and statistical
+contract support, offspring generation/reveal, Germination Bed harvest
+resolution, contract rewards, discovery rewards, collection milestones, and
+collection registration for species-qualified genotypes and phenotypes.
 
 The top navigation currently opens runtime sub-scenes for Collection, Garden,
-Shop, and Settings. Collection shows discovered species, phenotypes, and
-genotypes. Garden shows stored plants and locked slots, and can assign stored
-plants as Parent A or Parent B. Shop can buy greenhouse slots, analyzer levels,
-and currently specified species unlocks when the player has enough credits.
+Contracts, Knowledge, Shop, and Settings. Collection shows discovered species,
+phenotypes, and genotypes. Garden shows stored plants and locked slots, and can
+assign stored plants as Parent A or Parent B. Shop can buy greenhouse slots,
+analyzer levels, and all specified species unlocks when the player has enough
+credits and required empty slots.
+
+Current QA shortcut: entering tester code `MONEYTREE` sets credits to `999999`
+so testers can quickly buy species and analyzer unlocks and reach later game
+segments.
+
+UI component direction: gameplay-specific component helpers now live under
+`game/mendels_greenhouse/ui/game_components/`, split into contract summary,
+Germination Bed geometry, and plant information formatting modules so future
+visual refinement can proceed component by component.
 
 Current asset implementation: `poetry run poe build-assets` regenerates
 `game/mendels_greenhouse/assets/mendels_greenhouse.pyxres` with MVP plant
@@ -65,7 +78,9 @@ Current visual refinement: Mendel Pea sprites use 64 x 64 atlas cells and show
 pea pods instead of full plants or potted plants. Pod colors are separate from
 seed colors so code can recolor visible peas without recoloring the pod. The
 asset atlas reserves separate rows for plant resources and icons to avoid
-sprite corruption.
+sprite corruption. Snapdragon, Corn, Tomato, and Orchid also have distinct
+64 x 64 species sprites in the generated asset atlas so shop-unlocked species
+do not display as Mendel Pea.
 
 Current palette direction: the project uses an expanded Pyxel palette with 32
 named color indexes. The palette is documented in `specs/ui/color-palette.md`
