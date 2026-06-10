@@ -5,7 +5,7 @@ tags:
 type: state
 project: mendels-greenhouse
 status: active
-updated: 2026-06-09
+updated: 2026-06-10
 ---
 
 # Project State
@@ -87,6 +87,15 @@ named color indexes. The palette is documented in `specs/ui/color-palette.md`
 and now targets a cozy scientific greenhouse look with slate UI backgrounds,
 aged paper panels, warm brown wood, brighter botanical greens, yellow phenotype
 colors, blue scientific accents, and clear danger states.
+
+Current Main Game visual refinement: runtime panels and buttons use stepped
+rounded pixel frames, inset highlights, and shadows. The top bar has a bold
+two-line wordmark, icon resource capsules, and a compact contract banner. The
+left analyzer is a tactile console with animated glass/CRT details and
+interactive controls. Parent selection is unified in one panel, the
+Germination Bed uses five growth phases and a persistent twenty-cell workspace,
+the selected specimen panel exposes Store and zero-value Discard actions, and
+the full-height right navigation rail uses larger icon buttons.
 
 Official domains:
 

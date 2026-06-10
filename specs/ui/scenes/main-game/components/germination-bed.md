@@ -46,6 +46,21 @@ analyzer level allows it.
 ## Behavior
 
 - Crossbreeding creates seed cells.
-- Reveal animation grows cells into seedlings/adult phenotypes.
+- Reveal animation uses five readable phases: seed, emerging sprout, small
+  seedling, medium seedling, and adult phenotype.
+- Fully grown specimens may use a subtle desynchronized one-pixel sway.
 - Clicking a cell selects the specimen and updates the detail panel.
 - Matching contract specimens receive a visible icon and outline.
+- Empty idle beds retain the supported cell grid so the workspace does not
+  collapse before the first cross.
+- The header shows `Descendants` with a visible/total count.
+- The centered `Harvest` action remains inside the bed workspace and is enabled
+  only when the batch can be resolved.
+
+## Current Runtime Treatment
+
+The bed uses one large rounded wood frame with a dark title strip, larger soil
+cells, centered growth sprites, and a persistent grid of up to twenty cells.
+The separate lower statistics bar has been removed from the main composition;
+contract progress remains in the top banner and specimen actions remain in the
+adjacent detail panel.

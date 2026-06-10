@@ -14,7 +14,7 @@ Detailed scene decomposition and the official visual target live in
 Top:
 
 ```text
-Logo | Credits | Special Resource | Garden Capacity | Timer | Guide | Knowledge | Garden | Shop | Settings
+Logo | Credits | Garden Capacity | Active Contract | Right Navigation Rail
 ```
 
 The screen must be designed for the internal Pyxel resolution defined in [../../technical/pyxel.md](../../technical/pyxel.md), then scaled to fill the browser page.
@@ -22,66 +22,44 @@ The screen must be designed for the internal Pyxel resolution defined in [../../
 Upper center:
 
 ```text
-Current Contract panel | Progress bar | Total generated
+Parent A | Cross Action | Parent B
 ```
 
-Center:
+Main workspace:
 
 ```text
-Parent Plant A + Parent Plant B
+Genetic Analyzer | Germination Bed | Selected Specimen
 ```
 
-Center bottom:
+Primary actions:
 
 ```text
-[Crossbreed]
-```
-
-Main area:
-
-```text
-Germination Bed
+[Cross Plants] | [Harvest] | [Store] | [Discard]
 ```
 
 Left side support:
 
 ```text
-Probabilities | Legend
+Analyzer level | Phenotype/genotype visibility | Probabilities | Simulator hint
 ```
 
 Right side support:
 
 ```text
-Trait explanation card
-```
-
-Footer:
-
-```text
-Generation Stats | Selected Specimen | Genetic Help | Bed Controls
+Selected specimen details | Store | Discard | Scene navigation
 ```
 
 ## ASCII Wireframe
 
 ```text
-+------------------------------------------------------------------------------------------------+
-| LOGO     Credits    Gems    Garden 12/20    Timer    Guide  Knowledge  Garden  Shop  Gear |
-+------------------------------------------------------------------------------------------------+
-| Probabilities     |        CURRENT CONTRACT: produce 6 purple flowers from 16 offspring       |
-| + pie + legend    |        [==================== 3 / 6 ====================] Total: 16       |
-|                   +-------------------------------------------------------------------------+
-|                   |     Parent Plant A              +              Parent Plant B            |
-|                   |   [large plant][AaBb]                        [large plant][AaBb]         |
-|                   |   [traits visible]                           [traits visible]            |
-|                   |                         [ CROSS PLANTS ]                                  |
-+------------------------------------------------------------------------------------------------+
-|                              GERMINATION BED / OFFSPRING LOT                                    |
-|       [pot][pot][pot][pot]       Compact Punnett / distribution reference                       |
-|       [spr][spr][flw][spr]       Contract matches highlighted with icon + outline               |
-|       [pot][pot][pot][pot]                                                                    |
-+------------------------------------------------------------------------------------------------+
-| Generation Stats        | Selected Specimen            | How It Works                 | Wait / Clear    |
-+------------------------------------------------------------------------------------------------+
++----------------------------------------------------------------------------------+
+| LOGO | Credits | Capacity | ACTIVE CONTRACT + progress | Navigation Rail         |
++----------------------+-----------------------------------+-----------------------+
+| Genetic Analyzer     | Parent A | Cross | Parent B       | Navigation buttons    |
+| glass + CRT + input  +-----------------------------------+                       |
+| controls             | Germination Bed | Specimen Detail |                       |
+|                      | growth grid      | Store / Discard |                       |
++----------------------+-----------------------------------+-----------------------+
 ```
 
 ## Visual Loop
@@ -107,6 +85,10 @@ Expected mouse interactions:
 - Click `Crossbreed` to start the cross.
 - Hover over a growing bed specimen to inspect details in a floating panel.
 - Click a bed specimen or the selected specimen panel as a non-hover fallback.
+- Click analyzer hardware controls to cycle specimens, trigger tactile feedback,
+  or choose among already unlocked information levels.
+- Click `Store` to preserve a selected specimen or `Discard` to remove it with
+  no sale value.
 - Click `Harvest` to resolve the grown batch into contract rescues and sales.
 - Click top navigation icons to move between major screens.
 

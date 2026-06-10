@@ -67,6 +67,9 @@ States:
 Behavior:
 
 - Tooltip explains trait source only if known.
+- Undiscovered traits display an unknown marker.
+- Newly discovered and contract-required traits use a second visual cue, such
+  as an inset border or prefix, in addition to color.
 
 ## GenotypeLabel
 
@@ -294,6 +297,13 @@ States:
 - Empty.
 - In progress.
 - Complete.
+
+Behavior:
+
+- Fill width is clamped to the target.
+- A border is optional when the containing panel already provides sufficient
+  visual framing.
+- Contract progress must pair the bar with a numeric label.
 
 ## GeneticTag
 

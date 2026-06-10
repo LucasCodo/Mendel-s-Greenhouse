@@ -41,3 +41,13 @@ Each parent card should show:
   compatible.
 - If parent species differ, selecting one parent should repair or request a
   compatible second parent according to gameplay rules.
+
+## Current Runtime Treatment
+
+- Both parent summaries share one unified parchment-and-wood panel.
+- Parent A and Parent B use mirrored layouts with plant preview, genotype field,
+  and stacked phenotype labels.
+- Locked genotype information remains shown as an unknown placeholder.
+- A high-contrast cross symbol separates the parents.
+- The primary cross button is centered below the parent pair, followed by one
+  short helper line.

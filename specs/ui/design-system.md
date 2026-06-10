@@ -109,6 +109,10 @@ small accents. They must not dominate the full screen.
 | Tooltips | Action-focused and contextual |
 | Genotype text | Monospace or fixed-width style for allele alignment |
 
+The runtime may use bold, outlined, letter-spaced display text for the game
+logo and other short brand labels. Dense panel content should continue using
+the compact display font without extra letter spacing.
+
 ## Spacing And Grid
 
 Use an 8-unit spacing system:
@@ -205,6 +209,9 @@ Production UI should trend toward:
 - Use consistent padding.
 - Avoid nested card-heavy layouts.
 - Use borders to clarify grouping.
+- Runtime-drawn panel chrome may use stepped pixel corners, an outer shadow,
+  and an inset highlight to create rounded, tactile surfaces without
+  anti-aliasing.
 
 ### Buttons
 
@@ -212,6 +219,10 @@ Production UI should trend toward:
 - Secondary: neutral surface with border.
 - Danger: red only for destructive actions.
 - Disabled: desaturated and non-interactive.
+- Main runtime buttons use stepped rounded corners, a visible lower shadow,
+  outer and inner borders, centered labels, and a one-pixel pressed offset.
+- Hover, pressed, disabled, and destructive states must remain distinguishable
+  through shape, contrast, label, and color together.
 
 ### Progress Bars
 
