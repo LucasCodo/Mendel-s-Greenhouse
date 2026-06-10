@@ -712,6 +712,18 @@ msgstr "Alteracoes aplicam na hora."
 msgid "Deliver {target} {color} {texture} peas"
 msgstr "Entregue {target} ervilhas {color} {texture}"
 
+msgid "Genotype"
+msgstr "Genótipo"
+
+msgid "Phenotype"
+msgstr "Fenótipo"
+
+msgid "Genes"
+msgstr "Genes"
+
+msgid "Descendants"
+msgstr "Descendentes"
+
 #~ msgid "Last offspring"
 #~ msgstr "Ultimo descendente"
 

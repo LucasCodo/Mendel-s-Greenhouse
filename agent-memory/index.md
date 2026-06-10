@@ -17,3 +17,4 @@ Search before reading. Record only stable facts, durable decisions, validated co
 - [[commands]]
 - [[open-questions]]
 - [[backlog]]
+- [[ui-component-refactor-plan]]

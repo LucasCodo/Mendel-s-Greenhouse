@@ -29,6 +29,15 @@ Provides large, always-visible navigation buttons for major scenes.
 Use stacked icon buttons on a warm wood panel. Each button needs a large icon and
 short label. The active scene should have a brighter frame.
 
+## Current Runtime Treatment
+
+- The rail occupies the full scene height.
+- Buttons use larger half-scale source icons above centered uppercase labels.
+- Each item uses stepped rounded framing with separate normal, hover, and active
+  surfaces.
+- Active and inactive labels use different contrast treatment in addition to
+  the brighter active fill.
+
 ## Behavior
 
 - Clicking opens the corresponding scene or sub-scene.

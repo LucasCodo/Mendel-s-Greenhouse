@@ -35,3 +35,21 @@ Displays analyzer-unlocked information for the selected plant or parent pair.
 
 The panel should feel like a botanical lab instrument. Use cool glass, dark
 screen surfaces, and green science highlights.
+
+## Current Runtime Treatment
+
+- The analyzer uses a rounded parchment console body with inset shading, corner
+  screws, and metal details.
+- A side glass tube contains glowing green liquid with procedural rising
+  bubbles.
+- The dark CRT screen uses a subtle grid, animated scanline, level label, and
+  analyzer-unlocked diagnostic text.
+- A circular directional pad cycles through generated offspring.
+- A green leaf button triggers a short screen flash as tactile feedback.
+- A vertical roller selects a view level from the analyzer levels already
+  unlocked; it cannot preview locked information.
+- The status light distinguishes probability-ready and standby states with
+  both a label and an indicator.
+
+The temporary view-level selector changes presentation only. It does not grant
+analyzer progression or reveal information above the player's unlocked level.

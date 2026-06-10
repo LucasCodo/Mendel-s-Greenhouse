@@ -106,6 +106,10 @@ Rules:
   contract at the current common sale value.
 - The player can select a growing bed cell to inspect it while the batch is
   visible.
+- Before harvest, the player may discard the selected unstored offspring.
+- Discarding an unstored offspring removes only that specimen, grants no sale
+  value, and moves selection to the next remaining specimen when one exists.
+- Discarding the final remaining offspring clears the active bed batch.
 - Hovering a growing bed cell shows a floating information panel with the
   plant information currently unlocked by the analyzer level.
 - The bed should show only information unlocked by the current analyzer level.

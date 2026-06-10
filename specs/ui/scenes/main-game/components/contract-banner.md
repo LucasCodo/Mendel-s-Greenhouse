@@ -29,6 +29,16 @@ Shows the current contract objective and progress during the core loop.
   delivered.
 - Uses success highlight when complete, but does not automatically claim rewards
   unless the contract rules allow it.
+- While incomplete, shows the objective above a compact progress bar and
+  numeric ratio.
+- When complete and unpaid, the progress treatment is replaced by a visible
+  `Claim` action.
+
+## Current Runtime Treatment
+
+The banner is a compact parchment panel integrated into the upper status row.
+Its `Active Contract` heading is centered above the panel, while objective,
+progress, and claim states remain inside the framed surface.
 
 ## Accessibility
 

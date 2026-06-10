@@ -60,6 +60,13 @@ class BreedingService:
         plants = [
             plant for plant in self.state.current_batch if plant is not None
         ]
+        if not plants:
+            self.state.current_batch = []
+            self.state.visible_count = 0
+            self.state.selected_offspring_index = 0
+            self.state.status_message = "No specimens to harvest."
+            return False
+
         statistical_completed = self.state.active_contract.validate_batch(
             plants,
         )
@@ -207,6 +214,10 @@ class BreedingService:
         if reward:
             self.state.credits += reward
         self.state.current_batch[self.state.selected_offspring_index] = None
+        if not any(plant is not None for plant in self.state.current_batch):
+            self.state.current_batch = []
+            self.state.visible_count = 0
+            self.state.selected_offspring_index = 0
         if reward:
             self.state.status_message = (
                 f"Stored plant in slot {slot_index + 1}. +{reward} credits."
@@ -215,6 +226,34 @@ class BreedingService:
             self.state.status_message = (
                 f"Stored plant in slot {slot_index + 1}."
             )
+        return True
+
+    def discard_selected_offspring(self) -> bool:
+        """Discard the selected offspring and clear its bed cell."""
+        if not self.state.current_batch:
+            return False
+        idx = self.state.selected_offspring_index
+        if idx is None or idx >= len(self.state.current_batch):
+            return False
+        plant = self.state.current_batch[idx]
+        if plant is None:
+            return False
+        self.state.current_batch[idx] = None
+        # Cycle selected offspring index to next available non-None plant
+        next_idx = None
+        for i in range(len(self.state.current_batch)):
+            check_idx = (idx + 1 + i) % len(self.state.current_batch)
+            if self.state.current_batch[check_idx] is not None:
+                next_idx = check_idx
+                break
+        if next_idx is not None:
+            self.state.selected_offspring_index = next_idx
+        else:
+            # All plants cleared
+            self.state.current_batch = []
+            self.state.visible_count = 0
+            self.state.selected_offspring_index = 0
+        self.state.status_message = "Offspring discarded."
         return True
 
     def _register_plant_discoveries(self, plant: Plant) -> int:

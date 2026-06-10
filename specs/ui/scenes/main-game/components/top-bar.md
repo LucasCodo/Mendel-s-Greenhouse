@@ -28,6 +28,17 @@ Use a wood-and-parchment frame with dark inset counters. The logo should remain
 large enough to be a first-read brand signal without competing with the active
 contract.
 
+## Current Runtime Treatment
+
+- The brand is a centered two-line `MENDEL'S` / `GREENHOUSE` wordmark using
+  bold, outlined, letter-spaced pixel text.
+- Credits and greenhouse capacity use compact rounded dark capsules with
+  resource icons and high-contrast values.
+- The wooden status surface ends before the separate active-contract banner so
+  the two information groups remain visually distinct.
+- Panel corners and borders use stepped pixel rounding, inset highlights, and a
+  subtle lower shadow.
+
 ## States
 
 - Normal.

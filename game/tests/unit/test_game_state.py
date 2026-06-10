@@ -102,7 +102,21 @@ def test_store_last_revealed_uses_empty_greenhouse_slot() -> None:
     assert service.store_last_revealed()
 
     assert state.greenhouse.used_slots == 3
-    assert state.current_batch[state.selected_offspring_index] is None
+    assert state.current_batch == []
+    assert state.visible_count == 0
+
+
+def test_harvest_empty_batch_is_not_required_after_storing() -> None:
+    state = GameState.create_initial()
+    state.current_batch = [None]
+    state.visible_count = 1
+    service = BreedingService(state)
+
+    assert not service.harvest_germination_batch()
+
+    assert state.current_batch == []
+    assert state.visible_count == 0
+    assert state.status_message == "No specimens to harvest."
 
 
 def test_greenhouse_rejects_duplicate_genotype_storage() -> None:
