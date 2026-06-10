@@ -10,6 +10,7 @@ from mendels_greenhouse.ui.game_components.shared import (
     draw_scene_shell,
 )
 from mendels_greenhouse.ui.palette import PyxelColor
+from mendels_greenhouse.ui.widgets.progress_bar import ProgressBar
 
 
 @dataclass(frozen=True)
@@ -46,20 +47,13 @@ def draw_contracts_screen(
         data.title,
         PyxelColor.UI_DARK,
     )
-    pyxel.rect(
-        summary_panel.x + 18,
-        summary_panel.y + 38,
-        390,
-        12,
-        PyxelColor.BAR_EMPTY,
-    )
-    pyxel.rect(
-        summary_panel.x + 18,
-        summary_panel.y + 38,
-        data.progress_width,
-        12,
-        PyxelColor.PROGRESS,
-    )
+
+    # Draw progress using the modular ProgressBar widget
+    ProgressBar(
+        rect=Rect(summary_panel.x + 18, summary_panel.y + 38, 390, 12),
+        current_value=data.progress_width,
+        target_value=390,
+    ).draw()
     pyxel.text(
         summary_panel.x + 420,
         summary_panel.y + 40,

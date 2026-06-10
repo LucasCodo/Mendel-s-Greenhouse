@@ -1,4 +1,5 @@
 """Main gameplay scene for the MVP."""
+# ruff: noqa: PLR2004, PLR0912
 
 from dataclasses import dataclass
 
@@ -26,6 +27,7 @@ from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.components import (
     Rect,
     clicked,
+    draw_panel,
 )
 from mendels_greenhouse.ui.fonts import FontSet
 from mendels_greenhouse.ui.game_components import (
@@ -93,19 +95,21 @@ from mendels_greenhouse.ui.game_components.shop import (
     ShopScreenData,
     draw_shop_screen,
 )
+from mendels_greenhouse.ui.palette import PyxelColor
 
 WIDTH = 640
 HEIGHT = 360
 TOP_BAR_H = 66
 PROBABILITY_PANEL_MAX_Y = 166
 
-CROSS_BUTTON = Rect(267, 158, 106, 22)
-STORE_BUTTON = Rect(148, 322, 92, 24)
-HARVEST_BUTTON = Rect(250, 322, 122, 24)
-PARENT_A_CARD = Rect(166, 120, 128, 68)
-PARENT_B_CARD = Rect(346, 120, 128, 68)
+CROSS_BUTTON = Rect(254, 126, 106, 22)
+STORE_BUTTON = Rect(463, 298, 82, 22)
+DISCARD_BUTTON = Rect(463, 322, 82, 22)
+HARVEST_BUTTON = Rect(247, 318, 120, 24)
+PARENT_A_CARD = Rect(168, 60, 90, 86)
+PARENT_B_CARD = Rect(356, 60, 90, 86)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
-CLAIM_CONTRACT_BUTTON = Rect(420, 84, 64, 18)
+CLAIM_CONTRACT_BUTTON = Rect(480, 20, 64, 18)
 PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
 GARDEN_DISCARD_BUTTON = Rect(392, 257, 96, 22)
 SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
@@ -119,12 +123,12 @@ SOUND_DOWN_BUTTON = Rect(338, 194, 20, 18)
 SOUND_UP_BUTTON = Rect(404, 194, 20, 18)
 MUSIC_MUTE_CHECKBOX = Rect(468, 151, 12, 12)
 SOUND_MUTE_CHECKBOX = Rect(468, 194, 12, 12)
-NAV_RAIL = Rect(558, 70, 76, 276)
-NAV_BUTTON_W = 64
-NAV_BUTTON_H = 34
-NAV_BUTTON_GAP = 4
+NAV_RAIL = Rect(558, 0, 82, 360)
+NAV_BUTTON_W = 70
+NAV_BUTTON_H = 48
+NAV_BUTTON_GAP = 2
 NAV_BUTTON_X = 564
-NAV_BUTTON_Y = 78
+NAV_BUTTON_Y = 6
 
 PLANT_SPRITES = {
     ("yellow", "smooth"): (0, 0),
@@ -141,7 +145,7 @@ SPECIES_PLANT_SPRITES = {
 PLANT_SPRITE_W = 56
 PLANT_SPRITE_H = 44
 NAV_ICON_SIZE = 64
-NAV_ICON_SCALE = 0.25
+NAV_ICON_SCALE = 0.5
 NAV_RAIL_CONFIG = NavigationRailConfig(
     rail_rect=NAV_RAIL,
     button_x=NAV_BUTTON_X,
@@ -242,15 +246,13 @@ SEEDLING_STAGE_FRAMES = 30
 GERMINATION_SETTLE_FRAMES = 90
 MAX_BED_CELLS = 20
 BED_MAX_COLUMNS = 5
-BED_ORIGIN_X = 210
-BED_ORIGIN_Y = 184
-BED_MAX_W = 220
-BED_MAX_H = 72
-BED_CELL_W = 34
-BED_CELL_H = 15
-BED_GAP = 3
+BED_ORIGIN_X = 307
+BED_ORIGIN_Y = 198
+BED_CELL_W = 38
+BED_CELL_H = 22
+BED_GAP = 4
 BED_GEOMETRY = BedGeometry(
-    origin_x=BED_ORIGIN_X + BED_MAX_W // 2,
+    origin_x=BED_ORIGIN_X,
     origin_y=BED_ORIGIN_Y,
     max_columns=BED_MAX_COLUMNS,
     cell_width=BED_CELL_W,
@@ -516,6 +518,8 @@ class MainGameScene:
         self.selected_greenhouse_slot = 0
         self.selected_shop_item = "slot"
         self.tester_code_buffer = ""
+        self.analyzer_flash_timer = 0
+        self.analyzer_view_level = None
         self._apply_audio_settings()
 
     def update(self) -> None:
@@ -550,6 +554,69 @@ class MainGameScene:
         self._handle_breeding_buttons()
         self._update_germination_bed_selection()
         self._track_reveal_frames()
+        self._update_analyzer_panel()
+
+    def _update_analyzer_panel(self) -> None:
+        """Handle mouse clicks on the handheld analyzer hardware controls."""
+        # The analyzer is drawn at Rect(12, 74, 150, 274)
+        if not pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
+            return
+        mx, my = pyxel.mouse_x, pyxel.mouse_y
+
+        # 1. D-Pad Left/Right clicks to cycle selected offspring index
+        # Left D-Pad area: X: 22 to 38, Y: 269 to 289
+        # Right D-Pad area: X: 46 to 62, Y: 269 to 289
+        cx, cy = 42, 279
+        if cx - 20 <= mx <= cx - 4 and cy - 10 <= my <= cy + 10:
+            if self.state.current_batch:
+                self._play_sound(0)
+                idx = self.state.selected_offspring_index
+                if idx is None:
+                    self.state.selected_offspring_index = 0
+                else:
+                    self.state.selected_offspring_index = (idx - 1) % len(
+                        self.state.current_batch
+                    )
+            else:
+                self._play_sound(4)
+        elif cx + 4 <= mx <= cx + 20 and cy - 10 <= my <= cy + 10:
+            if self.state.current_batch:
+                self._play_sound(0)
+                idx = self.state.selected_offspring_index
+                if idx is None:
+                    self.state.selected_offspring_index = 0
+                else:
+                    self.state.selected_offspring_index = (idx + 1) % len(
+                        self.state.current_batch
+                    )
+            else:
+                self._play_sound(4)
+
+        # 2. Glowing Square Green Leaf Button (Flash Screen)
+        # Position: bx = 74, by = 262, bw = 30, bh = 30
+        elif 74 <= mx <= 104 and 262 <= my <= 292:
+            self._play_sound(1)
+            self.analyzer_flash_timer = 12
+
+        # 3. Vertical Roller Slider (Change levels cycle)
+        # Position: rx = 118, ry = 254, rw = 12, rh = 42
+        elif 118 <= mx <= 130 and 254 <= my <= 296:
+            unlocked = self.state.analyzer_level
+            clicked_lvl = 1
+            if my < 264:
+                clicked_lvl = 1
+            elif my < 274:
+                clicked_lvl = 2
+            elif my < 284:
+                clicked_lvl = 3
+            else:
+                clicked_lvl = 4
+
+            if clicked_lvl <= unlocked:
+                self._play_sound(0)
+                self.analyzer_view_level = clicked_lvl
+            else:
+                self._play_sound(4)
 
     def _update_tester_code(self) -> None:
         for character, key in TESTER_CODE_KEYS.items():
@@ -627,6 +694,16 @@ class MainGameScene:
             else:
                 self._play_sound(4)
 
+        if clicked(DISCARD_BUTTON) or pyxel.btnp(pyxel.KEY_D):
+            if self.breeding.discard_selected_offspring():
+                self._play_sound(3)
+                if not self.state.current_batch:
+                    self._reveal_frames.clear()
+                    self.germination_started_frame = None
+                self._autosave()
+            else:
+                self._play_sound(4)
+
         if clicked(PARENT_A_CARD) or pyxel.btnp(pyxel.KEY_1):
             self._play_sound(0)
             self.parent_picker_target = "a"
@@ -676,7 +753,7 @@ class MainGameScene:
             ContractBannerData(
                 title=self._contract_title(),
                 progress_label=contract_progress_label(contract),
-                progress_width=contract_progress_width(contract, 235),
+                progress_width=contract_progress_width(contract, 200),
                 claim_enabled=contract.completed and not contract.paid,
                 claim_button=CLAIM_CONTRACT_BUTTON,
             ),
@@ -694,6 +771,10 @@ class MainGameScene:
                 probability_lines=self._probability_lines(),
                 best_cross=self._best_contract_cross(),
                 max_probability_y=PROBABILITY_PANEL_MAX_Y,
+                view_level=(
+                    self.analyzer_view_level or self.state.analyzer_level
+                ),
+                screen_flash=self.analyzer_flash_timer > 0,
             ),
         )
         draw_parent_cross_panel(
@@ -713,7 +794,193 @@ class MainGameScene:
             trait=self._trait,
         )
         self._draw_germination_bed()
+        self._draw_selected_specimen_card()
         self._draw_hovered_plant_tooltip()
+
+    def _draw_selected_specimen_card(self) -> None:
+        rect = Rect(458, 178, 92, 170)
+        draw_panel(rect)
+
+        # Species title header
+        species_name = "ERVILHA"
+        plant = self.state.selected_offspring
+        if plant is not None:
+            species_name = self._t(plant.species).upper()
+
+        pyxel.rect(
+            rect.x + 2, rect.y + 2, rect.width - 4, 12, PyxelColor.DARK_WOOD
+        )
+        pyxel.text(
+            rect.x + 6,
+            rect.y + 5,
+            species_name[:14],
+            PyxelColor.PARCHMENT_LIGHT,
+        )
+
+        # Draw a tiny plant pot icon in the header
+        pot_x = rect.x + rect.width - 12
+        pot_y = rect.y + 4
+        pyxel.rect(pot_x + 1, pot_y + 3, 5, 4, PyxelColor.TERRACOTTA)
+        pyxel.rectb(pot_x, pot_y + 2, 7, 2, PyxelColor.DARK_WOOD)
+        pyxel.pset(pot_x + 3, pot_y + 1, PyxelColor.LEAF_GREEN)
+        pyxel.pset(pot_x + 2, pot_y, PyxelColor.LEAF_HIGHLIGHT)
+        pyxel.pset(pot_x + 4, pot_y, PyxelColor.LEAF_HIGHLIGHT)
+
+        if plant is None:
+            txt = self._t("Select offspring")
+            pyxel.text(
+                rect.x + 6, rect.y + 24, txt[:20], PyxelColor.TEXT_MUTED
+            )
+            return
+
+        # Draw Phenotype
+        pyxel.text(
+            rect.x + 6,
+            rect.y + 20,
+            f"{self._t('Phenotype')}:",
+            PyxelColor.UI_DARK,
+        )
+        traits_list = [self._trait(v) for v in plant.phenotype.traits.values()]
+        pyxel.text(
+            rect.x + 6,
+            rect.y + 28,
+            traits_list[0][:20],
+            PyxelColor.LEAF_GREEN,
+        )
+        if len(traits_list) > 1:
+            pyxel.text(
+                rect.x + 6,
+                rect.y + 36,
+                traits_list[1][:20],
+                PyxelColor.LEAF_GREEN,
+            )
+
+        # Draw Genotype
+        pyxel.text(
+            rect.x + 6,
+            rect.y + 48,
+            f"{self._t('Genotype')}:",
+            PyxelColor.UI_DARK,
+        )
+        pyxel.text(
+            rect.x + 6,
+            rect.y + 56,
+            self._visible_genotype(plant),
+            PyxelColor.UI_DARK,
+        )
+
+        # Draw Genes/Alleles list
+        pyxel.text(
+            rect.x + 6,
+            rect.y + 68,
+            f"{self._t('Genes')}:",
+            PyxelColor.UI_DARK,
+        )
+        y = rect.y + 76
+        for gene_name, gene_val in plant.phenotype.traits.items():
+            gene_letter = (
+                "A"
+                if gene_name == "color"
+                else "B"
+                if gene_name == "shape"
+                else "?"
+            )
+            val_localized = self._trait(gene_val)
+            gene_lbl = self._t(gene_name.title())
+            line = f"{gene_lbl}: {gene_letter} ({val_localized})"
+            pyxel.text(rect.x + 6, y, line[:20], PyxelColor.UI_DARK)
+            y += 10
+
+        self._draw_selected_specimen_buttons(plant)
+
+    def _draw_selected_specimen_buttons(self, plant: Plant) -> None:
+        # Draw STORE button
+        can_store = (
+            self.state.selected_offspring is not None
+            and not self.state.greenhouse.has_genotype(plant.genotype)
+            and self.state.greenhouse.free_slots > 0
+        )
+        store_fill = (
+            PyxelColor.LEAF_GREEN if can_store else PyxelColor.TEXT_MUTED
+        )
+        if STORE_BUTTON.contains(pyxel.mouse_x, pyxel.mouse_y) and can_store:
+            store_fill = PyxelColor.LEAF_HIGHLIGHT
+
+        pyxel.rect(
+            STORE_BUTTON.x,
+            STORE_BUTTON.y,
+            STORE_BUTTON.width,
+            STORE_BUTTON.height,
+            store_fill,
+        )
+        pyxel.rectb(
+            STORE_BUTTON.x,
+            STORE_BUTTON.y,
+            STORE_BUTTON.width,
+            STORE_BUTTON.height,
+            PyxelColor.FRAME,
+        )
+        pyxel.rectb(
+            STORE_BUTTON.x + 1,
+            STORE_BUTTON.y + 1,
+            STORE_BUTTON.width - 2,
+            STORE_BUTTON.height - 2,
+            PyxelColor.UI_DARK,
+        )
+        lbl_store = self._t("STORE").upper()
+        tx = STORE_BUTTON.x + (STORE_BUTTON.width - len(lbl_store) * 4) // 2
+        ty = STORE_BUTTON.y + (STORE_BUTTON.height - 6) // 2
+        pyxel.text(
+            tx,
+            ty,
+            lbl_store,
+            PyxelColor.UI_DARK if can_store else PyxelColor.INK_SHADOW,
+        )
+
+        # Draw DISCARD button
+        can_discard = self.state.selected_offspring is not None
+        discard_fill = (
+            PyxelColor.TOMATO_RED if can_discard else PyxelColor.TEXT_MUTED
+        )
+        if (
+            DISCARD_BUTTON.contains(pyxel.mouse_x, pyxel.mouse_y)
+            and can_discard
+        ):
+            discard_fill = PyxelColor.TOMATO_ORANGE
+
+        pyxel.rect(
+            DISCARD_BUTTON.x,
+            DISCARD_BUTTON.y,
+            DISCARD_BUTTON.width,
+            DISCARD_BUTTON.height,
+            discard_fill,
+        )
+        pyxel.rectb(
+            DISCARD_BUTTON.x,
+            DISCARD_BUTTON.y,
+            DISCARD_BUTTON.width,
+            DISCARD_BUTTON.height,
+            PyxelColor.FRAME,
+        )
+        pyxel.rectb(
+            DISCARD_BUTTON.x + 1,
+            DISCARD_BUTTON.y + 1,
+            DISCARD_BUTTON.width - 2,
+            DISCARD_BUTTON.height - 2,
+            PyxelColor.UI_DARK,
+        )
+        lbl_discard = self._t("DISCARD").upper()
+        tx_d = (
+            DISCARD_BUTTON.x
+            + (DISCARD_BUTTON.width - len(lbl_discard) * 4) // 2
+        )
+        ty_d = DISCARD_BUTTON.y + (DISCARD_BUTTON.height - 6) // 2
+        pyxel.text(
+            tx_d,
+            ty_d,
+            lbl_discard,
+            PyxelColor.TEXT if can_discard else PyxelColor.INK_SHADOW,
+        )
 
     def _draw_context(self) -> DrawContext:
         return DrawContext(
@@ -869,7 +1136,8 @@ class MainGameScene:
         parent_b = self.state.parent_b
         if parent_a is None or parent_b is None:
             return []
-        if self.state.analyzer_level < ANALYZER_PROBABILITY_LEVEL:
+        view_level = self.analyzer_view_level or self.state.analyzer_level
+        if view_level < ANALYZER_PROBABILITY_LEVEL:
             return []
 
         distribution = expected_distribution(parent_a, parent_b)
@@ -923,6 +1191,7 @@ class MainGameScene:
         draw_germination_bed_panel(
             self._draw_context(),
             GerminationBedPanelData(
+                rect=Rect(164, 178, 286, 170),
                 layout=self._germination_layout(),
                 current_batch=self.state.current_batch,
                 visible_count=self.state.visible_count,
@@ -957,7 +1226,7 @@ class MainGameScene:
     def _germination_layout(self) -> BedLayout:
         return germination_layout(
             batch_size=min(len(self.state.current_batch), MAX_BED_CELLS),
-            fallback_cells=1,
+            fallback_cells=20,
             geometry=BED_GEOMETRY,
         )
 
@@ -1611,7 +1880,8 @@ class MainGameScene:
         return f"{species}: {values}"
 
     def _visible_genotype(self, plant: Plant) -> str:
-        if self.state.analyzer_level < ANALYZER_GENOTYPE_LEVEL:
+        view_level = self.analyzer_view_level or self.state.analyzer_level
+        if view_level < ANALYZER_GENOTYPE_LEVEL:
             return "????"
         return plant.genotype
 
@@ -1743,3 +2013,4 @@ class MainGameScene:
 
     def _tick_button_timers(self) -> None:
         self.cross_button_timer = max(self.cross_button_timer - 1, 0)
+        self.analyzer_flash_timer = max(self.analyzer_flash_timer - 1, 0)

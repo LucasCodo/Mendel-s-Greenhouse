@@ -712,6 +712,18 @@ msgstr "Changes apply immediately."
 msgid "Deliver {target} {color} {texture} peas"
 msgstr "Deliver {target} {color} {texture} peas"
 
+msgid "Genotype"
+msgstr "Genotype"
+
+msgid "Phenotype"
+msgstr "Phenotype"
+
+msgid "Genes"
+msgstr "Genes"
+
+msgid "Descendants"
+msgstr "Descendants"
+
 #~ msgid "Last offspring"
 #~ msgstr "Last offspring"
 

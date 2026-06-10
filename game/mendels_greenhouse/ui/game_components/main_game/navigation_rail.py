@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 import pyxel
 
-from mendels_greenhouse.ui.components import Rect
+from mendels_greenhouse.ui.components import Rect, draw_rounded_panel
 from mendels_greenhouse.ui.game_components.main_game.chrome import (
     draw_runtime_hud_frame,
 )
@@ -97,19 +97,19 @@ def _draw_nav_item(
     fill = PyxelColor.ACCENT if active else PyxelColor.DARK_WOOD
     if hovering and not active:
         fill = PyxelColor.WOOD_MIDTONE
-    pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
-    pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
-    pyxel.rectb(
-        rect.x + 1,
-        rect.y + 1,
-        rect.width - 2,
-        rect.height - 2,
+    draw_rounded_panel(
+        rect,
+        fill,
+        PyxelColor.FRAME,
         PyxelColor.UI_DARK,
     )
     u, v = sprite
+    icon_w = int(config.icon_size * config.icon_scale)
+    offset = (icon_w - config.icon_size) // 2
+    icon_x = rect.x + (rect.width - icon_w) // 2
     pyxel.blt(
-        rect.x + 4,
-        rect.y + 5,
+        icon_x + offset,
+        rect.y + 2 + offset,
         0,
         u,
         v,
@@ -118,12 +118,10 @@ def _draw_nav_item(
         colkey=0,
         scale=config.icon_scale,
     )
-    text = translate(label).upper()[:10]
-    text_x = rect.x + 24
-    pyxel.text(text_x + 1, rect.y + 15, text, PyxelColor.SPRITE_OUTLINE)
-    pyxel.text(
-        text_x,
-        rect.y + 14,
-        text,
-        PyxelColor.UI_DARK if active else PyxelColor.PARCHMENT_LIGHT,
-    )
+    text = translate(label).upper()
+    text_x = rect.x + (rect.width - len(text) * 4) // 2
+    if active:
+        pyxel.text(text_x, rect.y + 36, text, PyxelColor.UI_DARK)
+    else:
+        pyxel.text(text_x + 1, rect.y + 37, text, PyxelColor.SPRITE_OUTLINE)
+        pyxel.text(text_x, rect.y + 36, text, PyxelColor.PARCHMENT_LIGHT)

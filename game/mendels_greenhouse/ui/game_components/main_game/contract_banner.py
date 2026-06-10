@@ -8,6 +8,7 @@ from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
 from mendels_greenhouse.ui.fonts import draw_outlined_text
 from mendels_greenhouse.ui.game_components.shared import DrawContext
 from mendels_greenhouse.ui.palette import PyxelColor
+from mendels_greenhouse.ui.widgets.progress_bar import ProgressBar
 
 
 @dataclass(frozen=True)
@@ -25,30 +26,38 @@ def draw_contract_banner(
     context: DrawContext,
     data: ContractBannerData,
 ) -> None:
-    """Draw the compact active-contract banner."""
-    rect = Rect(180, 74, 320, 46)
+    """Draw the compact active-contract banner next to the status counters."""
+    rect = Rect(286, 12, 266, 34)
     draw_panel(rect)
+
+    # Redraw active contract title centered above the panel
+    header = context.translate("ACTIVE CONTRACT").upper()
+    hx = rect.x + (rect.width - len(header) * 4) // 2
     draw_outlined_text(
-        286,
-        66,
-        context.translate("CONTRACT"),
+        hx,
+        4,
+        header,
         PyxelColor.ACCENT,
         font=context.display_font,
     )
-    pyxel.text(rect.x + 12, rect.y + 12, data.title, PyxelColor.UI_DARK)
-    pyxel.rect(rect.x + 12, rect.y + 29, 235, 8, PyxelColor.BAR_EMPTY)
-    pyxel.rect(
-        rect.x + 12,
-        rect.y + 29,
-        data.progress_width,
-        8,
-        PyxelColor.PROGRESS,
-    )
-    pyxel.text(
-        rect.x + 260,
-        rect.y + 30,
-        data.progress_label,
-        PyxelColor.UI_DARK,
-    )
+
+    # Contract Goal text
+    pyxel.text(rect.x + 8, rect.y + 6, data.title, PyxelColor.UI_DARK)
+
     if data.claim_enabled:
+        # Draw CLAIM button on the right side of the panel
         draw_button(data.claim_button, context.translate("CLAIM"))
+    else:
+        # Draw progress bar and ratio text
+        ProgressBar(
+            rect=Rect(rect.x + 8, rect.y + 18, 200, 8),
+            current_value=data.progress_width,
+            target_value=200,
+        ).draw()
+
+        pyxel.text(
+            rect.x + 214,
+            rect.y + 19,
+            data.progress_label,
+            PyxelColor.UI_DARK,
+        )
