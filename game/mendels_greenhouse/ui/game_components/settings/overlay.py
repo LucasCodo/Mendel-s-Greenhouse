@@ -4,13 +4,36 @@ from dataclasses import dataclass
 
 import pyxel
 
-from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
-from mendels_greenhouse.ui.fonts import draw_outlined_text
+from mendels_greenhouse.ui.components import (
+    Rect,
+    draw_button,
+    draw_panel,
+    draw_rounded_panel,
+)
+from mendels_greenhouse.ui.fonts import (
+    draw_outlined_text,
+    draw_text,
+    text_width,
+)
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     draw_modal_scrim,
 )
 from mendels_greenhouse.ui.palette import PyxelColor
+
+SETTINGS_PANEL = Rect(140, 28, 360, 304)
+SETTINGS_PREFERENCES_PANEL = Rect(158, 68, 324, 160)
+LANGUAGE_BUTTON = Rect(348, 76, 118, 24)
+MUSIC_DOWN_BUTTON = Rect(326, 112, 24, 22)
+MUSIC_UP_BUTTON = Rect(442, 112, 24, 22)
+MUSIC_MUTE_CHECKBOX = Rect(326, 140, 14, 14)
+SOUND_DOWN_BUTTON = Rect(326, 174, 24, 22)
+SOUND_UP_BUTTON = Rect(442, 174, 24, 22)
+SOUND_MUTE_CHECKBOX = Rect(326, 202, 14, 14)
+RESET_PROGRESS_BUTTON = Rect(184, 250, 272, 22)
+SETTINGS_BACK_BUTTON = Rect(252, 286, 136, 24)
+RESET_CONFIRM_BUTTON = Rect(324, 250, 92, 22)
+RESET_CANCEL_BUTTON = Rect(224, 250, 92, 22)
 
 
 @dataclass(frozen=True)
@@ -50,17 +73,26 @@ def draw_settings_overlay(
     """Draw the settings overlay."""
     translate = context.translate
     draw_modal_scrim(0.65)
-    panel = Rect(100, 70, 440, 242)
-    draw_panel(panel)
+    draw_panel(SETTINGS_PANEL)
+    title = translate("Settings").upper()
     draw_outlined_text(
-        254,
-        84,
-        translate("Settings").upper(),
+        SETTINGS_PANEL.x
+        + (SETTINGS_PANEL.width - text_width(title, context.display_font))
+        // 2,
+        SETTINGS_PANEL.y + 16,
+        title,
         PyxelColor.ACCENT,
         font=context.display_font,
     )
-    pyxel.text(188, 106, translate("Language"), PyxelColor.UI_DARK)
+    draw_rounded_panel(
+        SETTINGS_PREFERENCES_PANEL,
+        PyxelColor.PARCHMENT,
+        PyxelColor.FRAME,
+        PyxelColor.WOOD_MIDTONE,
+    )
+    draw_text(174, 84, translate("Language"), PyxelColor.UI_DARK)
     draw_button(data.language_button, data.language_label)
+    pyxel.line(170, 104, 470, 104, PyxelColor.WOOD_MIDTONE)
     _draw_volume_control(data.music)
     _draw_checkbox(
         data.music_mute_checkbox,
@@ -73,11 +105,11 @@ def draw_settings_overlay(
         data.sound_muted,
         translate("Mute sounds"),
     )
-    pyxel.text(
-        188,
+    draw_text(
+        184,
         232,
         translate("Changes apply immediately."),
-        PyxelColor.UI_DARK,
+        PyxelColor.TEXT_MUTED,
     )
     draw_button(data.reset_button, translate("Reset game progression"))
     draw_button(data.back_button, translate("BACK"))
@@ -107,7 +139,7 @@ def draw_reset_confirmation(
         "This cannot be undone.",
     ]
     for index, line in enumerate(lines):
-        pyxel.text(
+        draw_text(
             panel.x + 24,
             panel.y + 58 + index * 18,
             translate(line),
@@ -118,16 +150,26 @@ def draw_reset_confirmation(
 
 
 def _draw_volume_control(data: VolumeControlData) -> None:
-    x = 188
-    pyxel.text(x, data.y, data.label, PyxelColor.UI_DARK)
-    draw_button(data.down_button, "-")
-    pyxel.rect(x + 176, data.y + 11, 40, 6, PyxelColor.BAR_EMPTY)
-    pyxel.rect(x + 176, data.y + 11, data.value * 4, 6, PyxelColor.PROGRESS)
-    pyxel.rectb(x + 176, data.y + 11, 40, 6, PyxelColor.UI_DARK)
-    pyxel.text(
-        x + 224,
-        data.y + 9,
+    label_y = data.y + 7
+    draw_text(174, label_y, data.label, PyxelColor.UI_DARK)
+    draw_text(
+        274,
+        label_y,
         f"{data.value * 10:3d}%",
+        PyxelColor.UI_DARK,
+    )
+    draw_button(data.down_button, "-")
+    bar_x = data.down_button.x + data.down_button.width + 8
+    bar_width = data.up_button.x - bar_x - 8
+    bar_y = data.y + 8
+    fill_width = round(bar_width * data.value / 10)
+    pyxel.rect(bar_x, bar_y, bar_width, 6, PyxelColor.BAR_EMPTY)
+    pyxel.rect(bar_x, bar_y, fill_width, 6, PyxelColor.PROGRESS)
+    pyxel.rectb(
+        bar_x,
+        bar_y,
+        bar_width,
+        6,
         PyxelColor.UI_DARK,
     )
     draw_button(data.up_button, "+")
@@ -151,4 +193,4 @@ def _draw_checkbox(rect: Rect, checked: bool, label: str) -> None:
             rect.y + 2,
             PyxelColor.PROGRESS,
         )
-    pyxel.text(rect.x + 18, rect.y + 3, label, PyxelColor.UI_DARK)
+    draw_text(rect.x + 18, rect.y + 3, label, PyxelColor.UI_DARK)

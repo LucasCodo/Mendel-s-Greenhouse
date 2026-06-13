@@ -5,8 +5,12 @@ from dataclasses import dataclass
 import pyxel
 
 from mendels_greenhouse.ui.components import Rect
+from mendels_greenhouse.ui.fonts import draw_text, fit_text
 from mendels_greenhouse.ui.game_components.shared import DrawContext
 from mendels_greenhouse.ui.palette import PyxelColor
+
+ANALYZER_PANEL = Rect(10, 68, 170, 280)
+ANALYZER_SCREEN = Rect(34, 82, 138, 252)
 
 
 @dataclass(frozen=True)
@@ -15,13 +19,16 @@ class AnalyzerPanelData:
 
     has_parent_pair: bool
     analyzer_level: int
+    genotype_level: int
     probability_level: int
     simulator_level: int
+    phenotype_lines: list[str]
+    genotype_lines: list[str]
+    gamete_lines: list[str]
     probability_lines: list[str]
     best_cross: str | None
     max_probability_y: int
     view_level: int
-    screen_flash: bool
 
 
 def draw_analyzer_panel(
@@ -29,16 +36,10 @@ def draw_analyzer_panel(
     data: AnalyzerPanelData,
 ) -> None:
     """Draw the left analyzer probability panel as a handheld console."""
-    rect = Rect(10, 74, 146, 274)
+    rect = ANALYZER_PANEL
     _draw_console_bezel(rect)
-    _draw_glass_tube(rect)
+    _draw_glass_tube(ANALYZER_SCREEN)
     _draw_crt_screen(rect, context, data)
-    _draw_hardware_controls(rect, data)
-
-    # CRT Screen flash overlay
-    if data.screen_flash:
-        sx, sy, sw, sh = rect.x + 24, rect.y + 20, rect.width - 32, 132
-        pyxel.rect(sx + 2, sy + 2, sw - 4, sh - 4, PyxelColor.GLASS_HIGHLIGHT)
 
 
 def _draw_rounded_fill_r10(x: int, y: int, w: int, h: int, color: int) -> None:
@@ -172,9 +173,9 @@ def _draw_console_bezel(rect: Rect) -> None:
     draw_screw(rect.x + rect.width - 14, rect.y + rect.height - 14)
 
 
-def _draw_glass_tube(rect: Rect) -> None:
+def _draw_glass_tube(screen: Rect) -> None:
     """Draw the glass tube with glowing liquid and procedural bubbles."""
-    tx, ty, tw, th = rect.x + 7, rect.y + 20, 10, 132
+    tx, ty, tw, th = screen.x - 17, screen.y, 10, screen.height
     # Dark shadow background of tube
     pyxel.rect(tx, ty, tw, th, PyxelColor.INK_SHADOW)
 
@@ -231,13 +232,16 @@ def _draw_glass_tube(rect: Rect) -> None:
 
 
 def _draw_crt_screen(
-    rect: Rect,
+    _rect: Rect,
     context: DrawContext,
     data: AnalyzerPanelData,
 ) -> None:
     """Draw the green CRT screen, scanlines, and diagnostic text."""
     translate = context.translate
-    sx, sy, sw, sh = rect.x + 24, rect.y + 20, rect.width - 32, 132
+    sx = ANALYZER_SCREEN.x
+    sy = ANALYZER_SCREEN.y
+    sw = ANALYZER_SCREEN.width
+    sh = ANALYZER_SCREEN.height
 
     # Screen background and bezel borders
     pyxel.rect(sx, sy, sw, sh, PyxelColor.INK_SHADOW)
@@ -261,53 +265,62 @@ def _draw_crt_screen(
 
     # Screen Title Header
     header = translate("Analyzer").upper()
-    pyxel.text(
+    draw_text(
         sx + 6,
         sy + 5,
-        f"{header} L{data.view_level}",
+        fit_text(f"{header} L{data.view_level}", sw - 12),
         PyxelColor.ACCENT,
     )
     pyxel.line(sx + 4, sy + 13, sx + sw - 5, sy + 13, PyxelColor.LEAF_SHADOW)
 
     # Screen Display Logic
     if not data.has_parent_pair:
-        pyxel.text(
+        draw_text(
             sx + 6,
             sy + 22,
-            translate("Select parents"),
-            PyxelColor.LEAF_HIGHLIGHT,
-        )
-    elif data.view_level < data.probability_level:
-        pyxel.text(
-            sx + 6,
-            sy + 22,
-            translate("ANALYZER L3 REQUIRED"),
-            PyxelColor.TOMATO_RED,
-        )
-        pyxel.text(
-            sx + 6,
-            sy + 34,
-            translate("Upgrade analyzer in Shop."),
+            fit_text(translate("Select parents"), sw - 12),
             PyxelColor.LEAF_HIGHLIGHT,
         )
     else:
-        # Expected ratios / probabilities list
-        y = sy + 18
-        for line in data.probability_lines:
-            pyxel.text(sx + 6, y, line, PyxelColor.SUCCESS_LIME)
-            y += 8
-            if y > sy + sh - 42:
-                break
+        y = sy + 20
+        y = _draw_report_section(
+            Rect(sx, y, sw, 0),
+            translate("Phenotype"),
+            data.phenotype_lines,
+        )
+        if data.view_level >= data.genotype_level:
+            y = _draw_report_section(
+                Rect(sx, y + 2, sw, 0),
+                translate("Genotype"),
+                data.genotype_lines,
+            )
+        if data.view_level >= data.probability_level:
+            y = _draw_report_section(
+                Rect(sx, y + 2, sw, 0),
+                translate("Gametes"),
+                data.gamete_lines,
+            )
+            _draw_report_section(
+                Rect(sx, y + 2, sw, 0),
+                translate("Expected outcomes"),
+                data.probability_lines,
+                max_lines=6,
+            )
 
         # Level 4 Simulator preview
         if data.view_level >= data.simulator_level:
+            summary_y = sy + sh - 54
             pyxel.line(
-                sx + 4, sy + 94, sx + sw - 5, sy + 94, PyxelColor.LEAF_SHADOW
+                sx + 4,
+                summary_y,
+                sx + sw - 5,
+                summary_y,
+                PyxelColor.LEAF_SHADOW,
             )
-            pyxel.text(
+            draw_text(
                 sx + 6,
-                sy + 98,
-                translate("Best stored cross")[:15],
+                summary_y + 5,
+                fit_text(translate("Best stored cross"), sw - 12),
                 PyxelColor.ACCENT,
             )
             best = (
@@ -315,72 +328,49 @@ def _draw_crt_screen(
                 if data.best_cross is not None
                 else translate("No valid stored cross found.")
             )
-            pyxel.text(sx + 6, sy + 108, best[:15], PyxelColor.WHITE_PETAL)
-
-
-def _draw_hardware_controls(rect: Rect, data: AnalyzerPanelData) -> None:
-    """Draw physical interactive D-Pad, Leaf Button, and Roller Slider."""
-    # 1. Circular D-Pad on the left side of the bottom bezel
-    cx, cy = rect.x + 30, rect.y + 205
-    pyxel.circ(cx, cy, 16, PyxelColor.METAL_DARK)
-    pyxel.circb(cx, cy, 16, PyxelColor.SOIL_DARK)
-    pyxel.circb(cx, cy, 14, PyxelColor.METAL_LIGHT)
-
-    # D-Pad cross rectangles
-    pyxel.rect(cx - 12, cy - 4, 24, 8, PyxelColor.INK_SHADOW)
-    pyxel.rectb(cx - 12, cy - 4, 24, 8, PyxelColor.METAL_DARK)
-    pyxel.rect(cx - 4, cy - 12, 8, 24, PyxelColor.INK_SHADOW)
-    pyxel.rectb(cx - 4, cy - 12, 8, 24, PyxelColor.METAL_DARK)
-
-    # Arrow symbols
-    pyxel.text(cx - 10, cy - 3, "<", PyxelColor.TEXT_MUTED)
-    pyxel.text(cx + 6, cy - 3, ">", PyxelColor.TEXT_MUTED)
-
-    # 2. Glowing Square Green Leaf Button
-    bx, by, bw, bh = rect.x + 62, rect.y + 188, 30, 30
-    btn_color = (
-        PyxelColor.SUCCESS_LIME if data.screen_flash else PyxelColor.LEAF_GREEN
+            draw_text(
+                sx + 6,
+                summary_y + 17,
+                fit_text(best, sw - 12),
+                PyxelColor.WHITE_PETAL,
+            )
+    online = data.analyzer_level >= data.probability_level
+    status = translate("ONLINE") if online else translate("STANDBY")
+    status_color = (
+        PyxelColor.SUCCESS_LIME if online else PyxelColor.TOMATO_ORANGE
     )
-    pyxel.rect(bx, by, bw, bh, btn_color)
-    pyxel.rectb(bx, by, bw, bh, PyxelColor.SOIL_DARK)
-    pyxel.rectb(bx + 1, by + 1, bw - 2, bh - 2, PyxelColor.LEAF_HIGHLIGHT)
+    status_y = sy + sh - 12
+    pyxel.line(
+        sx + 4,
+        status_y - 4,
+        sx + sw - 5,
+        status_y - 4,
+        PyxelColor.LEAF_SHADOW,
+    )
+    draw_text(sx + 6, status_y, status, status_color)
+    pyxel.circ(sx + sw - 9, status_y + 3, 2, status_color)
 
-    # Leaf stem diagonal line inside button
-    pyxel.line(bx + 8, by + 22, bx + 22, by + 8, PyxelColor.WHITE_PETAL)
-    pyxel.pset(bx + 15, by + 15, PyxelColor.WHITE_PETAL)
 
-    # 3. Vertical Roller Slider
-    rx, ry, rw, rh = rect.x + 106, rect.y + 180, 12, 42
-    pyxel.rect(rx, ry, rw, rh, PyxelColor.METAL_DARK)
-    pyxel.rectb(rx, ry, rw, rh, PyxelColor.SOIL_DARK)
-    for r_y in range(ry + 3, ry + rh - 3, 3):
-        pyxel.line(rx + 1, r_y, rx + rw - 2, r_y, PyxelColor.INK_SHADOW)
-
-    # Green slider selector representing selected cycled view level
-    slider_y = ry + 2 + (data.view_level - 1) * 9
-    pyxel.rect(rx + 1, slider_y, rw - 2, 5, PyxelColor.SUCCESS_LIME)
-    pyxel.rectb(rx + 1, slider_y, rw - 2, 5, PyxelColor.SOIL_DARK)
-
-    # 4. Status Indicator LED (Bottom Bezel)
-    led_x = rect.x + 130
-    led_y = rect.y + 242
-
-    if data.analyzer_level >= data.probability_level:
-        pyxel.circ(led_x, led_y, 2, PyxelColor.SUCCESS_LIME)
-        pyxel.pset(led_x - 1, led_y - 1, PyxelColor.WHITE_PETAL)
-        pyxel.text(led_x - 30, led_y - 2, "ONLINE", PyxelColor.UI_DARK)
-    else:
-        led_color = (
-            PyxelColor.TOMATO_ORANGE
-            if (pyxel.frame_count // 15) % 2 == 0
-            else PyxelColor.BAR_EMPTY
+def _draw_report_section(
+    rect: Rect,
+    title: str,
+    lines: list[str],
+    *,
+    max_lines: int = 2,
+) -> int:
+    draw_text(
+        rect.x + 6,
+        rect.y,
+        fit_text(title.upper(), rect.width - 12),
+        PyxelColor.ACCENT,
+    )
+    y = rect.y + 10
+    for line in lines[:max_lines]:
+        draw_text(
+            rect.x + 6,
+            y,
+            fit_text(line, rect.width - 12),
+            PyxelColor.SUCCESS_LIME,
         )
-        pyxel.circ(led_x, led_y, 2, led_color)
-        pyxel.pset(
-            led_x - 1,
-            led_y - 1,
-            PyxelColor.SUNLIT_CREAM
-            if led_color == PyxelColor.TOMATO_ORANGE
-            else PyxelColor.UI_DARK,
-        )
-        pyxel.text(led_x - 36, led_y - 2, "STANDBY", PyxelColor.UI_DARK)
+        y += 9
+    return y

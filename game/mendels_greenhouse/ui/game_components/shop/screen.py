@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import pyxel
 
 from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
+from mendels_greenhouse.ui.fonts import draw_text
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     draw_scene_shell,
@@ -38,8 +39,8 @@ def draw_shop_screen(context: DrawContext, data: ShopScreenData) -> None:
     """Draw the shop screen."""
     translate = context.translate
     draw_scene_shell(context, "Shop", "Spend credits on progression")
-    pyxel.text(
-        510,
+    draw_text(
+        470,
         86,
         f"{translate('Credits')}: {data.credits}",
         PyxelColor.PARCHMENT_LIGHT,
@@ -54,7 +55,7 @@ def draw_shop_screen(context: DrawContext, data: ShopScreenData) -> None:
     details_panel = Rect(70, 198, 456, 100)
     draw_panel(details_panel)
     for index, line in enumerate(data.details):
-        pyxel.text(108, 216 + index * 14, translate(line), PyxelColor.UI_DARK)
+        draw_text(108, 216 + index * 14, translate(line), PyxelColor.UI_DARK)
     draw_button(
         Rect(392, 284, 96, 24),
         translate("BUY"),
@@ -73,14 +74,14 @@ def _draw_shop_card(
     fill = PyxelColor.ACCENT if selected else PyxelColor.PARCHMENT
     pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
     pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
-    pyxel.text(
+    draw_text(
         rect.x + 8,
         rect.y + 9,
         translate(card.title),
         PyxelColor.UI_DARK,
     )
-    pyxel.text(rect.x + 8, rect.y + 23, card.cost, PyxelColor.UI_DARK)
-    pyxel.text(
+    draw_text(rect.x + 8, rect.y + 23, card.cost, PyxelColor.UI_DARK)
+    draw_text(
         rect.x + 92,
         rect.y + 23,
         translate(card.status),

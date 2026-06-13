@@ -2,15 +2,16 @@
 
 from dataclasses import dataclass
 
-import pyxel
-
 from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
+from mendels_greenhouse.ui.fonts import draw_text, fit_text
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     draw_scene_shell,
 )
 from mendels_greenhouse.ui.palette import PyxelColor
 from mendels_greenhouse.ui.widgets.progress_bar import ProgressBar
+
+CLAIM_TEXT_MAX_WIDTH = 340
 
 
 @dataclass(frozen=True)
@@ -33,7 +34,7 @@ def draw_contracts_screen(
     translate = context.translate
     draw_scene_shell(
         context,
-        "CONTRACT",
+        "Contract",
         "Use contracts to learn how traits pass between generations.",
     )
     summary_panel = Rect(34, 112, 506, 74)
@@ -41,10 +42,10 @@ def draw_contracts_screen(
     draw_panel(summary_panel)
     draw_panel(detail_panel)
 
-    pyxel.text(
+    draw_text(
         summary_panel.x + 18,
         summary_panel.y + 14,
-        data.title,
+        fit_text(data.title, summary_panel.width - 36),
         PyxelColor.UI_DARK,
     )
 
@@ -54,29 +55,29 @@ def draw_contracts_screen(
         current_value=data.progress_width,
         target_value=390,
     ).draw()
-    pyxel.text(
+    draw_text(
         summary_panel.x + 420,
         summary_panel.y + 40,
         data.progress_label,
         PyxelColor.UI_DARK,
     )
 
-    pyxel.text(
+    draw_text(
         detail_panel.x + 18,
         detail_panel.y + 18,
         translate("Credits"),
         PyxelColor.UI_DARK,
     )
-    pyxel.text(
+    draw_text(
         detail_panel.x + 94,
         detail_panel.y + 18,
         f"{data.reward_credits} CR",
         PyxelColor.UI_DARK,
     )
-    pyxel.text(
+    draw_text(
         detail_panel.x + 18,
         detail_panel.y + 40,
-        data.instruction,
+        fit_text(data.instruction, detail_panel.width - 36),
         PyxelColor.UI_DARK,
     )
     status = (
@@ -84,10 +85,13 @@ def draw_contracts_screen(
         if data.claim_enabled
         else "Use contracts to learn how traits pass between generations."
     )
-    pyxel.text(
+    draw_text(
         detail_panel.x + 18,
         detail_panel.y + 58,
-        translate(status),
+        fit_text(
+            translate(status),
+            CLAIM_TEXT_MAX_WIDTH,
+        ),
         PyxelColor.UI_DARK,
     )
     draw_button(

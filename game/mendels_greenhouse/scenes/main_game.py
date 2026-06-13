@@ -1,10 +1,10 @@
 """Main gameplay scene for the MVP."""
-# ruff: noqa: PLR2004, PLR0912
 
 from dataclasses import dataclass
 
 import pyxel
 
+from mendels_greenhouse.core.collection import official_collection_keys
 from mendels_greenhouse.core.content import (
     ANALYZER_UPGRADES,
     DISCOVERY_REWARDS,
@@ -12,12 +12,15 @@ from mendels_greenhouse.core.content import (
     SPECIES_DEFINITIONS,
     SPECIES_UNLOCK_ORDER,
     SPECIES_UNLOCK_REQUIRED_FREE_SLOTS,
+    collection_total_entries,
     species_definition,
 )
 from mendels_greenhouse.core.genetics import (
     Plant,
     expected_distribution,
+    expected_phenotype_probabilities,
     founder_genotypes,
+    gametes,
 )
 from mendels_greenhouse.core.i18n import gettext_noop, set_language, t
 from mendels_greenhouse.services.breeding_service import BreedingService
@@ -27,9 +30,10 @@ from mendels_greenhouse.state.game_state import GameState
 from mendels_greenhouse.ui.components import (
     Rect,
     clicked,
-    draw_panel,
 )
-from mendels_greenhouse.ui.fonts import FontSet
+from mendels_greenhouse.ui.fonts import (
+    FontSet,
+)
 from mendels_greenhouse.ui.game_components import (
     BedGeometry,
     BedLayout,
@@ -40,7 +44,14 @@ from mendels_greenhouse.ui.game_components import (
     plant_trait_lines,
 )
 from mendels_greenhouse.ui.game_components.collection import (
+    ALBUM_COLUMNS,
+    ALBUM_GRID_RECT,
+    ALBUM_SCROLLBAR,
+    ALBUM_VISIBLE_ROWS,
+    CollectionAlbumEntry,
     CollectionScreenData,
+    album_card_rect,
+    album_max_scroll_row,
     draw_collection_screen,
 )
 from mendels_greenhouse.ui.game_components.contracts import (
@@ -58,11 +69,15 @@ from mendels_greenhouse.ui.game_components.knowledge import (
     draw_knowledge_screen,
 )
 from mendels_greenhouse.ui.game_components.main_game import (
+    CROSS_BUTTON,
+    PARENT_A_CARD,
+    PARENT_B_CARD,
     AnalyzerPanelData,
     ContractBannerData,
     GerminationBedPanelData,
     NavigationRailConfig,
     ParentCrossPanelData,
+    SpecimenOverlayData,
     TopBarData,
     draw_analyzer_panel,
     draw_contract_banner,
@@ -70,18 +85,28 @@ from mendels_greenhouse.ui.game_components.main_game import (
     draw_greenhouse_background,
     draw_navigation_rail,
     draw_parent_cross_panel,
+    draw_specimen_overlay,
     draw_top_bar,
     nav_button_rect,
 )
 from mendels_greenhouse.ui.game_components.overlays import (
     ParentPickerData,
-    TooltipData,
     draw_intro_panel,
     draw_parent_picker,
-    draw_plant_tooltip,
     parent_picker_slot_rect,
 )
 from mendels_greenhouse.ui.game_components.settings import (
+    LANGUAGE_BUTTON,
+    MUSIC_DOWN_BUTTON,
+    MUSIC_MUTE_CHECKBOX,
+    MUSIC_UP_BUTTON,
+    RESET_CANCEL_BUTTON,
+    RESET_CONFIRM_BUTTON,
+    RESET_PROGRESS_BUTTON,
+    SETTINGS_BACK_BUTTON,
+    SOUND_DOWN_BUTTON,
+    SOUND_MUTE_CHECKBOX,
+    SOUND_UP_BUTTON,
     SettingsOverlayData,
     VolumeControlData,
     draw_settings_overlay,
@@ -95,34 +120,21 @@ from mendels_greenhouse.ui.game_components.shop import (
     ShopScreenData,
     draw_shop_screen,
 )
-from mendels_greenhouse.ui.palette import PyxelColor
 
 WIDTH = 640
 HEIGHT = 360
 TOP_BAR_H = 66
 PROBABILITY_PANEL_MAX_Y = 166
 
-CROSS_BUTTON = Rect(254, 126, 106, 22)
-STORE_BUTTON = Rect(463, 298, 82, 22)
-DISCARD_BUTTON = Rect(463, 322, 82, 22)
-HARVEST_BUTTON = Rect(247, 318, 120, 24)
-PARENT_A_CARD = Rect(168, 60, 90, 86)
-PARENT_B_CARD = Rect(356, 60, 90, 86)
+SPECIMEN_PANEL = Rect(158, 16, 324, 328)
+SPECIMEN_CLOSE_BUTTON = Rect(446, 22, 24, 18)
+STORE_BUTTON = Rect(178, 270, 284, 30)
+DISCARD_BUTTON = Rect(178, 306, 284, 30)
+HARVEST_BUTTON = Rect(309, 318, 120, 24)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
 CLAIM_CONTRACT_BUTTON = Rect(480, 20, 64, 18)
 PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
 GARDEN_DISCARD_BUTTON = Rect(392, 257, 96, 22)
-SETTINGS_BACK_BUTTON = Rect(272, 282, 96, 24)
-RESET_PROGRESS_BUTTON = Rect(208, 250, 224, 20)
-RESET_CONFIRM_BUTTON = Rect(324, 250, 92, 22)
-RESET_CANCEL_BUTTON = Rect(224, 250, 92, 22)
-LANGUAGE_BUTTON = Rect(338, 112, 86, 20)
-MUSIC_DOWN_BUTTON = Rect(338, 151, 20, 18)
-MUSIC_UP_BUTTON = Rect(404, 151, 20, 18)
-SOUND_DOWN_BUTTON = Rect(338, 194, 20, 18)
-SOUND_UP_BUTTON = Rect(404, 194, 20, 18)
-MUSIC_MUTE_CHECKBOX = Rect(468, 151, 12, 12)
-SOUND_MUTE_CHECKBOX = Rect(468, 194, 12, 12)
 NAV_RAIL = Rect(558, 0, 82, 360)
 NAV_BUTTON_W = 70
 NAV_BUTTON_H = 48
@@ -165,11 +177,11 @@ SCREEN_SHOP = "shop"
 NAV_ITEMS = (
     (SCREEN_MAIN, "CROSS PLANTS", (0, 128)),
     (SCREEN_GARDEN, "Garden", (64, 64)),
-    (SCREEN_CONTRACTS, "CONTRACT", (128, 128)),
-    (SCREEN_KNOWLEDGE, "Knowledge", (0, 64)),
+    (SCREEN_CONTRACTS, "Contract", (128, 128)),
+    (SCREEN_KNOWLEDGE, "Learn", (0, 64)),
     (SCREEN_SHOP, "Shop", (128, 64)),
     (SCREEN_COLLECTION, "Collection", (64, 128)),
-    ("settings", "Settings", (192, 64)),
+    ("settings", "Config.", (192, 64)),
 )
 COLLECTION_TABS = ("Species", "Phenotypes", "Genotypes")
 KNOWLEDGE_STAGES = (
@@ -241,15 +253,17 @@ BUTTON_PRESS_FRAMES = 7
 ANALYZER_GENOTYPE_LEVEL = 2
 ANALYZER_PROBABILITY_LEVEL = 3
 ANALYZER_SIMULATOR_LEVEL = 4
+ANALYZER_FULL_GAMETE_LIMIT = 4
+ANALYZER_COMPACT_GAMETE_COUNT = 2
 SEED_STAGE_FRAMES = 15
 SEEDLING_STAGE_FRAMES = 30
 GERMINATION_SETTLE_FRAMES = 90
 MAX_BED_CELLS = 20
 BED_MAX_COLUMNS = 5
-BED_ORIGIN_X = 307
-BED_ORIGIN_Y = 198
-BED_CELL_W = 38
-BED_CELL_H = 22
+BED_ORIGIN_X = 369
+BED_ORIGIN_Y = 196
+BED_CELL_W = 46
+BED_CELL_H = 26
 BED_GAP = 4
 BED_GEOMETRY = BedGeometry(
     origin_x=BED_ORIGIN_X,
@@ -306,6 +320,8 @@ I18N_MARKERS = (
     gettext_noop("Basic controls"),
     gettext_noop("Choose an occupied garden slot."),
     gettext_noop("Collection"),
+    gettext_noop("Config."),
+    gettext_noop("Contract"),
     gettext_noop("Contract complete. Claim reward."),
     gettext_noop("Contract complete. +{reward} credits."),
     gettext_noop("Contract match. {remaining} left."),
@@ -318,6 +334,7 @@ I18N_MARKERS = (
     gettext_noop("Discarded plant from slot {slot}."),
     gettext_noop("Discovery rewards. +{credits} credits."),
     gettext_noop("Discovered genetic records"),
+    gettext_noop("Discovered: {found}/{total}"),
     gettext_noop("DONE"),
     gettext_noop("Each cross shows the expected genetic combinations."),
     gettext_noop("Founder genotypes cannot be discarded."),
@@ -348,6 +365,7 @@ I18N_MARKERS = (
     gettext_noop("Homozygous"),
     gettext_noop("Independent assortment"),
     gettext_noop("Knowledge"),
+    gettext_noop("Learn"),
     gettext_noop("Learned genetics concepts"),
     gettext_noop("Learned: {learned}/{total}"),
     gettext_noop("Selected Concept"),
@@ -370,9 +388,13 @@ I18N_MARKERS = (
     gettext_noop("Next species unlock in shop."),
     gettext_noop("No completed contract to claim."),
     gettext_noop("No revealed plant to store."),
+    gettext_noop("No selected specimen to store."),
     gettext_noop("No specimens to harvest."),
     gettext_noop("Not enough credits."),
+    gettext_noop("Offspring discarded."),
     gettext_noop("Offspring revealed."),
+    gettext_noop("Parent A selected from garden."),
+    gettext_noop("Parent B selected from garden."),
     gettext_noop("PARENT A"),
     gettext_noop("PARENT B"),
     gettext_noop("Phenotypes"),
@@ -393,6 +415,7 @@ I18N_MARKERS = (
     gettext_noop("Slot {slot}"),
     gettext_noop("Species"),
     gettext_noop("Species found: {count}"),
+    gettext_noop("Species unlock is not priced."),
     gettext_noop("Spend credits on progression"),
     gettext_noop("Stored plant in slot {slot}."),
     gettext_noop("Stored plant in slot {slot}. +{credits} credits."),
@@ -416,6 +439,7 @@ I18N_MARKERS = (
     gettext_noop("Unlocked greenhouse slot {slot}."),
     gettext_noop("Unlocks deeper genetic information."),
     gettext_noop("Upgrade to level {level}: {name}."),
+    gettext_noop("Undiscovered"),
     gettext_noop("Use 1/2 to reselect starting parents."),
     gettext_noop(
         "Use contracts to learn how traits pass between generations."
@@ -432,6 +456,7 @@ I18N_MARKERS = (
     gettext_noop("wrinkled"),
     gettext_noop("yellow"),
     gettext_noop("{name} - discovered"),
+    gettext_noop("{found}/{total} found"),
 )
 
 
@@ -510,16 +535,17 @@ class MainGameScene:
         self.settings_open = False
         self.reset_confirmation_open = False
         self.parent_picker_target: str | None = None
+        self.specimen_overlay_open = False
         self.settings = SettingsState.from_dict(saved_settings or {})
         set_language(self.settings.language)
         self.active_screen = SCREEN_MAIN
         self.collection_tab = "Species"
+        self.collection_scroll_row = 0
+        self.selected_collection_entry = 0
         self.selected_knowledge = "Phenotype"
         self.selected_greenhouse_slot = 0
         self.selected_shop_item = "slot"
         self.tester_code_buffer = ""
-        self.analyzer_flash_timer = 0
-        self.analyzer_view_level = None
         self._apply_audio_settings()
 
     def update(self) -> None:
@@ -534,6 +560,8 @@ class MainGameScene:
             self._update_settings_panel()
         elif self.parent_picker_target is not None:
             self._update_parent_picker()
+        elif self.specimen_overlay_open:
+            self._update_specimen_overlay()
         elif self._update_navigation_rail():
             pass
         elif self.active_screen == SCREEN_KNOWLEDGE:
@@ -554,69 +582,6 @@ class MainGameScene:
         self._handle_breeding_buttons()
         self._update_germination_bed_selection()
         self._track_reveal_frames()
-        self._update_analyzer_panel()
-
-    def _update_analyzer_panel(self) -> None:
-        """Handle mouse clicks on the handheld analyzer hardware controls."""
-        # The analyzer is drawn at Rect(12, 74, 150, 274)
-        if not pyxel.btnp(pyxel.MOUSE_BUTTON_LEFT):
-            return
-        mx, my = pyxel.mouse_x, pyxel.mouse_y
-
-        # 1. D-Pad Left/Right clicks to cycle selected offspring index
-        # Left D-Pad area: X: 22 to 38, Y: 269 to 289
-        # Right D-Pad area: X: 46 to 62, Y: 269 to 289
-        cx, cy = 42, 279
-        if cx - 20 <= mx <= cx - 4 and cy - 10 <= my <= cy + 10:
-            if self.state.current_batch:
-                self._play_sound(0)
-                idx = self.state.selected_offspring_index
-                if idx is None:
-                    self.state.selected_offspring_index = 0
-                else:
-                    self.state.selected_offspring_index = (idx - 1) % len(
-                        self.state.current_batch
-                    )
-            else:
-                self._play_sound(4)
-        elif cx + 4 <= mx <= cx + 20 and cy - 10 <= my <= cy + 10:
-            if self.state.current_batch:
-                self._play_sound(0)
-                idx = self.state.selected_offspring_index
-                if idx is None:
-                    self.state.selected_offspring_index = 0
-                else:
-                    self.state.selected_offspring_index = (idx + 1) % len(
-                        self.state.current_batch
-                    )
-            else:
-                self._play_sound(4)
-
-        # 2. Glowing Square Green Leaf Button (Flash Screen)
-        # Position: bx = 74, by = 262, bw = 30, bh = 30
-        elif 74 <= mx <= 104 and 262 <= my <= 292:
-            self._play_sound(1)
-            self.analyzer_flash_timer = 12
-
-        # 3. Vertical Roller Slider (Change levels cycle)
-        # Position: rx = 118, ry = 254, rw = 12, rh = 42
-        elif 118 <= mx <= 130 and 254 <= my <= 296:
-            unlocked = self.state.analyzer_level
-            clicked_lvl = 1
-            if my < 264:
-                clicked_lvl = 1
-            elif my < 274:
-                clicked_lvl = 2
-            elif my < 284:
-                clicked_lvl = 3
-            else:
-                clicked_lvl = 4
-
-            if clicked_lvl <= unlocked:
-                self._play_sound(0)
-                self.analyzer_view_level = clicked_lvl
-            else:
-                self._play_sound(4)
 
     def _update_tester_code(self) -> None:
         for character, key in TESTER_CODE_KEYS.items():
@@ -684,26 +649,6 @@ class MainGameScene:
             self._reveal_frames.clear()
             self.germination_started_frame = None
 
-        if clicked(STORE_BUTTON) or pyxel.btnp(pyxel.KEY_S):
-            if self.breeding.store_selected_offspring():
-                self._play_sound(3)
-                if not self.state.current_batch:
-                    self._reveal_frames.clear()
-                    self.germination_started_frame = None
-                self._autosave()
-            else:
-                self._play_sound(4)
-
-        if clicked(DISCARD_BUTTON) or pyxel.btnp(pyxel.KEY_D):
-            if self.breeding.discard_selected_offspring():
-                self._play_sound(3)
-                if not self.state.current_batch:
-                    self._reveal_frames.clear()
-                    self.germination_started_frame = None
-                self._autosave()
-            else:
-                self._play_sound(4)
-
         if clicked(PARENT_A_CARD) or pyxel.btnp(pyxel.KEY_1):
             self._play_sound(0)
             self.parent_picker_target = "a"
@@ -739,6 +684,8 @@ class MainGameScene:
         else:
             self._draw_main_game_screen()
         self._draw_navigation_rail()
+        if self.specimen_overlay_open:
+            self._draw_specimen_overlay()
         if self.intro_open:
             self._draw_intro_panel()
         if self.parent_picker_target is not None:
@@ -766,15 +713,16 @@ class MainGameScene:
                     and self.state.parent_b is not None
                 ),
                 analyzer_level=self.state.analyzer_level,
+                genotype_level=ANALYZER_GENOTYPE_LEVEL,
                 probability_level=ANALYZER_PROBABILITY_LEVEL,
                 simulator_level=ANALYZER_SIMULATOR_LEVEL,
+                phenotype_lines=self._analyzer_phenotype_lines(),
+                genotype_lines=self._analyzer_genotype_lines(),
+                gamete_lines=self._analyzer_gamete_lines(),
                 probability_lines=self._probability_lines(),
                 best_cross=self._best_contract_cross(),
                 max_probability_y=PROBABILITY_PANEL_MAX_Y,
-                view_level=(
-                    self.analyzer_view_level or self.state.analyzer_level
-                ),
-                screen_flash=self.analyzer_flash_timer > 0,
+                view_level=self.state.analyzer_level,
             ),
         )
         draw_parent_cross_panel(
@@ -794,192 +742,28 @@ class MainGameScene:
             trait=self._trait,
         )
         self._draw_germination_bed()
-        self._draw_selected_specimen_card()
-        self._draw_hovered_plant_tooltip()
 
-    def _draw_selected_specimen_card(self) -> None:
-        rect = Rect(458, 178, 92, 170)
-        draw_panel(rect)
-
-        # Species title header
-        species_name = "ERVILHA"
+    def _draw_specimen_overlay(self) -> None:
         plant = self.state.selected_offspring
-        if plant is not None:
-            species_name = self._t(plant.species).upper()
-
-        pyxel.rect(
-            rect.x + 2, rect.y + 2, rect.width - 4, 12, PyxelColor.DARK_WOOD
-        )
-        pyxel.text(
-            rect.x + 6,
-            rect.y + 5,
-            species_name[:14],
-            PyxelColor.PARCHMENT_LIGHT,
-        )
-
-        # Draw a tiny plant pot icon in the header
-        pot_x = rect.x + rect.width - 12
-        pot_y = rect.y + 4
-        pyxel.rect(pot_x + 1, pot_y + 3, 5, 4, PyxelColor.TERRACOTTA)
-        pyxel.rectb(pot_x, pot_y + 2, 7, 2, PyxelColor.DARK_WOOD)
-        pyxel.pset(pot_x + 3, pot_y + 1, PyxelColor.LEAF_GREEN)
-        pyxel.pset(pot_x + 2, pot_y, PyxelColor.LEAF_HIGHLIGHT)
-        pyxel.pset(pot_x + 4, pot_y, PyxelColor.LEAF_HIGHLIGHT)
-
         if plant is None:
-            txt = self._t("Select offspring")
-            pyxel.text(
-                rect.x + 6, rect.y + 24, txt[:20], PyxelColor.TEXT_MUTED
-            )
             return
-
-        # Draw Phenotype
-        pyxel.text(
-            rect.x + 6,
-            rect.y + 20,
-            f"{self._t('Phenotype')}:",
-            PyxelColor.UI_DARK,
-        )
-        traits_list = [self._trait(v) for v in plant.phenotype.traits.values()]
-        pyxel.text(
-            rect.x + 6,
-            rect.y + 28,
-            traits_list[0][:20],
-            PyxelColor.LEAF_GREEN,
-        )
-        if len(traits_list) > 1:
-            pyxel.text(
-                rect.x + 6,
-                rect.y + 36,
-                traits_list[1][:20],
-                PyxelColor.LEAF_GREEN,
-            )
-
-        # Draw Genotype
-        pyxel.text(
-            rect.x + 6,
-            rect.y + 48,
-            f"{self._t('Genotype')}:",
-            PyxelColor.UI_DARK,
-        )
-        pyxel.text(
-            rect.x + 6,
-            rect.y + 56,
-            self._visible_genotype(plant),
-            PyxelColor.UI_DARK,
-        )
-
-        # Draw Genes/Alleles list
-        pyxel.text(
-            rect.x + 6,
-            rect.y + 68,
-            f"{self._t('Genes')}:",
-            PyxelColor.UI_DARK,
-        )
-        y = rect.y + 76
-        for gene_name, gene_val in plant.phenotype.traits.items():
-            gene_letter = (
-                "A"
-                if gene_name == "color"
-                else "B"
-                if gene_name == "shape"
-                else "?"
-            )
-            val_localized = self._trait(gene_val)
-            gene_lbl = self._t(gene_name.title())
-            line = f"{gene_lbl}: {gene_letter} ({val_localized})"
-            pyxel.text(rect.x + 6, y, line[:20], PyxelColor.UI_DARK)
-            y += 10
-
-        self._draw_selected_specimen_buttons(plant)
-
-    def _draw_selected_specimen_buttons(self, plant: Plant) -> None:
-        # Draw STORE button
         can_store = (
-            self.state.selected_offspring is not None
-            and not self.state.greenhouse.has_genotype(plant.genotype)
+            not self.state.greenhouse.has_genotype(plant.genotype)
             and self.state.greenhouse.free_slots > 0
         )
-        store_fill = (
-            PyxelColor.LEAF_GREEN if can_store else PyxelColor.TEXT_MUTED
-        )
-        if STORE_BUTTON.contains(pyxel.mouse_x, pyxel.mouse_y) and can_store:
-            store_fill = PyxelColor.LEAF_HIGHLIGHT
-
-        pyxel.rect(
-            STORE_BUTTON.x,
-            STORE_BUTTON.y,
-            STORE_BUTTON.width,
-            STORE_BUTTON.height,
-            store_fill,
-        )
-        pyxel.rectb(
-            STORE_BUTTON.x,
-            STORE_BUTTON.y,
-            STORE_BUTTON.width,
-            STORE_BUTTON.height,
-            PyxelColor.FRAME,
-        )
-        pyxel.rectb(
-            STORE_BUTTON.x + 1,
-            STORE_BUTTON.y + 1,
-            STORE_BUTTON.width - 2,
-            STORE_BUTTON.height - 2,
-            PyxelColor.UI_DARK,
-        )
-        lbl_store = self._t("STORE").upper()
-        tx = STORE_BUTTON.x + (STORE_BUTTON.width - len(lbl_store) * 4) // 2
-        ty = STORE_BUTTON.y + (STORE_BUTTON.height - 6) // 2
-        pyxel.text(
-            tx,
-            ty,
-            lbl_store,
-            PyxelColor.UI_DARK if can_store else PyxelColor.INK_SHADOW,
-        )
-
-        # Draw DISCARD button
-        can_discard = self.state.selected_offspring is not None
-        discard_fill = (
-            PyxelColor.TOMATO_RED if can_discard else PyxelColor.TEXT_MUTED
-        )
-        if (
-            DISCARD_BUTTON.contains(pyxel.mouse_x, pyxel.mouse_y)
-            and can_discard
-        ):
-            discard_fill = PyxelColor.TOMATO_ORANGE
-
-        pyxel.rect(
-            DISCARD_BUTTON.x,
-            DISCARD_BUTTON.y,
-            DISCARD_BUTTON.width,
-            DISCARD_BUTTON.height,
-            discard_fill,
-        )
-        pyxel.rectb(
-            DISCARD_BUTTON.x,
-            DISCARD_BUTTON.y,
-            DISCARD_BUTTON.width,
-            DISCARD_BUTTON.height,
-            PyxelColor.FRAME,
-        )
-        pyxel.rectb(
-            DISCARD_BUTTON.x + 1,
-            DISCARD_BUTTON.y + 1,
-            DISCARD_BUTTON.width - 2,
-            DISCARD_BUTTON.height - 2,
-            PyxelColor.UI_DARK,
-        )
-        lbl_discard = self._t("DISCARD").upper()
-        tx_d = (
-            DISCARD_BUTTON.x
-            + (DISCARD_BUTTON.width - len(lbl_discard) * 4) // 2
-        )
-        ty_d = DISCARD_BUTTON.y + (DISCARD_BUTTON.height - 6) // 2
-        pyxel.text(
-            tx_d,
-            ty_d,
-            lbl_discard,
-            PyxelColor.TEXT if can_discard else PyxelColor.INK_SHADOW,
+        draw_specimen_overlay(
+            self._draw_context(),
+            SpecimenOverlayData(
+                panel=SPECIMEN_PANEL,
+                store_button=STORE_BUTTON,
+                discard_button=DISCARD_BUTTON,
+                close_button=SPECIMEN_CLOSE_BUTTON,
+                plant=plant,
+                can_store=can_store,
+                visible_genotype=self._visible_genotype(plant),
+                trait_lines=self._plant_trait_lines(plant, limit=2),
+            ),
+            plant_preview=self._draw_overlay_plant_preview,
         )
 
     def _draw_context(self) -> DrawContext:
@@ -996,6 +780,27 @@ class MainGameScene:
         large: bool,
     ) -> None:
         self._draw_plant_preview(x, y, plant, large=large)
+
+    def _draw_overlay_plant_preview(
+        self,
+        x: int,
+        y: int,
+        plant: Plant,
+        _large: bool,
+    ) -> None:
+        u, v = self._plant_sprite_coords(plant)
+        scale = 2
+        pyxel.blt(
+            x - PLANT_SPRITE_W * scale // 2,
+            y - PLANT_SPRITE_H * scale,
+            0,
+            u,
+            v,
+            PLANT_SPRITE_W,
+            PLANT_SPRITE_H,
+            colkey=0,
+            scale=scale,
+        )
 
     def _update_navigation_rail(self) -> bool:
         for screen, _label, _sprite in NAV_ITEMS:
@@ -1032,6 +837,45 @@ class MainGameScene:
             if clicked(Rect(24, 108 + index * 30, 104, 22)):
                 self._play_sound(0)
                 self.collection_tab = tab
+                self.collection_scroll_row = 0
+                self.selected_collection_entry = 0
+                return
+
+        entries = self._collection_album_entries()
+        max_scroll = album_max_scroll_row(len(entries))
+        scroll_delta = 0
+        if ALBUM_GRID_RECT.contains(pyxel.mouse_x, pyxel.mouse_y):
+            scroll_delta -= pyxel.mouse_wheel
+        if pyxel.btnp(pyxel.KEY_UP):
+            scroll_delta -= 1
+        if pyxel.btnp(pyxel.KEY_DOWN):
+            scroll_delta += 1
+        if pyxel.btnp(pyxel.KEY_PAGEUP):
+            scroll_delta -= ALBUM_VISIBLE_ROWS
+        if pyxel.btnp(pyxel.KEY_PAGEDOWN):
+            scroll_delta += ALBUM_VISIBLE_ROWS
+        if scroll_delta:
+            self.collection_scroll_row = min(
+                max(self.collection_scroll_row + scroll_delta, 0),
+                max_scroll,
+            )
+
+        first_index = self.collection_scroll_row * ALBUM_COLUMNS
+        visible_count = ALBUM_COLUMNS * ALBUM_VISIBLE_ROWS
+        for visible_index in range(
+            min(visible_count, len(entries) - first_index)
+        ):
+            if clicked(album_card_rect(visible_index)):
+                self._play_sound(0)
+                self.selected_collection_entry = first_index + visible_index
+                return
+
+        if clicked(ALBUM_SCROLLBAR) and max_scroll:
+            relative_y = pyxel.mouse_y - ALBUM_SCROLLBAR.y
+            self.collection_scroll_row = min(
+                max_scroll * relative_y // ALBUM_SCROLLBAR.height,
+                max_scroll,
+            )
 
     def _update_garden_screen(self) -> None:
         if pyxel.btnp(pyxel.KEY_ESCAPE):
@@ -1136,15 +980,65 @@ class MainGameScene:
         parent_b = self.state.parent_b
         if parent_a is None or parent_b is None:
             return []
-        view_level = self.analyzer_view_level or self.state.analyzer_level
+        view_level = self.state.analyzer_level
         if view_level < ANALYZER_PROBABILITY_LEVEL:
             return []
 
-        distribution = expected_distribution(parent_a, parent_b)
+        probabilities = expected_phenotype_probabilities(parent_a, parent_b)
         return [
-            f"{genotype}: {int(probability * 100)}%"
-            for genotype, probability in distribution.probabilities.items()
+            f"{' / '.join(self._trait(value) for value in traits)}: "
+            f"{round(probability * 100)}%"
+            for traits, probability in sorted(
+                probabilities.items(),
+                key=lambda item: (-item[1], item[0]),
+            )
         ]
+
+    def _analyzer_phenotype_lines(self) -> list[str]:
+        parent_a = self.state.parent_a
+        parent_b = self.state.parent_b
+        if parent_a is None or parent_b is None:
+            return []
+        return [
+            "A: "
+            + " / ".join(
+                self._trait(value)
+                for value in parent_a.phenotype.traits.values()
+            ),
+            "B: "
+            + " / ".join(
+                self._trait(value)
+                for value in parent_b.phenotype.traits.values()
+            ),
+        ]
+
+    def _analyzer_genotype_lines(self) -> list[str]:
+        parent_a = self.state.parent_a
+        parent_b = self.state.parent_b
+        if parent_a is None or parent_b is None:
+            return []
+        return [
+            f"A: {parent_a.genotype}",
+            f"B: {parent_b.genotype}",
+        ]
+
+    def _analyzer_gamete_lines(self) -> list[str]:
+        parent_a = self.state.parent_a
+        parent_b = self.state.parent_b
+        if parent_a is None or parent_b is None:
+            return []
+        return [
+            f"A: {self._compact_gametes(gametes(parent_a))}",
+            f"B: {self._compact_gametes(gametes(parent_b))}",
+        ]
+
+    @staticmethod
+    def _compact_gametes(values: tuple[str, ...]) -> str:
+        if len(values) <= ANALYZER_FULL_GAMETE_LIMIT:
+            return " ".join(values)
+        visible = " ".join(values[:ANALYZER_COMPACT_GAMETE_COUNT])
+        remaining = len(values) - ANALYZER_COMPACT_GAMETE_COUNT
+        return f"{visible} +{remaining}"
 
     def _best_contract_cross(self) -> str | None:
         """Return the stored parent pair with the best active-contract odds."""
@@ -1191,19 +1085,21 @@ class MainGameScene:
         draw_germination_bed_panel(
             self._draw_context(),
             GerminationBedPanelData(
-                rect=Rect(164, 178, 286, 170),
+                rect=Rect(188, 178, 362, 170),
                 layout=self._germination_layout(),
                 current_batch=self.state.current_batch,
                 visible_count=self.state.visible_count,
-                selected_index=self.state.selected_offspring_index,
+                selected_index=(
+                    self.state.selected_offspring_index
+                    if self.specimen_overlay_open
+                    else None
+                ),
                 status_message=self.state.status_message,
                 reveal_frames=getattr(self, "_reveal_frames", {}),
                 frame_count=pyxel.frame_count,
                 seed_stage_frames=SEED_STAGE_FRAMES,
                 seedling_stage_frames=SEEDLING_STAGE_FRAMES,
-                store_button=STORE_BUTTON,
                 harvest_button=HARVEST_BUTTON,
-                can_store=self.state.selected_offspring is not None,
                 can_harvest=self._germination_ready(),
                 contract_progress_count=contract.progress_count,
                 contract_remaining_count=contract.remaining_count,
@@ -1217,10 +1113,18 @@ class MainGameScene:
 
     def _update_germination_bed_selection(self) -> None:
         layout = self._germination_layout()
-        for index in range(len(self.state.current_batch)):
+        visible_cells = min(
+            self.state.visible_count,
+            len(self.state.current_batch),
+            layout.cell_count,
+        )
+        for index in range(visible_cells):
+            if self.state.current_batch[index] is None:
+                continue
             if clicked(self._germination_cell_rect(index, layout)):
                 self._play_sound(0)
                 self.state.selected_offspring_index = index
+                self.specimen_overlay_open = True
                 return
 
     def _germination_layout(self) -> BedLayout:
@@ -1230,69 +1134,48 @@ class MainGameScene:
             geometry=BED_GEOMETRY,
         )
 
-    def _draw_hovered_plant_tooltip(self) -> None:
-        hover = self._hovered_germination_specimen()
-        if hover is None:
+    def _update_specimen_overlay(self) -> None:
+        if clicked(SPECIMEN_CLOSE_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+            self._play_sound(0)
+            self.specimen_overlay_open = False
             return
-        _index, plant = hover
-        growth_status = (
-            self._t("Growing")
-            if not self._germination_ready()
-            else self._t("DONE")
-        )
-        lines = [
-            growth_status,
-            self._t(
-                "Generation: {generation}",
-                generation=plant.generation_label,
-            ),
-            f"Genotype: {self._visible_genotype(plant)}",
-            *self._plant_trait_lines(plant, limit=2),
-            self._harvest_destination_label(plant),
-        ]
-        draw_plant_tooltip(
-            TooltipData(
-                lines=lines,
-                mouse_x=pyxel.mouse_x,
-                mouse_y=pyxel.mouse_y,
-                screen_width=WIDTH,
-                screen_height=HEIGHT,
-            ),
-        )
 
-    def _hovered_germination_specimen(self) -> tuple[int, Plant] | None:
-        layout = self._germination_layout()
-        visible_cells = min(len(self.state.current_batch), layout.cell_count)
-        for index in range(visible_cells):
-            if not self._germination_cell_rect(index, layout).contains(
-                pyxel.mouse_x,
-                pyxel.mouse_y,
-            ):
-                continue
-            plant = self.state.current_batch[index]
-            if plant is None:
-                return None
-            return index, plant
-        return None
+        if clicked(STORE_BUTTON) or pyxel.btnp(pyxel.KEY_S):
+            if self.breeding.store_selected_offspring():
+                self._play_sound(3)
+                self.specimen_overlay_open = False
+                if not self.state.current_batch:
+                    self._reveal_frames.clear()
+                    self.germination_started_frame = None
+                self._autosave()
+            else:
+                self._play_sound(4)
+            return
 
-    def _harvest_destination_label(self, plant: Plant) -> str:
-        if (
-            not self.state.active_contract.completed
-            and self.state.active_contract.matches(plant)
-        ):
-            return self._t("Contract matches")
-        return self._t("Sells after harvest")
+        if clicked(DISCARD_BUTTON) or pyxel.btnp(pyxel.KEY_D):
+            if self.breeding.discard_selected_offspring():
+                self._play_sound(3)
+                self.specimen_overlay_open = False
+                if not self.state.current_batch:
+                    self._reveal_frames.clear()
+                    self.germination_started_frame = None
+                self._autosave()
+            else:
+                self._play_sound(4)
 
     def _draw_collection_screen(self) -> None:
-        entries = self._collection_entries()
+        entries = self._collection_album_entries()
         draw_collection_screen(
             self._draw_context(),
             CollectionScreenData(
                 total_entries=self.state.collection.total_entries,
+                total_slots=collection_total_entries(),
                 tabs=COLLECTION_TABS,
                 active_tab=self.collection_tab,
                 entries=entries,
-                details=self._collection_details(entries),
+                discovered_count=sum(entry.discovered for entry in entries),
+                scroll_row=self.collection_scroll_row,
+                selected_index=self.selected_collection_entry,
             ),
         )
 
@@ -1434,45 +1317,38 @@ class MainGameScene:
             return None
         return self.state.greenhouse.plant_at(self.selected_greenhouse_slot)
 
-    def _collection_entries(self) -> list[str]:
+    def _collection_album_entries(
+        self,
+    ) -> tuple[CollectionAlbumEntry, ...]:
         collection = self.state.collection
         if self.collection_tab == "Species":
-            entries = sorted(collection.species)
-            return [
-                self._t("{name} - discovered", name=name) for name in entries
-            ]
+            return tuple(
+                CollectionAlbumEntry(
+                    title=self._t(species),
+                    subtitle=self._t("Species"),
+                    discovered=species in collection.species,
+                )
+                for species in official_collection_keys("Species")
+            )
         if self.collection_tab == "Phenotypes":
-            entries = sorted(collection.phenotypes)
-            return [
-                self._format_phenotype_entry(species, traits)
-                for species, traits in entries
-            ]
-        return [
-            f"{species}: {genotype}"
-            for species, genotype in sorted(collection.genotypes)
-        ]
-
-    def _collection_details(self, entries: list[str]) -> list[str]:
-        if self.collection_tab == "Species":
-            return [
-                self._t("Mendel Pea unlocked."),
-                self._t(
-                    "Species found: {count}",
-                    count=len(self.state.collection.species),
-                ),
-                self._t("Next species unlock in shop."),
-            ]
-        if self.collection_tab == "Phenotypes":
-            return [
-                self._t("Phenotypes found: {count}", count=len(entries)),
-                self._t("Seed color + texture."),
-                self._t("Hidden entries stay unknown."),
-            ]
-        return [
-            self._t("Genotypes found: {count}", count=len(entries)),
-            self._t("Generated offspring register here."),
-            self._t("Analyzer upgrades reveal more data."),
-        ]
+            return tuple(
+                CollectionAlbumEntry(
+                    title=" / ".join(
+                        self._trait(value) for _name, value in traits
+                    ),
+                    subtitle=self._t(species),
+                    discovered=(species, traits) in collection.phenotypes,
+                )
+                for species, traits in official_collection_keys("Phenotypes")
+            )
+        return tuple(
+            CollectionAlbumEntry(
+                title=genotype,
+                subtitle=self._t(species),
+                discovered=(species, genotype) in collection.genotypes,
+            )
+            for species, genotype in official_collection_keys("Genotypes")
+        )
 
     def _shop_card_data(self, item: str) -> tuple[str, str, str]:
         if item == "slot":
@@ -1799,14 +1675,14 @@ class MainGameScene:
             language_label=self._language_label(),
             language_button=LANGUAGE_BUTTON,
             music=VolumeControlData(
-                y=143,
+                y=112,
                 label=self._t("Music volume"),
                 value=self.settings.music_volume,
                 down_button=MUSIC_DOWN_BUTTON,
                 up_button=MUSIC_UP_BUTTON,
             ),
             sound=VolumeControlData(
-                y=186,
+                y=174,
                 label=self._t("Effects volume"),
                 value=self.settings.sound_volume,
                 down_button=SOUND_DOWN_BUTTON,
@@ -1837,9 +1713,12 @@ class MainGameScene:
         self.breeding = BreedingService(self.state)
         self.greenhouse_service = GreenhouseService(self.state)
         self.parent_picker_target = None
+        self.specimen_overlay_open = False
         self.reset_confirmation_open = False
         self.active_screen = SCREEN_MAIN
         self.collection_tab = "Species"
+        self.collection_scroll_row = 0
+        self.selected_collection_entry = 0
         self.selected_knowledge = "Phenotype"
         self.selected_greenhouse_slot = 0
         self.selected_shop_item = "slot"
@@ -1880,7 +1759,7 @@ class MainGameScene:
         return f"{species}: {values}"
 
     def _visible_genotype(self, plant: Plant) -> str:
-        view_level = self.analyzer_view_level or self.state.analyzer_level
+        view_level = self.state.analyzer_level
         if view_level < ANALYZER_GENOTYPE_LEVEL:
             return "????"
         return plant.genotype
@@ -2013,4 +1892,3 @@ class MainGameScene:
 
     def _tick_button_timers(self) -> None:
         self.cross_button_timer = max(self.cross_button_timer - 1, 0)
-        self.analyzer_flash_timer = max(self.analyzer_flash_timer - 1, 0)

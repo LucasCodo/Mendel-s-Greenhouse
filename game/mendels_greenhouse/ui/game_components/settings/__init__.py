@@ -1,6 +1,19 @@
 """Settings overlay components."""
 
 from .overlay import (
+    LANGUAGE_BUTTON,
+    MUSIC_DOWN_BUTTON,
+    MUSIC_MUTE_CHECKBOX,
+    MUSIC_UP_BUTTON,
+    RESET_CANCEL_BUTTON,
+    RESET_CONFIRM_BUTTON,
+    RESET_PROGRESS_BUTTON,
+    SETTINGS_BACK_BUTTON,
+    SETTINGS_PANEL,
+    SETTINGS_PREFERENCES_PANEL,
+    SOUND_DOWN_BUTTON,
+    SOUND_MUTE_CHECKBOX,
+    SOUND_UP_BUTTON,
     SettingsOverlayData,
     VolumeControlData,
     draw_reset_confirmation,
@@ -8,6 +21,19 @@ from .overlay import (
 )
 
 __all__ = [
+    "LANGUAGE_BUTTON",
+    "MUSIC_DOWN_BUTTON",
+    "MUSIC_MUTE_CHECKBOX",
+    "MUSIC_UP_BUTTON",
+    "RESET_CANCEL_BUTTON",
+    "RESET_CONFIRM_BUTTON",
+    "RESET_PROGRESS_BUTTON",
+    "SETTINGS_BACK_BUTTON",
+    "SETTINGS_PANEL",
+    "SETTINGS_PREFERENCES_PANEL",
+    "SOUND_DOWN_BUTTON",
+    "SOUND_MUTE_CHECKBOX",
+    "SOUND_UP_BUTTON",
     "SettingsOverlayData",
     "VolumeControlData",
     "draw_reset_confirmation",

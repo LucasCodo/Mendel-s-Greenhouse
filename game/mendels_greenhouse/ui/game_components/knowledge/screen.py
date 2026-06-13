@@ -5,6 +5,7 @@ from dataclasses import dataclass
 import pyxel
 
 from mendels_greenhouse.ui.components import Rect, draw_panel
+from mendels_greenhouse.ui.fonts import draw_text, fit_text
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     TextWrapper,
@@ -42,7 +43,7 @@ def draw_knowledge_screen(
     """Draw the knowledge screen."""
     translate = context.translate
     draw_scene_shell(context, "Knowledge", "Learned genetics concepts")
-    pyxel.text(
+    draw_text(
         438,
         86,
         translate(
@@ -70,7 +71,7 @@ def _draw_knowledge_nodes(
     for stage in data.stages:
         stage_unlocked = data.analyzer_level >= stage.required_level
         y = 116 + index * 11
-        pyxel.text(38, y, translate(stage.title).upper(), PyxelColor.ACCENT)
+        draw_text(38, y, translate(stage.title).upper(), PyxelColor.ACCENT)
         index += 1
         for concept in stage.concepts:
             unlocked = data.analyzer_level >= stage.required_level
@@ -88,14 +89,14 @@ def _draw_knowledge_nodes(
                 PyxelColor.FRAME,
             )
             label = translate(concept) if unlocked else translate("Locked")
-            pyxel.text(
+            draw_text(
                 rect.x + 6,
                 rect.y + 3,
-                label[:44],
+                fit_text(label, rect.width - 38),
                 PyxelColor.UI_DARK,
             )
             if not stage_unlocked:
-                pyxel.text(
+                draw_text(
                     rect.x + 166,
                     rect.y + 3,
                     f"L{stage.required_level}",
@@ -112,20 +113,20 @@ def _draw_knowledge_details(
     translate = context.translate
     concept = data.selected_concept
     required_level = _required_level_for(data.stages, concept)
-    pyxel.text(
+    draw_text(
         panel.x + 18,
         panel.y + 18,
         translate("Selected Concept"),
         PyxelColor.UI_DARK,
     )
     if data.analyzer_level < required_level:
-        pyxel.text(
+        draw_text(
             panel.x + 18,
             panel.y + 42,
             translate("Locked"),
             PyxelColor.UI_DARK,
         )
-        pyxel.text(
+        draw_text(
             panel.x + 18,
             panel.y + 58,
             translate("Analyzer L{level} required.", level=required_level),
@@ -133,21 +134,21 @@ def _draw_knowledge_details(
         )
         return
 
-    pyxel.text(
+    draw_text(
         panel.x + 18,
         panel.y + 42,
         translate(concept).upper(),
         PyxelColor.UI_DARK,
     )
     detail = data.detail_texts.get(concept, "")
-    for index, line in enumerate(data.wrap_text(translate(detail), 58)[:5]):
-        pyxel.text(
+    for index, line in enumerate(data.wrap_text(translate(detail), 40)[:5]):
+        draw_text(
             panel.x + 18,
             panel.y + 64 + index * 13,
-            line,
+            fit_text(line, panel.width - 36),
             PyxelColor.UI_DARK,
         )
-    pyxel.text(
+    draw_text(
         panel.x + 18,
         panel.y + 154,
         translate("Unlocked by analyzer level {level}.", level=required_level),

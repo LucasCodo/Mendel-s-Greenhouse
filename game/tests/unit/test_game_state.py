@@ -334,6 +334,55 @@ def test_tester_money_code_grants_large_credit_balance() -> None:
     assert state.status_message == "Tester money code enabled."
 
 
+def test_analyzer_reports_follow_unlocked_experiment_levels() -> None:
+    state = GameState.create_initial()
+    state.greenhouse.store(Plant("AaBb"))
+    state.selected_parent_a = 2
+    state.selected_parent_b = 2
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene._trait = lambda value: value
+
+    assert scene._analyzer_phenotype_lines() == [
+        "A: yellow / smooth",
+        "B: yellow / smooth",
+    ]
+    assert scene._analyzer_genotype_lines() == [
+        "A: AaBb",
+        "B: AaBb",
+    ]
+    assert scene._analyzer_gamete_lines() == [
+        "A: AB Ab aB ab",
+        "B: AB Ab aB ab",
+    ]
+
+    state.analyzer_level = 3
+    assert sorted(scene._probability_lines()) == [
+        "green / smooth: 19%",
+        "green / wrinkled: 6%",
+        "yellow / smooth: 56%",
+        "yellow / wrinkled: 19%",
+    ]
+
+
+def test_level_four_analyzer_finds_best_stored_contract_cross() -> None:
+    state = GameState.create_initial()
+    state.analyzer_level = 4
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+
+    assert scene._best_contract_cross() == "1 x 2: 100%"
+
+
+def test_analyzer_compacts_large_gamete_sets() -> None:
+    assert (
+        MainGameScene._compact_gametes(
+            ("ABC", "ABc", "AbC", "Abc", "aBC", "aBc", "abC", "abc"),
+        )
+        == "ABC ABc +6"
+    )
+
+
 def test_species_unlocks_use_distinct_plant_sprite_coordinates() -> None:
     scene = MainGameScene.__new__(MainGameScene)
 

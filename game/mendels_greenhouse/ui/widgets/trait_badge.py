@@ -5,6 +5,11 @@ from dataclasses import dataclass
 import pyxel
 
 from mendels_greenhouse.ui.components import Rect
+from mendels_greenhouse.ui.fonts import (
+    DISPLAY_GLYPH_HEIGHT,
+    draw_text,
+    text_width,
+)
 from mendels_greenhouse.ui.palette import PyxelColor
 
 
@@ -72,7 +77,7 @@ class TraitBadge:
             )
 
         # Center text inside the badge
-        label_width = len(display_label) * 4
+        label_width = text_width(display_label)
         text_x = self.rect.x + max((self.rect.width - label_width) // 2, 2)
-        text_y = self.rect.y + (self.rect.height - 6) // 2
-        pyxel.text(text_x, text_y, display_label, text_color)
+        text_y = self.rect.y + (self.rect.height - DISPLAY_GLYPH_HEIGHT) // 2
+        draw_text(text_x, text_y, display_label, text_color)

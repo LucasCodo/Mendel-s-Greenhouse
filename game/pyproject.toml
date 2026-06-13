@@ -23,7 +23,7 @@ format = "ruff format ."
 check-format = "ruff format --check ."
 check = ["lint", "check-format", "test"]
 build-assets = "python tools/build_assets.py"
-i18n-extract = "pybabel extract -k _t -k t -k gettext_noop -o mendels_greenhouse/locale/messages.pot mendels_greenhouse"
+i18n-extract = "pybabel extract -k _t -k t -k translate -k gettext_noop -o mendels_greenhouse/locale/messages.pot mendels_greenhouse"
 i18n-update = "pybabel update -i mendels_greenhouse/locale/messages.pot -d mendels_greenhouse/locale -D mendels_greenhouse"
 i18n-compile = "pybabel compile -d mendels_greenhouse/locale -D mendels_greenhouse"
 

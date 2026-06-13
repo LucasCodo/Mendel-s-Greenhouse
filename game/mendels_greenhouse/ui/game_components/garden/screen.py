@@ -7,6 +7,7 @@ import pyxel
 
 from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
+from mendels_greenhouse.ui.fonts import draw_text, fit_text
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     draw_scene_shell,
@@ -41,10 +42,14 @@ def draw_garden_screen(
     """Draw the garden screen."""
     translate = context.translate
     draw_scene_shell(context, "Garden", "Stored plants and parent selection")
-    pyxel.text(
+    draw_text(
         476,
         86,
-        f"Slots: {data.used_slots}/20",
+        translate(
+            "Slots: {used}/{capacity}",
+            used=data.used_slots,
+            capacity=data.capacity,
+        ),
         PyxelColor.PARCHMENT_LIGHT,
     )
     grid_panel = Rect(24, 104, 294, 214)
@@ -54,10 +59,10 @@ def draw_garden_screen(
     for index in range(20):
         _draw_greenhouse_slot(context, data, index, plant_preview)
 
-    pyxel.text(354, 122, translate("SELECTED PLANT"), PyxelColor.UI_DARK)
+    draw_text(354, 122, translate("SELECTED PLANT"), PyxelColor.UI_DARK)
     selected = data.selected_plant
     if selected is None:
-        pyxel.text(
+        draw_text(
             354,
             146,
             translate("Empty or locked slot."),
@@ -66,7 +71,7 @@ def draw_garden_screen(
         return
 
     plant_preview(382, 205, selected, True)
-    pyxel.text(
+    draw_text(
         428,
         146,
         translate(
@@ -75,14 +80,22 @@ def draw_garden_screen(
         ),
         PyxelColor.UI_DARK,
     )
-    pyxel.text(
+    draw_text(
         428,
         160,
-        f"Genotype: {visible_genotype(selected)}",
+        translate(
+            "Genotype: {genotype}",
+            genotype=visible_genotype(selected),
+        ),
         PyxelColor.UI_DARK,
     )
     for line_index, line in enumerate(trait_lines(selected)):
-        pyxel.text(428, 174 + line_index * 14, line, PyxelColor.UI_DARK)
+        draw_text(
+            428,
+            174 + line_index * 14,
+            fit_text(line, detail_panel.x + detail_panel.width - 436),
+            PyxelColor.UI_DARK,
+        )
     draw_button(Rect(392, 201, 96, 22), translate("PARENT A"))
     draw_button(Rect(392, 229, 96, 22), translate("PARENT B"))
     draw_button(
@@ -127,7 +140,7 @@ def _draw_greenhouse_slot(
     )
     translate = context.translate
     if not unlocked:
-        pyxel.text(
+        draw_text(
             rect.x + 13,
             rect.y + 19,
             translate("LOCK"),
@@ -136,7 +149,7 @@ def _draw_greenhouse_slot(
         return
     plant = data.slots[index] if index < len(data.slots) else None
     if plant is None:
-        pyxel.text(
+        draw_text(
             rect.x + 14,
             rect.y + 19,
             translate("Empty slot").upper()[:5],

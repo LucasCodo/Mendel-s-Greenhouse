@@ -8,6 +8,7 @@ import pyxel
 from mendels_greenhouse.ui.components import Rect, draw_rounded_panel
 from mendels_greenhouse.ui.fonts import (
     draw_bold_spaced_text,
+    draw_text,
 )
 from mendels_greenhouse.ui.game_components.main_game.chrome import (
     draw_runtime_hud_frame,
@@ -86,8 +87,8 @@ def draw_top_bar(
         scale=0.25,
     )
     # CR and value text
-    pyxel.text(113 + 22, 28, "CR", PyxelColor.ACCENT, display_font)
-    pyxel.text(113 + 36, 28, str(data.credits), PyxelColor.TEXT, display_font)
+    draw_text(113 + 22, 28, "CR", PyxelColor.ACCENT, display_font)
+    draw_text(113 + 36, 28, str(data.credits), PyxelColor.TEXT, display_font)
 
     # 4. Draw Capacity capsule (x=201, y=19, width=58)
     draw_rounded_panel(
@@ -110,4 +111,4 @@ def draw_top_bar(
     )
     # Capacity value text
     garden = f"{data.greenhouse_used}/{data.greenhouse_capacity}"
-    pyxel.text(201 + 22, 28, garden, PyxelColor.TEXT, display_font)
+    draw_text(201 + 22, 28, garden, PyxelColor.TEXT, display_font)
