@@ -67,6 +67,9 @@ from mendels_greenhouse.ui.game_components.knowledge import (
     KnowledgeScreenData,
     KnowledgeStage,
     draw_knowledge_screen,
+    knowledge_concept_rect,
+    knowledge_stage_rect,
+    selected_knowledge_stage,
 )
 from mendels_greenhouse.ui.game_components.main_game import (
     CROSS_BUTTON,
@@ -116,8 +119,14 @@ from mendels_greenhouse.ui.game_components.shared import (
     draw_scene_shell,
 )
 from mendels_greenhouse.ui.game_components.shop import (
+    SHOP_BUY_BUTTON,
+    SHOP_CARD_RECTS,
+    SHOP_CONFIRM_BUY_BUTTON,
+    SHOP_CONFIRM_CANCEL_BUTTON,
     ShopCardData,
+    ShopConfirmationData,
     ShopScreenData,
+    draw_shop_confirmation,
     draw_shop_screen,
 )
 
@@ -534,6 +543,7 @@ class MainGameScene:
         self.intro_open = True
         self.settings_open = False
         self.reset_confirmation_open = False
+        self.shop_confirmation_open = False
         self.parent_picker_target: str | None = None
         self.specimen_overlay_open = False
         self.settings = SettingsState.from_dict(saved_settings or {})
@@ -548,7 +558,7 @@ class MainGameScene:
         self.tester_code_buffer = ""
         self._apply_audio_settings()
 
-    def update(self) -> None:
+    def update(self) -> None:  # noqa: PLR0912
         """Handle mouse-first controls and keyboard shortcuts."""
         self._tick_button_timers()
         self._update_tester_code()
@@ -562,6 +572,8 @@ class MainGameScene:
             self._update_parent_picker()
         elif self.specimen_overlay_open:
             self._update_specimen_overlay()
+        elif self.shop_confirmation_open:
+            self._update_shop_purchase_confirmation()
         elif self._update_navigation_rail():
             pass
         elif self.active_screen == SCREEN_KNOWLEDGE:
@@ -684,6 +696,8 @@ class MainGameScene:
         else:
             self._draw_main_game_screen()
         self._draw_navigation_rail()
+        if self.shop_confirmation_open:
+            self._draw_shop_purchase_confirmation()
         if self.specimen_overlay_open:
             self._draw_specimen_overlay()
         if self.intro_open:
@@ -818,15 +832,54 @@ class MainGameScene:
             self._play_sound(0)
             self.active_screen = SCREEN_MAIN
             return
-        index = 0
-        for _stage, concepts, _required_level in KNOWLEDGE_STAGES:
-            index += 1
-            for concept in concepts:
-                if clicked(Rect(28, 116 + index * 11, 196, 10)):
-                    self._play_sound(0)
-                    self.selected_knowledge = concept
-                    return
-                index += 1
+        stages = self._knowledge_stage_data()
+        active_stage = selected_knowledge_stage(
+            stages,
+            self.selected_knowledge,
+        )
+        active_stage_index = stages.index(active_stage)
+
+        for index, stage in enumerate(stages):
+            if clicked(knowledge_stage_rect(index)):
+                self._play_sound(0)
+                self.selected_knowledge = stage.concepts[0]
+                return
+
+        for index, concept in enumerate(active_stage.concepts):
+            rect = knowledge_concept_rect(index)
+            if rect.contains(pyxel.mouse_x, pyxel.mouse_y):
+                self.selected_knowledge = concept
+            if clicked(rect):
+                self._play_sound(0)
+                return
+
+        stage_delta = 0
+        if pyxel.btnp(pyxel.KEY_LEFT):
+            stage_delta = -1
+        elif pyxel.btnp(pyxel.KEY_RIGHT):
+            stage_delta = 1
+        if stage_delta:
+            next_index = min(
+                max(active_stage_index + stage_delta, 0),
+                len(stages) - 1,
+            )
+            self._play_sound(0)
+            self.selected_knowledge = stages[next_index].concepts[0]
+            return
+
+        concept_index = active_stage.concepts.index(self.selected_knowledge)
+        concept_delta = 0
+        if pyxel.btnp(pyxel.KEY_UP):
+            concept_delta = -1
+        elif pyxel.btnp(pyxel.KEY_DOWN):
+            concept_delta = 1
+        if concept_delta:
+            next_index = min(
+                max(concept_index + concept_delta, 0),
+                len(active_stage.concepts) - 1,
+            )
+            self._play_sound(0)
+            self.selected_knowledge = active_stage.concepts[next_index]
 
     def _update_collection_screen(self) -> None:
         if pyxel.btnp(pyxel.KEY_ESCAPE):
@@ -928,17 +981,42 @@ class MainGameScene:
             self._play_sound(0)
             self.active_screen = SCREEN_MAIN
             return
-        for item, rect in [
-            ("slot", Rect(34, 120, 154, 42)),
-            ("analyzer", Rect(210, 120, 154, 42)),
-            ("species", Rect(386, 120, 154, 42)),
-        ]:
+        for item, rect in zip(
+            ("slot", "analyzer", "species"),
+            SHOP_CARD_RECTS,
+            strict=True,
+        ):
             if clicked(rect):
                 self._play_sound(0)
                 self.selected_shop_item = item
                 return
-        if clicked(Rect(392, 284, 96, 24)) and self._buy_selected_shop_item():
-            self._autosave()
+        if (
+            clicked(SHOP_BUY_BUTTON) or pyxel.btnp(pyxel.KEY_RETURN)
+        ) and self._selected_shop_available():
+            self._request_shop_purchase()
+
+    def _update_shop_purchase_confirmation(self) -> None:
+        if clicked(SHOP_CONFIRM_CANCEL_BUTTON) or pyxel.btnp(pyxel.KEY_ESCAPE):
+            self._play_sound(0)
+            self.shop_confirmation_open = False
+            return
+        if clicked(SHOP_CONFIRM_BUY_BUTTON) or pyxel.btnp(pyxel.KEY_RETURN):
+            self._confirm_shop_purchase()
+
+    def _request_shop_purchase(self) -> None:
+        if not self._selected_shop_available():
+            return
+        self._play_sound(0)
+        self.shop_confirmation_open = True
+
+    def _confirm_shop_purchase(self) -> bool:
+        if not self.shop_confirmation_open:
+            return False
+        if not self._buy_selected_shop_item():
+            return False
+        self.shop_confirmation_open = False
+        self._autosave()
+        return True
 
     def _draw_greenhouse_background(self) -> None:
         draw_greenhouse_background(
@@ -1192,10 +1270,7 @@ class MainGameScene:
         draw_knowledge_screen(
             self._draw_context(),
             KnowledgeScreenData(
-                stages=tuple(
-                    KnowledgeStage(stage, concepts, required_level)
-                    for stage, concepts, required_level in KNOWLEDGE_STAGES
-                ),
+                stages=self._knowledge_stage_data(),
                 analyzer_level=self.state.analyzer_level,
                 selected_concept=self.selected_knowledge,
                 detail_texts=KNOWLEDGE_DETAILS,
@@ -1203,6 +1278,12 @@ class MainGameScene:
                 total_count=total,
                 wrap_text=self._wrap_text,
             ),
+        )
+
+    def _knowledge_stage_data(self) -> tuple[KnowledgeStage, ...]:
+        return tuple(
+            KnowledgeStage(stage, concepts, required_level)
+            for stage, concepts, required_level in KNOWLEDGE_STAGES
         )
 
     def _draw_garden_screen(self) -> None:
@@ -1247,19 +1328,38 @@ class MainGameScene:
                 cards=(
                     self._shop_card_display_data(
                         "slot",
-                        Rect(34, 120, 154, 42),
+                        SHOP_CARD_RECTS[0],
                     ),
                     self._shop_card_display_data(
                         "analyzer",
-                        Rect(210, 120, 154, 42),
+                        SHOP_CARD_RECTS[1],
                     ),
                     self._shop_card_display_data(
                         "species",
-                        Rect(386, 120, 154, 42),
+                        SHOP_CARD_RECTS[2],
                     ),
                 ),
                 details=self._shop_details(),
                 buy_enabled=self._selected_shop_available(),
+            ),
+        )
+
+    def _draw_shop_purchase_confirmation(self) -> None:
+        cost = self._selected_shop_cost()
+        card = self._shop_card_display_data(
+            self.selected_shop_item,
+            SHOP_CARD_RECTS[
+                ("slot", "analyzer", "species").index(self.selected_shop_item)
+            ],
+        )
+        draw_shop_confirmation(
+            self._draw_context(),
+            ShopConfirmationData(
+                title=card.title,
+                cost=card.cost,
+                credits_after=max(self.state.credits - cost, 0),
+                artwork=card.artwork,
+                sprite=card.sprite,
             ),
         )
 
@@ -1365,7 +1465,20 @@ class MainGameScene:
             title=title,
             cost=cost,
             status=status,
+            artwork=item,
+            sprite=self._shop_artwork_sprite(item),
         )
+
+    def _shop_artwork_sprite(
+        self,
+        item: str,
+    ) -> tuple[int, int] | None:
+        if item != "species":
+            return None
+        species_name, _data = self._next_species_unlock()
+        if species_name is None:
+            return None
+        return SPECIES_PLANT_SPRITES.get(species_name)
 
     def _greenhouse_slot_card_data(self) -> tuple[str, str, str]:
         next_slot = self.state.greenhouse.capacity + 1
@@ -1515,6 +1628,19 @@ class MainGameScene:
             self.selected_shop_item,
         )
         return status == "BUY" and cost_text.endswith("CR")
+
+    def _selected_shop_cost(self) -> int:
+        if self.selected_shop_item == "slot":
+            next_slot = self.state.greenhouse.capacity + 1
+            return GREENHOUSE_EXPANSION_COSTS.get(next_slot, 0)
+        if self.selected_shop_item == "analyzer":
+            next_level = self.state.analyzer_level + 1
+            upgrade = ANALYZER_UPGRADES.get(next_level)
+            return 0 if upgrade is None else upgrade[1]
+        _species_name, data = self._next_species_unlock()
+        if data is None or data[1] is None:
+            return 0
+        return data[1]
 
     def _spend_credits(self, cost: int) -> bool:
         if self.state.credits < cost:
@@ -1715,6 +1841,7 @@ class MainGameScene:
         self.parent_picker_target = None
         self.specimen_overlay_open = False
         self.reset_confirmation_open = False
+        self.shop_confirmation_open = False
         self.active_screen = SCREEN_MAIN
         self.collection_tab = "Species"
         self.collection_scroll_row = 0

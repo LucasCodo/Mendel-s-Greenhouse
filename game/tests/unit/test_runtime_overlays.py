@@ -1,6 +1,12 @@
 from unittest.mock import Mock, patch
 
 from mendels_greenhouse.ui.components import Rect
+from mendels_greenhouse.ui.game_components.knowledge import (
+    KnowledgeStage,
+    knowledge_concept_rect,
+    knowledge_stage_rect,
+    selected_knowledge_stage,
+)
 from mendels_greenhouse.ui.game_components.main_game import (
     ANALYZER_PANEL,
     ANALYZER_SCREEN,
@@ -26,6 +32,12 @@ from mendels_greenhouse.ui.game_components.settings import (
     SOUND_UP_BUTTON,
 )
 from mendels_greenhouse.ui.game_components.shared import DrawContext
+from mendels_greenhouse.ui.game_components.shop import (
+    SHOP_BUY_BUTTON,
+    SHOP_CARD_RECTS,
+    SHOP_CONFIRM_BUY_BUTTON,
+    SHOP_CONFIRM_CANCEL_BUTTON,
+)
 
 
 def test_intro_panel_uses_display_font_for_all_instruction_text() -> None:
@@ -115,4 +127,36 @@ def test_analyzer_screen_uses_space_freed_by_hardware_controls() -> None:
     )
     assert ANALYZER_SCREEN.y + ANALYZER_SCREEN.height <= (
         ANALYZER_PANEL.y + ANALYZER_PANEL.height - 14
+    )
+
+
+def test_shop_cards_and_actions_stay_clear_of_navigation_rail() -> None:
+    content_right = 558
+
+    assert all(
+        card.x + card.width <= content_right for card in SHOP_CARD_RECTS
+    )
+    assert SHOP_BUY_BUTTON.x + SHOP_BUY_BUTTON.width <= content_right
+    assert (
+        SHOP_CONFIRM_CANCEL_BUTTON.x + SHOP_CONFIRM_CANCEL_BUTTON.width
+        <= content_right
+    )
+    assert (
+        SHOP_CONFIRM_BUY_BUTTON.x + SHOP_CONFIRM_BUY_BUTTON.width
+        <= content_right
+    )
+
+
+def test_knowledge_layout_stays_clear_and_tracks_selected_stage() -> None:
+    stages = (
+        KnowledgeStage("Phenotype", ("Phenotype",), 1),
+        KnowledgeStage("Genotype", ("Genotype",), 2),
+        KnowledgeStage("Probability", ("Probability",), 3),
+        KnowledgeStage("Genetic Planning", ("Planning",), 4),
+    )
+
+    assert selected_knowledge_stage(stages, "Probability") == stages[2]
+    assert knowledge_stage_rect(3).x + knowledge_stage_rect(3).width <= 558
+    assert (
+        knowledge_concept_rect(4).y + knowledge_concept_rect(4).height <= 334
     )

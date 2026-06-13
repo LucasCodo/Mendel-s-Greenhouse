@@ -252,6 +252,28 @@ def test_species_shop_card_handles_all_unlocked_species() -> None:
     assert scene._species_card_data() == ("Species", "All unlocked", "DONE")
 
 
+def test_shop_purchase_requires_confirmation_before_spending() -> None:
+    state = GameState.create_initial()
+    state.credits = 50
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.save_service = None
+    scene.selected_shop_item = "slot"
+    scene.shop_confirmation_open = False
+    scene._play_sound = lambda _sound_index: None
+
+    scene._request_shop_purchase()
+
+    assert scene.shop_confirmation_open
+    assert state.credits == 50
+    assert state.greenhouse.capacity == 4
+
+    assert scene._confirm_shop_purchase()
+    assert not scene.shop_confirmation_open
+    assert state.credits == 0
+    assert state.greenhouse.capacity == 5
+
+
 def test_reset_progression_restores_initial_game_state() -> None:
     state = GameState.create_initial()
     state.credits = 500
@@ -267,6 +289,7 @@ def test_reset_progression_restores_initial_game_state() -> None:
     scene.selected_knowledge = "Genetic probability"
     scene.selected_greenhouse_slot = 2
     scene.selected_shop_item = "analyzer"
+    scene.shop_confirmation_open = True
     scene.parent_picker_target = "a"
     scene.active_screen = "shop"
     scene._reveal_frames = {0: 10}
@@ -281,6 +304,7 @@ def test_reset_progression_restores_initial_game_state() -> None:
     assert scene.state.greenhouse.plant_at(1) == Plant("aabb")
     assert scene.state.status_message == "Progress reset."
     assert scene.parent_picker_target is None
+    assert not scene.shop_confirmation_open
     assert scene.active_screen == "main"
 
 
