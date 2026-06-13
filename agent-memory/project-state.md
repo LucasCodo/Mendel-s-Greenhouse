@@ -59,6 +59,26 @@ the right rail: `Contract`/`Contrato`, `Learn`/`Saber`, and `Config.` in both
 languages. Multiword labels may wrap only at spaces; single long words are
 truncated with an ellipsis instead of being split mid-word.
 
+The Shop screen uses three large illustrated progression cards for greenhouse
+capacity, analyzer research, and the next species unlock. Cards reuse original
+`.pyxres` icons and species sprites, show selected/affordable/locked/completed
+states, and feed a structured details panel. The Shop does not repeat the
+credit balance because the persistent top bar already displays it. Pressing Buy
+opens a centered confirmation overlay with the selected item, price, projected
+remaining balance, Cancel, and Confirm actions. Credits are spent only after
+explicit confirmation; Escape cancels the overlay.
+
+The Knowledge screen presents the official four-stage learning progression as
+a horizontal path: Phenotype, Genotype, Probability, and Genetic Planning. The
+active stage shows its concepts as large selectable rows, while the detail panel
+uses a stage-specific illustration, learned/locked status, concise explanation,
+and analyzer unlock source. Locked stages expose only the broad stage and
+required analyzer level; their internal concept names remain hidden. Mouse
+hover/click and keyboard arrows share the same component-owned geometry.
+The Genotype stage illustration uses the same procedural DNA language as the
+analyzer experiment: rotating sine-wave strands, colored allele nodes, connected
+rungs, depth-aware highlights, a moving scanline, and pulsing endpoint lights.
+
 The Collection screen is a sticker album rather than a text list. Each category
 shows every official numbered slot, including undiscovered placeholders, in a
 four-column grid with three visible rows. The album scrolls with the mouse
