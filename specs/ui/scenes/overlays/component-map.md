@@ -18,7 +18,12 @@ RuntimeOverlays
 |- ParentPickerOverlay
 |  |- ParentPickerSlot[]
 |  `- BackButton
-|- HoveredPlantTooltip
+|- SpecimenInspectionOverlay
+|  |- LargePlantPreview
+|  |- SpecimenDetails
+|  |- StoreButton
+|  |- DiscardButton
+|  `- CloseButton
 `- ModalScrim
 ```
 
@@ -27,4 +32,6 @@ RuntimeOverlays
 - Overlays must not mutate gameplay state directly.
 - Parent picker slots can expose selected, empty, genotype, and trait display
   states; assigning parents remains scene-owned behavior.
-- Hover tooltips must respect analyzer-level information visibility.
+- Germination Bed hover does not open specimen details.
+- Clicking a visible specimen opens one centered inspection overlay over the
+  current screen.

@@ -24,7 +24,8 @@ Component image references:
 - `components/main-game-component-genetic-analyzer-panel.png`
 - `components/main-game-component-parent-cross-panel.png`
 - `components/main-game-component-germination-bed.png`
-- `components/main-game-component-specimen-detail-panel.png`
+- `components/main-game-component-specimen-detail-panel.png` (legacy
+  side-panel reference; superseded by the centered specimen inspection overlay)
 - `components/main-game-component-help-panel.png`
 - `components/main-game-component-right-navigation-rail.png`
 - `components/main-game-component-greenhouse-background.png`

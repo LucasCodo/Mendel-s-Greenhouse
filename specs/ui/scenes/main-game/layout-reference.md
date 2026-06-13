@@ -13,8 +13,9 @@ status: active
 This note records the user-provided main scene reference image from the chat.
 The image depicts the desired direction for the primary gameplay scene:
 a polished pixel-art greenhouse interface with a central parent-crossing panel,
-a Germination Bed, a left genetic analyzer device, a right specimen/action
-panel, top contract progress, and a vertical right navigation rail.
+a Germination Bed, a left genetic analyzer device, a centered specimen
+inspection overlay, top contract progress, and a vertical right navigation
+rail.
 
 > [!important] Visual Target
 > The main game interface should approach [[visual-target|Main Game Visual
@@ -34,7 +35,7 @@ panel, top contract progress, and a vertical right navigation rail.
 
 The composition should read as a greenhouse workbench rather than a factory.
 The player's attention flows from the active contract, to the parent pair, to
-the Germination Bed, then to the selected specimen actions.
+the Germination Bed, then to the specimen inspection overlay opened on demand.
 
 ## Layout Zones
 
@@ -44,8 +45,9 @@ the Germination Bed, then to the selected specimen actions.
 +--------------------------+-------------------------------------+-----------------+
 | Genetic Analyzer Panel   | Parent Cross Panel                  | Right Nav Rail  |
 |                          +-------------------------------------+                 |
-| Help Panel               | Germination Bed + Specimen Panel    |                 |
+| Help Panel               | Germination Bed                     |                 |
 +--------------------------+-------------------------------------+-----------------+
+                           | Centered Specimen Overlay on click  |
 ```
 
 ## Visual Priorities
@@ -55,8 +57,8 @@ the Germination Bed, then to the selected specimen actions.
   phenotype labels.
 - The Germination Bed is the largest play surface and displays offspring as
   planted cells.
-- The selected specimen panel sits close to the bed so plant actions feel
-  immediate.
+- Clicking a visible specimen opens a centered inspection overlay with its
+  details and actions.
 - The left analyzer panel feels like a botanical lab device and shows only
   analyzer-unlocked information.
 - The right navigation rail uses large icon buttons with text labels.

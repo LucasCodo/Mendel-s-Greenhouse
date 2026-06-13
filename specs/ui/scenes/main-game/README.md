@@ -30,7 +30,7 @@ Germination Bed, specimen actions, contextual help, and scene navigation.
 - [[components/genetic-analyzer-panel|Genetic Analyzer Panel]]
 - [[components/parent-cross-panel|Parent Cross Panel]]
 - [[components/germination-bed|Germination Bed]]
-- [[components/specimen-detail-panel|Specimen Detail Panel]]
+- [[components/specimen-inspection-overlay|Specimen Inspection Overlay]]
 - [[components/help-panel|Help Panel]]
 - [[components/right-navigation-rail|Right Navigation Rail]]
 - [[components/greenhouse-background|Greenhouse Background]]

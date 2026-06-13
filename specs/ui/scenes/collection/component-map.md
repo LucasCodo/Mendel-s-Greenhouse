@@ -23,7 +23,8 @@ CollectionScene
 |- CollectionTabs
 |- CollectionEntryGrid
 |  |- CollectionEntryCard[]
-|  `- LockedEntryCard[]
+|  |- LockedEntryCard[]
+|  `- CollectionScrollbar
 |- CollectionProgressBadge
 |- EntryDetailPanel
 |  |- EntryPreview
@@ -38,6 +39,9 @@ CollectionScene
 - Discovered cards and locked cards should share dimensions for stable scanning.
 - Locked cards must not reveal exact undiscovered details.
 - The selected card should receive a bright outline and update the detail panel.
+- The grid must retain all official positions and scroll vertically when a
+  category exceeds the visible rows.
+- The scrollbar must support mouse wheel, track clicks, and keyboard movement.
 - The Collection button in the navigation rail should show the active state.
 
 ## Component Notes
@@ -54,4 +58,3 @@ CollectionScene
 - [[components/entry-info-section|Entry Info Section]]
 - [[components/right-navigation-rail|Right Navigation Rail]]
 - [[components/collection-background|Collection Background]]
-

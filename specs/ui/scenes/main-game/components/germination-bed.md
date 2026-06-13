@@ -49,7 +49,7 @@ analyzer level allows it.
 - Reveal animation uses five readable phases: seed, emerging sprout, small
   seedling, medium seedling, and adult phenotype.
 - Fully grown specimens may use a subtle desynchronized one-pixel sway.
-- Clicking a cell selects the specimen and updates the detail panel.
+- Clicking a visible occupied cell opens the specimen inspection overlay.
 - Matching contract specimens receive a visible icon and outline.
 - Empty idle beds retain the supported cell grid so the workspace does not
   collapse before the first cross.
@@ -61,6 +61,8 @@ analyzer level allows it.
 
 The bed uses one large rounded wood frame with a dark title strip, larger soil
 cells, centered growth sprites, and a persistent grid of up to twenty cells.
+Its left edge shifts with the wider analyzer while its right edge remains
+aligned with the Parent Cross panel.
 The separate lower statistics bar has been removed from the main composition;
 contract progress remains in the top banner and specimen actions remain in the
-adjacent detail panel.
+centered inspection overlay opened by clicking a visible specimen.

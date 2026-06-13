@@ -17,7 +17,7 @@ Displays analyzer-unlocked information for the selected plant or parent pair.
 
 ## Elements
 
-- Device frame with glass tube and lab controls.
+- Device frame with glass tube.
 - Analyzer title and level badge.
 - Selected species or plant summary.
 - Phenotype text.
@@ -26,10 +26,10 @@ Displays analyzer-unlocked information for the selected plant or parent pair.
 
 ## Information Visibility
 
-- Level 1: phenotype only.
-- Level 2: genotype and allele breakdown.
-- Level 3: probability and compact Punnett summary access.
-- Level 4: simulator shortcut or expanded planning view.
+- Level 1: parent phenotype observations.
+- Level 2: parent genotypes and allele sequencing.
+- Level 3: parent gametes and expected phenotype probabilities.
+- Level 4: stored-cross comparison against the active contract.
 
 ## Visual Direction
 
@@ -44,12 +44,16 @@ screen surfaces, and green science highlights.
   bubbles.
 - The dark CRT screen uses a subtle grid, animated scanline, level label, and
   analyzer-unlocked diagnostic text.
-- A circular directional pad cycles through generated offspring.
-- A green leaf button triggers a short screen flash as tactile feedback.
-- A vertical roller selects a view level from the analyzer levels already
-  unlocked; it cannot preview locked information.
-- The status light distinguishes probability-ready and standby states with
-  both a label and an indicator.
-
-The temporary view-level selector changes presentation only. It does not grant
-analyzer progression or reveal information above the player's unlocked level.
+- The CRT starts closer to the top edge and occupies the former hardware
+  control area.
+- The analyzer is slightly wider than the previous treatment; the parent and
+  Germination Bed panels are correspondingly narrower while retaining their
+  shared right edge.
+- The displayed view follows the player's unlocked analyzer level.
+- Selecting a parent pair automatically refreshes the experiment report.
+- Level 3 probabilities are grouped by visible phenotype from the same
+  Mendelian distribution used to generate offspring.
+- Level 4 compares compatible stored pairs and reports the pair with the best
+  probability of satisfying the active contract.
+- Probability-ready and standby states appear in the CRT footer with both a
+  label and an indicator.

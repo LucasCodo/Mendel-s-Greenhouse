@@ -26,7 +26,7 @@ The implementation should preserve:
 - A left-side genetic analyzer device with a tactile lab-instrument frame.
 - A central parchment parent-crossing panel.
 - A large Germination Bed as the main offspring result surface.
-- A right-side selected specimen action panel attached visually to the bed.
+- A centered specimen inspection overlay opened from the Germination Bed.
 - A vertical right navigation rail with large icon buttons.
 - Warm wood, parchment, dark lab panels, green growth highlights, and crisp
   high-contrast pixel text.
@@ -39,7 +39,7 @@ When layout tradeoffs are necessary, preserve the functional hierarchy:
 Contract visibility
 -> parent selection
 -> Germination Bed readability
--> selected specimen actions
+-> specimen inspection actions
 -> analyzer details
 -> navigation
 ```
@@ -54,12 +54,13 @@ direction:
 - The top bar uses a bold two-line wordmark, icon-backed resource capsules, and
   a compact active-contract banner.
 - The analyzer is rendered as a tactile handheld botanical console with a glass
-  tube, animated liquid bubbles, CRT scanline, hardware controls, and status
-  light.
+  tube, animated liquid bubbles, one tall CRT, and a status indicator.
 - Parent selection is grouped into one parchment work panel with mirrored
   parent summaries and a central cross action.
-- The Germination Bed and selected specimen panel form one continuous lower
-  workspace.
+- The Germination Bed occupies the lower workspace without reserving a
+  permanent specimen side panel.
+- Clicking a visible specimen opens a centered inspection overlay with a large
+  preview, analyzer-appropriate information, and Store/Discard actions.
 - The right navigation rail uses larger icons and labels in full-height stacked
   buttons.
 

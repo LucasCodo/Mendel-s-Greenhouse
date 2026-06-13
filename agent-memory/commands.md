@@ -5,7 +5,7 @@ tags:
 type: command
 project: mendels-greenhouse
 status: active
-updated: 2026-05-31
+updated: 2026-06-13
 ---
 
 # Commands
@@ -87,6 +87,11 @@ Validated documentation checks:
   and selective staging; generated local artifacts must not be committed.
 - `poetry run python -c "from mendels_greenhouse.core.genetics import Plant, crossbreed; offspring = crossbreed(Plant('AABB'), Plant('aabb'), count=20); assert {p.genotype for p in offspring} == {'AaBb'}; print('poetry core smoke check passed')"` validates the current core genetics implementation.
 - `pyxel-mcp` official package docs list tools for `run_and_capture`, `capture_frames`, `play_and_capture`, `validate_script`, `inspect_state`, `inspect_screen`, `compare_frames`, `inspect_sprite`, `inspect_layout`, `inspect_palette`, `inspect_bank`, `inspect_tilemap`, `inspect_animation`, `render_audio`, and `pyxel_info`.
+- 2026-06-13: `poetry run poe check` passed with Ruff, format checking, and
+  71 pytest tests after the typography, localization, analyzer, specimen
+  overlay, navigation, settings, layout, and collection-album refinements.
+  Pyxel MCP script validation passed, while screenshot capture continued to
+  time out in the active session.
 - 2026-05-31: local Codex MCP config was updated in
   `C:\Users\luss1\.codex\config.toml` with `[mcp_servers.pyxel]` pointing to
   `C:\Users\luss1\Documents\GitHub\Mendel's Greenhouse\game\.venv\Scripts\pyxel-mcp.EXE`.

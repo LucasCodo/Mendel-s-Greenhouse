@@ -45,6 +45,8 @@ Each parent card should show:
 ## Current Runtime Treatment
 
 - Both parent summaries share one unified parchment-and-wood panel.
+- The panel begins after the wider analyzer and shares its horizontal bounds
+  with the Germination Bed.
 - Parent A and Parent B use mirrored layouts with plant preview, genotype field,
   and stacked phenotype labels.
 - Locked genotype information remains shown as an unknown placeholder.

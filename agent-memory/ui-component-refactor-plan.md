@@ -118,7 +118,7 @@ Components must not:
 
 3. Extract Main Game data panels.
    Move `ContractBanner`, `ParentCrossPanel`, `GeneticAnalyzerPanel`, and
-   `SpecimenDetailPanel` after defining display DTOs or dictionaries in
+   `SpecimenInspectionOverlay` after defining display DTOs or dictionaries in
    `MainGameScene`.
 
 4. Extract `GerminationBed`.
