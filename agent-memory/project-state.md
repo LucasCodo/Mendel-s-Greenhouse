@@ -98,6 +98,16 @@ Main-game layout alignment: the wider analyzer uses `170 px`; the Parent Cross
 panel and Germination Bed share the remaining horizontal bounds (`x=188`,
 width `362`). Parent click targets and the Cross button are exported by the
 Parent Cross component so interaction geometry remains aligned with rendering.
+Each parent summary renders one phenotype label per tracked gene, scaling from
+2 labels for Mendel Pea through 6 labels for Orchid. Genotype fields show every
+allele letter without truncation, including all 12 letters for Orchid. The
+parent summaries, Cross button, and helper line use separate vertical bands.
+The Germination Bed starts at `y=196` with compact `22 px` cells so both panels
+remain within the `360 px` canvas.
+All plant detail surfaces show the complete phenotype for the species. The
+specimen overlay and Garden selected-plant panel list every tracked trait, and
+the parent picker exposes all traits in its dedicated hover/current-parent
+detail panel instead of presenting only the first two.
 
 Current asset implementation: `poetry run poe build-assets` regenerates
 `game/mendels_greenhouse/assets/mendels_greenhouse.pyxres` with MVP plant
