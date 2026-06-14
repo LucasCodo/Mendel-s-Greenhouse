@@ -85,7 +85,7 @@ def draw_specimen_overlay(
 
     details_x = data.panel.x + 166
     details_width = data.panel.width - 182
-    _draw_detail_row(
+    next_detail_y = _draw_detail_row(
         details_x,
         data.panel.y + 48,
         translate("Phenotype"),
@@ -93,9 +93,9 @@ def draw_specimen_overlay(
         details_width,
         PyxelColor.LEAF_HIGHLIGHT,
     )
-    _draw_detail_row(
+    next_detail_y = _draw_detail_row(
         details_x,
-        data.panel.y + 102,
+        next_detail_y,
         translate("Genotype"),
         [data.visible_genotype],
         details_width,
@@ -103,7 +103,7 @@ def draw_specimen_overlay(
     )
     _draw_detail_row(
         details_x,
-        data.panel.y + 148,
+        next_detail_y,
         translate("Generation"),
         [data.plant.generation_label],
         details_width,
@@ -142,16 +142,18 @@ def _draw_detail_row(  # noqa: PLR0913
     values: list[str],
     width: int,
     value_color: int,
-) -> None:
+) -> int:
     draw_text(x, y, f"{label}:", PyxelColor.UI_DARK)
-    for index, value in enumerate(values[:2]):
+    for index, value in enumerate(values):
         draw_text(
             x,
             y + 13 + index * 11,
             fit_text(value, width),
             value_color,
         )
-    pyxel.line(x, y + 42, x + width, y + 42, PyxelColor.WOOD_MIDTONE)
+    separator_y = y + 17 + len(values) * 11
+    pyxel.line(x, separator_y, x + width, separator_y, PyxelColor.WOOD_MIDTONE)
+    return separator_y + 8
 
 
 def _draw_discard_button(rect: Rect, label: str) -> None:

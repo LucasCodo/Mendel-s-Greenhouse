@@ -17,6 +17,10 @@ from mendels_greenhouse.ui.palette import PyxelColor
 PlantPreview = Callable[[int, int, Plant], None]
 PlantPreviewLarge = Callable[[int, int, Plant, bool], None]
 
+GARDEN_PARENT_A_BUTTON = Rect(392, 238, 96, 22)
+GARDEN_PARENT_B_BUTTON = Rect(392, 264, 96, 22)
+GARDEN_DISCARD_BUTTON = Rect(392, 290, 96, 22)
+
 
 @dataclass(frozen=True)
 class GardenScreenData:
@@ -53,7 +57,7 @@ def draw_garden_screen(
         PyxelColor.PARCHMENT_LIGHT,
     )
     grid_panel = Rect(24, 104, 294, 214)
-    detail_panel = Rect(338, 104, 206, 178)
+    detail_panel = Rect(338, 104, 206, 214)
     draw_panel(grid_panel)
     draw_panel(detail_panel)
     for index in range(20):
@@ -70,10 +74,10 @@ def draw_garden_screen(
         )
         return
 
-    plant_preview(382, 205, selected, True)
+    plant_preview(382, 174, selected, True)
     draw_text(
-        428,
-        146,
+        420,
+        132,
         translate(
             "Generation: {generation}",
             generation=selected.generation_label,
@@ -81,8 +85,8 @@ def draw_garden_screen(
         PyxelColor.UI_DARK,
     )
     draw_text(
-        428,
-        160,
+        420,
+        146,
         translate(
             "Genotype: {genotype}",
             genotype=visible_genotype(selected),
@@ -91,13 +95,13 @@ def draw_garden_screen(
     )
     for line_index, line in enumerate(trait_lines(selected)):
         draw_text(
-            428,
-            174 + line_index * 14,
-            fit_text(line, detail_panel.x + detail_panel.width - 436),
+            354,
+            184 + line_index * 9,
+            fit_text(line, detail_panel.width - 32),
             PyxelColor.UI_DARK,
         )
-    draw_button(Rect(392, 201, 96, 22), translate("PARENT A"))
-    draw_button(Rect(392, 229, 96, 22), translate("PARENT B"))
+    draw_button(GARDEN_PARENT_A_BUTTON, translate("PARENT A"))
+    draw_button(GARDEN_PARENT_B_BUTTON, translate("PARENT B"))
     draw_button(
         data.discard_button,
         translate("DISCARD"),

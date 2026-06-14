@@ -20,6 +20,9 @@ from mendels_greenhouse.ui.palette import PyxelColor
 
 PlantPreview = Callable[[int, int, Plant, bool], None]
 
+PARENT_PICKER_PANEL = Rect(72, 48, 512, 288)
+PARENT_PICKER_DETAIL_PANEL = Rect(452, 106, 116, 190)
+
 
 @dataclass(frozen=True)
 class _ParentPickerRenderers:
@@ -113,17 +116,17 @@ def draw_parent_picker(
     """Draw the parent picker overlay."""
     translate = context.translate
     draw_modal_scrim(0.68)
-    panel = Rect(88, 74, 496, 250)
+    panel = PARENT_PICKER_PANEL
     draw_panel(panel)
     title = "Select Parent A" if data.target == "a" else "Select Parent B"
     draw_outlined_text(
-        116,
         92,
+        66,
         translate(title).upper(),
         PyxelColor.ACCENT,
         font=context.display_font,
     )
-    draw_text(118, 112, translate("Garden plants"), PyxelColor.UI_DARK)
+    draw_text(92, 88, translate("Garden plants"), PyxelColor.UI_DARK)
     renderers = _ParentPickerRenderers(
         plant_preview,
         visible_genotype,
@@ -131,14 +134,15 @@ def draw_parent_picker(
     )
     for index in range(data.capacity):
         _draw_parent_picker_slot(context, data, index, renderers)
+    _draw_parent_picker_details(context, data, renderers)
     draw_button(data.close_button, translate("BACK"))
 
 
 def parent_picker_slot_rect(index: int) -> Rect:
     """Return one parent picker slot rectangle."""
-    col = index % 5
-    row = index // 5
-    return Rect(112 + col * 90, 130 + row * 42, 82, 36)
+    col = index % 4
+    row = index // 4
+    return Rect(88 + col * 90, 106 + row * 42, 82, 36)
 
 
 def _draw_parent_picker_slot(
@@ -168,24 +172,85 @@ def _draw_parent_picker_slot(
     draw_text(
         rect.x + 48,
         rect.y + 8,
-        renderers.visible_genotype(plant),
-        PyxelColor.UI_DARK,
-    )
-    draw_text(
-        rect.x + 48,
-        rect.y + 20,
         fit_text(
-            renderers.trait(plant.phenotype.primary_trait_value),
+            renderers.visible_genotype(plant),
             rect.width - 52,
         ),
         PyxelColor.UI_DARK,
     )
     draw_text(
         rect.x + 48,
-        rect.y + 31,
-        fit_text(
-            renderers.trait(plant.phenotype.secondary_trait_value),
-            rect.width - 52,
-        ),
+        rect.y + 22,
+        context.translate(plant.species),
         PyxelColor.UI_DARK,
     )
+
+
+def _draw_parent_picker_details(
+    context: DrawContext,
+    data: ParentPickerData,
+    renderers: _ParentPickerRenderers,
+) -> None:
+    plant = _parent_picker_detail_plant(data)
+    draw_panel(PARENT_PICKER_DETAIL_PANEL)
+    x = PARENT_PICKER_DETAIL_PANEL.x + 8
+    width = PARENT_PICKER_DETAIL_PANEL.width - 16
+    draw_text(
+        x,
+        PARENT_PICKER_DETAIL_PANEL.y + 8,
+        context.translate("Phenotype").upper(),
+        PyxelColor.UI_DARK,
+    )
+    if plant is None:
+        draw_text(
+            x,
+            PARENT_PICKER_DETAIL_PANEL.y + 28,
+            context.translate("Select a plant"),
+            PyxelColor.TEXT_MUTED,
+        )
+        return
+
+    draw_text(
+        x,
+        PARENT_PICKER_DETAIL_PANEL.y + 22,
+        fit_text(context.translate(plant.species), width),
+        PyxelColor.ACCENT,
+    )
+    draw_text(
+        x,
+        PARENT_PICKER_DETAIL_PANEL.y + 34,
+        fit_text(renderers.visible_genotype(plant), width),
+        PyxelColor.UI_DARK,
+    )
+    y = PARENT_PICKER_DETAIL_PANEL.y + 50
+    for name, value in plant.phenotype.traits.items():
+        draw_text(
+            x,
+            y,
+            fit_text(context.translate(name.title()), width),
+            PyxelColor.UI_DARK,
+        )
+        draw_text(
+            x + 6,
+            y + 9,
+            fit_text(renderers.trait(value), width - 6),
+            PyxelColor.LEAF_SHADOW,
+        )
+        y += 22
+
+
+def _parent_picker_detail_plant(data: ParentPickerData) -> Plant | None:
+    for index in range(data.capacity):
+        if parent_picker_slot_rect(index).contains(
+            pyxel.mouse_x,
+            pyxel.mouse_y,
+        ):
+            return data.slots[index]
+    selected_index = (
+        data.selected_parent_a
+        if data.target == "a"
+        else data.selected_parent_b
+    )
+    if selected_index is None or selected_index >= len(data.slots):
+        return None
+    return data.slots[selected_index]

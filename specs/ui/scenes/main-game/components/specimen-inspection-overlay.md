@@ -37,6 +37,8 @@ not reserve permanent layout space.
   cleared.
 - Harvest resolves the grown batch: matching specimens are delivered to the
   active contract first and excess specimens are sold automatically.
+- The phenotype section lists one labeled characteristic for every tracked
+  gene, from 2 traits for Mendel Pea through 6 traits for Orchid.
 
 ## Accessibility
 

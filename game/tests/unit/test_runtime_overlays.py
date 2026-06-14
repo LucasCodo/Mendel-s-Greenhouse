@@ -1,6 +1,17 @@
 from unittest.mock import Mock, patch
 
+import pytest
+
+from mendels_greenhouse.core.content import SPECIES_DEFINITIONS
+from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.ui.components import Rect
+from mendels_greenhouse.ui.fonts import text_width
+from mendels_greenhouse.ui.game_components import plant_trait_lines
+from mendels_greenhouse.ui.game_components.garden import (
+    GARDEN_DISCARD_BUTTON,
+    GARDEN_PARENT_A_BUTTON,
+    GARDEN_PARENT_B_BUTTON,
+)
 from mendels_greenhouse.ui.game_components.knowledge import (
     KnowledgeStage,
     knowledge_concept_rect,
@@ -14,7 +25,9 @@ from mendels_greenhouse.ui.game_components.main_game import (
     PARENT_A_CARD,
     PARENT_B_CARD,
     PARENT_CROSS_PANEL,
+    parent_cross_panel,
 )
+from mendels_greenhouse.ui.game_components.overlays import runtime
 from mendels_greenhouse.ui.game_components.overlays.runtime import (
     draw_intro_panel,
 )
@@ -98,7 +111,7 @@ def test_settings_controls_stay_inside_centered_panel() -> None:
 
 
 def test_parent_cross_panel_matches_germination_bed_width() -> None:
-    germination_bed = Rect(188, 178, 362, 170)
+    germination_bed = Rect(188, 196, 362, 152)
     left_inset = PARENT_A_CARD.x - PARENT_CROSS_PANEL.x
     right_inset = (
         PARENT_CROSS_PANEL.x
@@ -114,6 +127,103 @@ def test_parent_cross_panel_matches_germination_bed_width() -> None:
         + (PARENT_CROSS_PANEL.width - CROSS_BUTTON.width) // 2
     )
     assert left_inset == right_inset
+    assert PARENT_CROSS_PANEL.y + PARENT_CROSS_PANEL.height < germination_bed.y
+
+
+@pytest.mark.parametrize(
+    ("species", "genotype"),
+    [
+        ("Mendel Pea", "AABB"),
+        ("Snapdragon", "AABBCC"),
+        ("Corn", "AABBCCDD"),
+        ("Tomato", "AABBCCDDEE"),
+        ("Orchid", "AABBCCDDEEFF"),
+    ],
+)
+def test_parent_cross_panel_shows_one_phenotype_per_gene(
+    species: str,
+    genotype: str,
+) -> None:
+    plant = Plant(genotype, species=species)
+
+    labels = parent_cross_panel.phenotype_labels(
+        plant,
+        trait=lambda value: value,
+    )
+
+    assert len(labels) == SPECIES_DEFINITIONS[species].gene_count
+    assert labels == tuple(plant.phenotype.traits.values())
+
+
+def test_parent_cross_panel_fits_orchid_content_above_actions() -> None:
+    plant = Plant("AABBCCDDEEFF", species="Orchid")
+
+    genotype = parent_cross_panel.genotype_label(
+        plant,
+        visible_genotype=lambda selected: selected.genotype,
+    )
+    labels = parent_cross_panel.phenotype_labels(
+        plant,
+        trait=lambda value: value,
+    )
+    last_label_y = (
+        PARENT_CROSS_PANEL.y
+        + 40
+        + (len(labels) - 1) * parent_cross_panel.PHENOTYPE_LINE_HEIGHT
+    )
+
+    assert genotype == "AABBCCDDEEFF"
+    assert text_width(genotype) <= (
+        parent_cross_panel.GENOTYPE_FIELD_WIDTH
+        - parent_cross_panel.GENOTYPE_TEXT_INSET * 2
+    )
+    assert all(
+        text_width(label) <= parent_cross_panel.PHENOTYPE_LABEL_WIDTH
+        for label in labels
+    )
+    assert last_label_y + 8 <= CROSS_BUTTON.y
+    assert PARENT_A_CARD.y + PARENT_A_CARD.height <= CROSS_BUTTON.y
+    assert PARENT_B_CARD.y + PARENT_B_CARD.height <= CROSS_BUTTON.y
+    assert CROSS_BUTTON.y + CROSS_BUTTON.height < PARENT_CROSS_PANEL.y + 119
+
+
+def test_orchid_detail_surfaces_receive_all_six_traits() -> None:
+    plant = Plant("AABBCCDDEEFF", species="Orchid")
+
+    lines = plant_trait_lines(plant, translate=lambda text: text)
+
+    assert lines == [
+        "Flower Color: violet",
+        "Flower Size: large",
+        "Petal Count: many-petal",
+        "Aroma: fragrant",
+        "Flower Shape: star",
+        "Blooming Time: early",
+    ]
+
+
+def test_garden_actions_leave_space_for_six_trait_lines() -> None:
+    first_trait_y = 184
+    last_trait_bottom = first_trait_y + 5 * 9 + 8
+
+    assert last_trait_bottom <= GARDEN_PARENT_A_BUTTON.y
+    assert GARDEN_PARENT_A_BUTTON.y + GARDEN_PARENT_A_BUTTON.height <= (
+        GARDEN_PARENT_B_BUTTON.y
+    )
+    assert GARDEN_PARENT_B_BUTTON.y + GARDEN_PARENT_B_BUTTON.height <= (
+        GARDEN_DISCARD_BUTTON.y
+    )
+
+
+def test_parent_picker_grid_and_details_fit_inside_panel() -> None:
+    last_slot = runtime.parent_picker_slot_rect(19)
+    detail = runtime.PARENT_PICKER_DETAIL_PANEL
+    panel = runtime.PARENT_PICKER_PANEL
+
+    assert last_slot.x + last_slot.width < detail.x
+    assert last_slot.y + last_slot.height <= panel.y + panel.height
+    assert detail.x + detail.width <= panel.x + panel.width
+    assert detail.y + detail.height <= panel.y + panel.height
 
 
 def test_analyzer_screen_uses_space_freed_by_hardware_controls() -> None:

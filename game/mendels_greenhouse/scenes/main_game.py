@@ -59,6 +59,9 @@ from mendels_greenhouse.ui.game_components.contracts import (
     draw_contracts_screen,
 )
 from mendels_greenhouse.ui.game_components.garden import (
+    GARDEN_DISCARD_BUTTON,
+    GARDEN_PARENT_A_BUTTON,
+    GARDEN_PARENT_B_BUTTON,
     GardenScreenData,
     draw_garden_screen,
     greenhouse_slot_rect,
@@ -142,8 +145,7 @@ DISCARD_BUTTON = Rect(178, 306, 284, 30)
 HARVEST_BUTTON = Rect(309, 318, 120, 24)
 INTRO_OK_BUTTON = Rect(272, 294, 96, 24)
 CLAIM_CONTRACT_BUTTON = Rect(480, 20, 64, 18)
-PARENT_PICKER_CLOSE_BUTTON = Rect(492, 286, 76, 22)
-GARDEN_DISCARD_BUTTON = Rect(392, 257, 96, 22)
+PARENT_PICKER_CLOSE_BUTTON = Rect(480, 306, 88, 22)
 NAV_RAIL = Rect(558, 0, 82, 360)
 NAV_BUTTON_W = 70
 NAV_BUTTON_H = 48
@@ -270,9 +272,9 @@ GERMINATION_SETTLE_FRAMES = 90
 MAX_BED_CELLS = 20
 BED_MAX_COLUMNS = 5
 BED_ORIGIN_X = 369
-BED_ORIGIN_Y = 196
+BED_ORIGIN_Y = 214
 BED_CELL_W = 46
-BED_CELL_H = 26
+BED_CELL_H = 22
 BED_GAP = 4
 BED_GEOMETRY = BedGeometry(
     origin_x=BED_ORIGIN_X,
@@ -775,7 +777,7 @@ class MainGameScene:
                 plant=plant,
                 can_store=can_store,
                 visible_genotype=self._visible_genotype(plant),
-                trait_lines=self._plant_trait_lines(plant, limit=2),
+                trait_lines=self._plant_trait_lines(plant),
             ),
             plant_preview=self._draw_overlay_plant_preview,
         )
@@ -945,14 +947,14 @@ class MainGameScene:
         selected = self._selected_greenhouse_plant()
         if selected is None:
             return
-        if clicked(Rect(392, 201, 96, 22)):
+        if clicked(GARDEN_PARENT_A_BUTTON):
             self._play_sound(0)
             if self.greenhouse_service.select_parent(
                 "a",
                 self.selected_greenhouse_slot,
             ):
                 self._autosave()
-        if clicked(Rect(392, 229, 96, 22)):
+        if clicked(GARDEN_PARENT_B_BUTTON):
             self._play_sound(0)
             if self.greenhouse_service.select_parent(
                 "b",
@@ -1163,7 +1165,7 @@ class MainGameScene:
         draw_germination_bed_panel(
             self._draw_context(),
             GerminationBedPanelData(
-                rect=Rect(188, 178, 362, 170),
+                rect=Rect(188, 196, 362, 152),
                 layout=self._germination_layout(),
                 current_batch=self.state.current_batch,
                 visible_count=self.state.visible_count,
@@ -1302,7 +1304,7 @@ class MainGameScene:
             ),
             plant_preview=self._draw_component_plant_preview,
             visible_genotype=self._visible_genotype,
-            trait_lines=lambda plant: self._plant_trait_lines(plant, limit=2),
+            trait_lines=self._plant_trait_lines,
         )
 
     def _draw_contracts_screen(self) -> None:

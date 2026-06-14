@@ -18,10 +18,15 @@ from mendels_greenhouse.ui.palette import PyxelColor
 
 PlantPreview = Callable[[int, int, Plant, bool], None]
 
-PARENT_CROSS_PANEL = Rect(188, 60, 362, 114)
-PARENT_A_CARD = Rect(198, 60, 128, 86)
-PARENT_B_CARD = Rect(412, 60, 128, 86)
-CROSS_BUTTON = Rect(316, 126, 106, 22)
+PARENT_CROSS_PANEL = Rect(188, 60, 362, 132)
+PARENT_A_CARD = Rect(198, 60, 146, 94)
+PARENT_B_CARD = Rect(394, 60, 146, 94)
+CROSS_BUTTON = Rect(316, 154, 106, 22)
+
+GENOTYPE_FIELD_WIDTH = 82
+GENOTYPE_TEXT_INSET = 4
+PHENOTYPE_LABEL_WIDTH = 70
+PHENOTYPE_LINE_HEIGHT = 9
 
 
 @dataclass(frozen=True)
@@ -56,6 +61,28 @@ class ParentCrossPanelData:
     cross_pressed: bool
 
 
+def phenotype_labels(
+    plant: Plant,
+    *,
+    trait: Callable[[str], str],
+    max_width: int = PHENOTYPE_LABEL_WIDTH,
+) -> tuple[str, ...]:
+    """Return one fitted phenotype label for each tracked gene."""
+    return tuple(
+        fit_text(trait(value), max_width)
+        for value in plant.phenotype.traits.values()
+    )
+
+
+def genotype_label(
+    plant: Plant,
+    *,
+    visible_genotype: Callable[[Plant], str],
+) -> str:
+    """Return the complete analyzer-visible genotype text."""
+    return visible_genotype(plant)
+
+
 def draw_parent_cross_panel(
     context: DrawContext,
     data: ParentCrossPanelData,
@@ -87,25 +114,40 @@ def draw_parent_cross_panel(
         plant_preview(left + 44, top_y + 66, data.parent_a, True)
 
         # Genotype rounded textbox
-        pyxel.rect(left + 84, top_y + 20, 54, 15, PyxelColor.FIELD)
-        pyxel.rectb(left + 84, top_y + 20, 54, 15, PyxelColor.FRAME)
+        pyxel.rect(
+            left + 84,
+            top_y + 20,
+            GENOTYPE_FIELD_WIDTH,
+            15,
+            PyxelColor.FIELD,
+        )
+        pyxel.rectb(
+            left + 84,
+            top_y + 20,
+            GENOTYPE_FIELD_WIDTH,
+            15,
+            PyxelColor.FRAME,
+        )
         draw_text(
-            left + 92,
+            left + 84 + GENOTYPE_TEXT_INSET,
             top_y + 25,
-            visible_genotype(data.parent_a),
+            genotype_label(
+                data.parent_a,
+                visible_genotype=visible_genotype,
+            ),
             PyxelColor.UI_DARK,
         )
 
-        # Phenotype stacked labels
-        t1 = fit_text(
-            trait(data.parent_a.phenotype.primary_trait_value),
-            54,
-        )
-        draw_text(left + 84, top_y + 40, t1, PyxelColor.UI_DARK)
-        t_keys = list(data.parent_a.phenotype.traits.values())
-        if len(t_keys) > 1:
-            t2 = fit_text(trait(t_keys[1]), 54)
-            draw_text(left + 84, top_y + 50, t2, PyxelColor.UI_DARK)
+        # Phenotype labels: one visible characteristic per allele pair.
+        for index, label in enumerate(
+            phenotype_labels(data.parent_a, trait=trait),
+        ):
+            draw_text(
+                left + 84,
+                top_y + 40 + index * PHENOTYPE_LINE_HEIGHT,
+                label,
+                PyxelColor.UI_DARK,
+            )
     else:
         draw_text(
             left + 44,
@@ -161,28 +203,43 @@ def draw_parent_cross_panel(
         plant_preview(right - 44, top_y + 66, data.parent_b, True)
 
         # Genotype rounded textbox
-        pyxel.rect(right - 138, top_y + 20, 54, 15, PyxelColor.FIELD)
-        pyxel.rectb(right - 138, top_y + 20, 54, 15, PyxelColor.FRAME)
+        pyxel.rect(
+            right - 84 - GENOTYPE_FIELD_WIDTH,
+            top_y + 20,
+            GENOTYPE_FIELD_WIDTH,
+            15,
+            PyxelColor.FIELD,
+        )
+        pyxel.rectb(
+            right - 84 - GENOTYPE_FIELD_WIDTH,
+            top_y + 20,
+            GENOTYPE_FIELD_WIDTH,
+            15,
+            PyxelColor.FRAME,
+        )
         draw_text(
-            right - 130,
+            right - 84 - GENOTYPE_FIELD_WIDTH + GENOTYPE_TEXT_INSET,
             top_y + 25,
-            visible_genotype(data.parent_b),
+            genotype_label(
+                data.parent_b,
+                visible_genotype=visible_genotype,
+            ),
             PyxelColor.UI_DARK,
         )
 
-        # Phenotype stacked labels
-        tb1 = fit_text(
-            trait(data.parent_b.phenotype.primary_trait_value),
-            54,
-        )
-        draw_text(right - 138, top_y + 40, tb1, PyxelColor.UI_DARK)
-        tb_keys = list(data.parent_b.phenotype.traits.values())
-        if len(tb_keys) > 1:
-            tb2 = fit_text(trait(tb_keys[1]), 54)
-            draw_text(right - 138, top_y + 50, tb2, PyxelColor.UI_DARK)
+        # Phenotype labels: one visible characteristic per allele pair.
+        for index, label in enumerate(
+            phenotype_labels(data.parent_b, trait=trait),
+        ):
+            draw_text(
+                right - 154,
+                top_y + 40 + index * PHENOTYPE_LINE_HEIGHT,
+                label,
+                PyxelColor.UI_DARK,
+            )
     else:
         draw_text(
-            right - 132,
+            right - 148,
             top_y + 28,
             context.translate("Empty slot"),
             PyxelColor.UI_DARK,
@@ -199,4 +256,4 @@ def draw_parent_cross_panel(
     # 5. Center Bottom instructions note
     note = context.translate("Select parents, then cross plants.")
     nx = panel_rect.x + (panel_rect.width - text_width(note)) // 2
-    draw_text(nx, top_y + 98, note, PyxelColor.UI_DARK)
+    draw_text(nx, top_y + 119, note, PyxelColor.UI_DARK)
