@@ -52,10 +52,13 @@ class Game:
         settings_open = bool(
             getattr(current_scene, "settings_open", False),
         )
+        specimen_overlay_open = bool(
+            getattr(current_scene, "specimen_overlay_open", False),
+        )
         active_screen = getattr(current_scene, "active_screen", "main")
         sub_screen_open = active_screen != "main"
         if pyxel.btnp(pyxel.KEY_ESCAPE) and not (
-            settings_open or sub_screen_open
+            settings_open or specimen_overlay_open or sub_screen_open
         ):
             pyxel.quit()
         self.scenes.update()

@@ -10,7 +10,9 @@ from mendels_greenhouse.ui.components import (
     Rect,
     draw_button,
     draw_rounded_panel,
+    draw_rounded_rect,
 )
+from mendels_greenhouse.ui.fonts import draw_text, text_width
 from mendels_greenhouse.ui.game_components.germination_bed import BedLayout
 from mendels_greenhouse.ui.game_components.shared import DrawContext
 from mendels_greenhouse.ui.palette import PyxelColor
@@ -30,9 +32,7 @@ class GerminationBedPanelData:
     frame_count: int
     seed_stage_frames: int
     seedling_stage_frames: int
-    store_button: Rect
     harvest_button: Rect
-    can_store: bool
     can_harvest: bool
     contract_progress_count: int
     contract_remaining_count: int
@@ -81,8 +81,8 @@ def _draw_germination_bed(
         else f" (0/{data.layout.cell_count})"
     )
     msg = translate("Descendants").upper() + count_suffix
-    text_x = rect.x + rect.width // 2 - len(msg) * 4 // 2
-    pyxel.text(text_x, rect.y + 6, msg, PyxelColor.ACCENT)
+    text_x = rect.x + (rect.width - text_width(msg)) // 2
+    draw_text(text_x, rect.y + 6, msg, PyxelColor.ACCENT)
 
     layout = data.layout
     for index in range(layout.cell_count):
@@ -109,11 +109,10 @@ def _draw_germination_cell(
     fill = PyxelColor.SOIL_DARK
     if plant is None and visible:
         fill = PyxelColor.WARM_FLOOR
-    pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
     border = PyxelColor.ACCENT if selected else PyxelColor.DARK_WOOD
     if matches:
         border = PyxelColor.PROGRESS
-    pyxel.rectb(rect.x, rect.y, rect.width, rect.height, border)
+    draw_rounded_rect(rect, fill, border)
 
     if not visible:
         pyxel.circ(
@@ -124,7 +123,7 @@ def _draw_germination_cell(
         )
         return
     if plant is None:
-        pyxel.text(
+        draw_text(
             rect.x + rect.width // 2 - 2,
             rect.y + rect.height // 2 - 3,
             "-",
@@ -241,7 +240,7 @@ def _draw_growing_specimen(  # noqa: PLR0913
         # Stage 4: Fully grown adult plant (with gentle wind sway)
         _draw_tiny_plant(center_x + sway, center_y + 5, plant)
     if matches:
-        pyxel.text(
+        draw_text(
             rect.x + rect.width - 7,
             rect.y + 2,
             "+",

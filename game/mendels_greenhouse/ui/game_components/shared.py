@@ -6,7 +6,7 @@ from typing import Protocol
 
 import pyxel
 
-from mendels_greenhouse.ui.fonts import draw_outlined_text
+from mendels_greenhouse.ui.fonts import draw_outlined_text, draw_text
 from mendels_greenhouse.ui.palette import PyxelColor
 
 
@@ -41,7 +41,7 @@ def draw_scene_shell(
         PyxelColor.ACCENT,
         font=context.display_font,
     )
-    pyxel.text(
+    draw_text(
         26,
         91,
         context.translate(subtitle),

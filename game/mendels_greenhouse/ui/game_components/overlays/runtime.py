@@ -7,7 +7,11 @@ import pyxel
 
 from mendels_greenhouse.core.genetics import Plant
 from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
-from mendels_greenhouse.ui.fonts import draw_outlined_text
+from mendels_greenhouse.ui.fonts import (
+    draw_outlined_text,
+    draw_text,
+    fit_text,
+)
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     draw_modal_scrim,
@@ -15,6 +19,9 @@ from mendels_greenhouse.ui.game_components.shared import (
 from mendels_greenhouse.ui.palette import PyxelColor
 
 PlantPreview = Callable[[int, int, Plant, bool], None]
+
+PARENT_PICKER_PANEL = Rect(72, 48, 512, 288)
+PARENT_PICKER_DETAIL_PANEL = Rect(452, 106, 116, 190)
 
 
 @dataclass(frozen=True)
@@ -36,17 +43,6 @@ class ParentPickerData:
     selected_parent_a: int | None
     selected_parent_b: int | None
     close_button: Rect
-
-
-@dataclass(frozen=True)
-class TooltipData:
-    """Display data for the hovered plant tooltip."""
-
-    lines: list[str]
-    mouse_x: int
-    mouse_y: int
-    screen_width: int
-    screen_height: int
 
 
 def draw_intro_panel(context: DrawContext, ok_button: Rect) -> None:
@@ -81,20 +77,31 @@ def draw_intro_panel(context: DrawContext, ok_button: Rect) -> None:
             "Basic controls",
             [
                 "Mouse: click buttons and plant cards.",
-                "Pick two parent plants, cross them, then inspect offspring.",
                 "Harvest grown plants.",
                 "Use 1/2 to reselect starting parents.",
             ],
         ),
     ]
-    y = 112
+    y = 108
     for title, lines in sections:
-        pyxel.text(126, y, translate(title).upper(), PyxelColor.UI_DARK)
-        y += 13
+        draw_text(
+            126,
+            y,
+            translate(title).upper(),
+            PyxelColor.UI_DARK,
+            context.display_font,
+        )
+        y += 14
         for line in lines:
-            pyxel.text(138, y, translate(line), PyxelColor.UI_DARK)
-            y += 12
-        y += 7
+            draw_text(
+                138,
+                y,
+                translate(line),
+                PyxelColor.UI_DARK,
+                context.display_font,
+            )
+            y += 14
+        y += 4
     draw_button(ok_button, translate("OK"))
 
 
@@ -109,17 +116,17 @@ def draw_parent_picker(
     """Draw the parent picker overlay."""
     translate = context.translate
     draw_modal_scrim(0.68)
-    panel = Rect(88, 74, 496, 250)
+    panel = PARENT_PICKER_PANEL
     draw_panel(panel)
     title = "Select Parent A" if data.target == "a" else "Select Parent B"
     draw_outlined_text(
-        116,
         92,
+        66,
         translate(title).upper(),
         PyxelColor.ACCENT,
         font=context.display_font,
     )
-    pyxel.text(118, 112, translate("Garden plants"), PyxelColor.UI_DARK)
+    draw_text(92, 88, translate("Garden plants"), PyxelColor.UI_DARK)
     renderers = _ParentPickerRenderers(
         plant_preview,
         visible_genotype,
@@ -127,41 +134,15 @@ def draw_parent_picker(
     )
     for index in range(data.capacity):
         _draw_parent_picker_slot(context, data, index, renderers)
+    _draw_parent_picker_details(context, data, renderers)
     draw_button(data.close_button, translate("BACK"))
 
 
 def parent_picker_slot_rect(index: int) -> Rect:
     """Return one parent picker slot rectangle."""
-    col = index % 5
-    row = index // 5
-    return Rect(112 + col * 90, 130 + row * 42, 82, 36)
-
-
-def draw_plant_tooltip(data: TooltipData) -> None:
-    """Draw a plant hover tooltip."""
-    width = max(len(line) for line in data.lines) * 4 + 16
-    height = len(data.lines) * 10 + 12
-    x = min(max(data.mouse_x + 10, 8), data.screen_width - width - 8)
-    y = min(
-        max(data.mouse_y - height - 8, 70),
-        data.screen_height - height - 8,
-    )
-    panel = Rect(x, y, width, height)
-    pyxel.rect(
-        panel.x + 2,
-        panel.y + 2,
-        panel.width,
-        panel.height,
-        PyxelColor.UI_DARK,
-    )
-    draw_panel(panel)
-    for index, line in enumerate(data.lines):
-        pyxel.text(
-            panel.x + 8,
-            panel.y + 8 + index * 10,
-            line,
-            PyxelColor.UI_DARK,
-        )
+    col = index % 4
+    row = index // 4
+    return Rect(88 + col * 90, 106 + row * 42, 82, 36)
 
 
 def _draw_parent_picker_slot(
@@ -180,7 +161,7 @@ def _draw_parent_picker_slot(
     pyxel.rect(rect.x, rect.y, rect.width, rect.height, fill)
     pyxel.rectb(rect.x, rect.y, rect.width, rect.height, PyxelColor.FRAME)
     if plant is None:
-        pyxel.text(
+        draw_text(
             rect.x + 10,
             rect.y + 26,
             context.translate("Empty slot"),
@@ -188,21 +169,88 @@ def _draw_parent_picker_slot(
         )
         return
     renderers.plant_preview(rect.x + 24, rect.y + 47, plant, False)
-    pyxel.text(
+    draw_text(
         rect.x + 48,
         rect.y + 8,
-        renderers.visible_genotype(plant),
+        fit_text(
+            renderers.visible_genotype(plant),
+            rect.width - 52,
+        ),
         PyxelColor.UI_DARK,
     )
-    pyxel.text(
+    draw_text(
         rect.x + 48,
-        rect.y + 20,
-        renderers.trait(plant.phenotype.primary_trait_value)[:12],
+        rect.y + 22,
+        context.translate(plant.species),
         PyxelColor.UI_DARK,
     )
-    pyxel.text(
-        rect.x + 48,
-        rect.y + 31,
-        renderers.trait(plant.phenotype.secondary_trait_value)[:12],
+
+
+def _draw_parent_picker_details(
+    context: DrawContext,
+    data: ParentPickerData,
+    renderers: _ParentPickerRenderers,
+) -> None:
+    plant = _parent_picker_detail_plant(data)
+    draw_panel(PARENT_PICKER_DETAIL_PANEL)
+    x = PARENT_PICKER_DETAIL_PANEL.x + 8
+    width = PARENT_PICKER_DETAIL_PANEL.width - 16
+    draw_text(
+        x,
+        PARENT_PICKER_DETAIL_PANEL.y + 8,
+        context.translate("Phenotype").upper(),
         PyxelColor.UI_DARK,
     )
+    if plant is None:
+        draw_text(
+            x,
+            PARENT_PICKER_DETAIL_PANEL.y + 28,
+            context.translate("Select a plant"),
+            PyxelColor.TEXT_MUTED,
+        )
+        return
+
+    draw_text(
+        x,
+        PARENT_PICKER_DETAIL_PANEL.y + 22,
+        fit_text(context.translate(plant.species), width),
+        PyxelColor.ACCENT,
+    )
+    draw_text(
+        x,
+        PARENT_PICKER_DETAIL_PANEL.y + 34,
+        fit_text(renderers.visible_genotype(plant), width),
+        PyxelColor.UI_DARK,
+    )
+    y = PARENT_PICKER_DETAIL_PANEL.y + 50
+    for name, value in plant.phenotype.traits.items():
+        draw_text(
+            x,
+            y,
+            fit_text(context.translate(name.title()), width),
+            PyxelColor.UI_DARK,
+        )
+        draw_text(
+            x + 6,
+            y + 9,
+            fit_text(renderers.trait(value), width - 6),
+            PyxelColor.LEAF_SHADOW,
+        )
+        y += 22
+
+
+def _parent_picker_detail_plant(data: ParentPickerData) -> Plant | None:
+    for index in range(data.capacity):
+        if parent_picker_slot_rect(index).contains(
+            pyxel.mouse_x,
+            pyxel.mouse_y,
+        ):
+            return data.slots[index]
+    selected_index = (
+        data.selected_parent_a
+        if data.target == "a"
+        else data.selected_parent_b
+    )
+    if selected_index is None or selected_index >= len(data.slots):
+        return None
+    return data.slots[selected_index]

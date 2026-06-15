@@ -19,11 +19,12 @@ Lists selected plant details allowed by the current analyzer level.
 
 - Phenotype.
 - Genotype when visible.
-- Color trait.
-- Texture or shape trait.
+- One labeled phenotype characteristic for every tracked gene.
+
+The selected-plant panel must show all 2 to 6 phenotype characteristics before
+the parent-selection and discard actions.
 
 ## Accessibility
 
 Pair trait icons with text labels. Do not communicate trait identity by color
 alone.
-

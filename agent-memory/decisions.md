@@ -177,6 +177,14 @@ delivery-contract matches are rescued by the active contract, and non-contract
 specimens are sold at the common sale value. Hovering a growing bed plant shows
 a floating detail panel with analyzer-level-appropriate information.
 
+## 2026-06-13: Specimen Inspection Uses A Click Overlay
+
+The centered specimen inspection overlay supersedes the earlier hover detail
+panel. Hovering over a Germination Bed specimen does not open or update
+inspection UI. Clicking a visible occupied cell opens the overlay with a large
+preview, analyzer-appropriate details, and Store/Discard actions. The main
+layout does not reserve a permanent specimen side panel.
+
 ## 2026-05-30: Premium Pixel-Art Interface Target
 
 The UI quality target is a polished pixel-art management screen with dense but

@@ -2,10 +2,12 @@
 
 from dataclasses import dataclass
 
-import pyxel
-
 from mendels_greenhouse.ui.components import Rect, draw_button, draw_panel
-from mendels_greenhouse.ui.fonts import draw_outlined_text
+from mendels_greenhouse.ui.fonts import (
+    draw_outlined_text,
+    draw_text,
+    text_width,
+)
 from mendels_greenhouse.ui.game_components.shared import DrawContext
 from mendels_greenhouse.ui.palette import PyxelColor
 from mendels_greenhouse.ui.widgets.progress_bar import ProgressBar
@@ -32,7 +34,7 @@ def draw_contract_banner(
 
     # Redraw active contract title centered above the panel
     header = context.translate("ACTIVE CONTRACT").upper()
-    hx = rect.x + (rect.width - len(header) * 4) // 2
+    hx = rect.x + (rect.width - text_width(header)) // 2
     draw_outlined_text(
         hx,
         4,
@@ -42,7 +44,7 @@ def draw_contract_banner(
     )
 
     # Contract Goal text
-    pyxel.text(rect.x + 8, rect.y + 6, data.title, PyxelColor.UI_DARK)
+    draw_text(rect.x + 8, rect.y + 6, data.title, PyxelColor.UI_DARK)
 
     if data.claim_enabled:
         # Draw CLAIM button on the right side of the panel
@@ -55,7 +57,7 @@ def draw_contract_banner(
             target_value=200,
         ).draw()
 
-        pyxel.text(
+        draw_text(
             rect.x + 214,
             rect.y + 19,
             data.progress_label,

@@ -6,12 +6,14 @@ from dataclasses import dataclass
 import pyxel
 
 from mendels_greenhouse.ui.components import Rect, draw_rounded_panel
+from mendels_greenhouse.ui.fonts import draw_text, fit_text, text_width
 from mendels_greenhouse.ui.game_components.main_game.chrome import (
     draw_runtime_hud_frame,
 )
 from mendels_greenhouse.ui.palette import PyxelColor
 
 NavItem = tuple[str, str, tuple[int, int]]
+MAX_NAV_LABEL_LINES = 2
 
 
 @dataclass(frozen=True)
@@ -119,9 +121,31 @@ def _draw_nav_item(
         scale=config.icon_scale,
     )
     text = translate(label).upper()
-    text_x = rect.x + (rect.width - len(text) * 4) // 2
-    if active:
-        pyxel.text(text_x, rect.y + 36, text, PyxelColor.UI_DARK)
-    else:
-        pyxel.text(text_x + 1, rect.y + 37, text, PyxelColor.SPRITE_OUTLINE)
-        pyxel.text(text_x, rect.y + 36, text, PyxelColor.PARCHMENT_LIGHT)
+    lines = _nav_label_lines(text, rect.width - 6)
+    text_y = rect.y + (37 if len(lines) == 1 else 33)
+    for index, line in enumerate(lines):
+        text_x = rect.x + (rect.width - text_width(line)) // 2
+        line_y = text_y + index * 8
+        if active:
+            draw_text(text_x, line_y, line, PyxelColor.UI_DARK)
+        else:
+            draw_text(
+                text_x + 1,
+                line_y + 1,
+                line,
+                PyxelColor.SPRITE_OUTLINE,
+            )
+            draw_text(text_x, line_y, line, PyxelColor.PARCHMENT_LIGHT)
+
+
+def _nav_label_lines(text: str, max_width: int) -> list[str]:
+    if text_width(text) <= max_width:
+        return [text]
+
+    words = text.split()
+    if len(words) == MAX_NAV_LABEL_LINES and all(
+        text_width(word) <= max_width for word in words
+    ):
+        return words
+
+    return [fit_text(text, max_width)]

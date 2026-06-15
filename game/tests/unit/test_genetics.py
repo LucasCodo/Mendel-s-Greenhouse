@@ -9,6 +9,7 @@ from mendels_greenhouse.core.genetics import (
     combine_gametes,
     crossbreed,
     expected_distribution,
+    expected_phenotype_probabilities,
     founder_genotypes,
     gametes,
 )
@@ -85,6 +86,20 @@ def test_expected_distribution_calculates_genotype_probabilities() -> None:
         "AaBB": 0.25,
         "AaBb": 0.25,
     }
+
+
+def test_expected_phenotype_probabilities_group_genotypes() -> None:
+    probabilities = expected_phenotype_probabilities(
+        Plant("AaBb"),
+        Plant("AaBb"),
+    )
+
+    assert sorted(probabilities.values(), reverse=True) == [
+        9 / 16,
+        3 / 16,
+        3 / 16,
+        1 / 16,
+    ]
 
 
 def test_phenotype_uses_dominant_allele_when_present() -> None:

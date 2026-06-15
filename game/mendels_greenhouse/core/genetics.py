@@ -117,6 +117,25 @@ class CrossbreedingDistribution:
         }
 
 
+def expected_phenotype_probabilities(
+    parent_a: Plant,
+    parent_b: Plant,
+) -> dict[tuple[str, ...], float]:
+    """Return expected probabilities grouped by visible phenotype."""
+    distribution = expected_distribution(parent_a, parent_b)
+    counts: Counter[tuple[str, ...]] = Counter()
+    for genotype, count in distribution.genotype_counts.items():
+        phenotype = Plant(
+            genotype,
+            species=parent_a.species,
+        ).phenotype
+        counts[tuple(phenotype.traits.values())] += count
+    return {
+        traits: count / distribution.total_combinations
+        for traits, count in sorted(counts.items())
+    }
+
+
 def validate_genotype(genotype: str) -> None:
     """Validate a Mendelian genotype made of ordered allele pairs."""
     if len(genotype) % GENE_WIDTH != 0:

@@ -28,13 +28,13 @@ Parent A | Cross Action | Parent B
 Main workspace:
 
 ```text
-Genetic Analyzer | Germination Bed | Selected Specimen
+Genetic Analyzer | Germination Bed
 ```
 
 Primary actions:
 
 ```text
-[Cross Plants] | [Harvest] | [Store] | [Discard]
+[Cross Plants] | [Harvest]
 ```
 
 Left side support:
@@ -43,10 +43,10 @@ Left side support:
 Analyzer level | Phenotype/genotype visibility | Probabilities | Simulator hint
 ```
 
-Right side support:
+Specimen inspection overlay:
 
 ```text
-Selected specimen details | Store | Discard | Scene navigation
+Large plant preview | Phenotype | Genotype | Generation | Store | Discard
 ```
 
 ## ASCII Wireframe
@@ -57,8 +57,8 @@ Selected specimen details | Store | Discard | Scene navigation
 +----------------------+-----------------------------------+-----------------------+
 | Genetic Analyzer     | Parent A | Cross | Parent B       | Navigation buttons    |
 | glass + CRT + input  +-----------------------------------+                       |
-| controls             | Germination Bed | Specimen Detail |                       |
-|                      | growth grid      | Store / Discard |                       |
+| controls             | Germination Bed / growth grid     |                       |
+|                      | [Specimen overlay appears on click]|                       |
 +----------------------+-----------------------------------+-----------------------+
 ```
 
@@ -83,10 +83,13 @@ Expected mouse interactions:
 
 - Click parent slots or plant cards to select parents.
 - Click `Crossbreed` to start the cross.
-- Hover over a growing bed specimen to inspect details in a floating panel.
-- Click a bed specimen or the selected specimen panel as a non-hover fallback.
-- Click analyzer hardware controls to cycle specimens, trigger tactile feedback,
-  or choose among already unlocked information levels.
+- Hovering over a growing bed specimen does not open or change inspection UI.
+- Click a visible bed specimen to open a centered inspection overlay above the
+  current screen.
+- The inspection overlay contains the large plant preview, phenotype, visible
+  genotype, generation, and `Store` / `Discard` actions.
+- Close the inspection overlay with its close button or `Escape`.
+- Do not reserve a permanent side column for specimen details.
 - Click `Store` to preserve a selected specimen or `Discard` to remove it with
   no sale value.
 - Click `Harvest` to resolve the grown batch into contract rescues and sales.

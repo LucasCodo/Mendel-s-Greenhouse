@@ -1,12 +1,17 @@
 """Discovery collection tracking."""
 
 from dataclasses import dataclass, field
+from itertools import product
 
-from mendels_greenhouse.core.content import collection_total_entries
+from mendels_greenhouse.core.content import (
+    SPECIES_DEFINITIONS,
+    collection_total_entries,
+)
 from mendels_greenhouse.core.genetics import Phenotype, Plant
 
 GenotypeKey = tuple[str, str]
 PhenotypeKey = tuple[str, tuple[tuple[str, str], ...]]
+CollectionKey = str | GenotypeKey | PhenotypeKey
 
 
 @dataclass
@@ -55,3 +60,47 @@ def phenotype_key(phenotype: Phenotype) -> PhenotypeKey:
         phenotype.species,
         tuple(sorted(phenotype.traits.items())),
     )
+
+
+def official_collection_keys(category: str) -> tuple[CollectionKey, ...]:
+    """Return every official album slot for one collection category."""
+    if category == "Species":
+        return tuple(SPECIES_DEFINITIONS)
+    if category == "Phenotypes":
+        return _official_phenotype_keys()
+    if category == "Genotypes":
+        return _official_genotype_keys()
+    raise ValueError(category)
+
+
+def _official_phenotype_keys() -> tuple[PhenotypeKey, ...]:
+    keys: list[PhenotypeKey] = []
+    for species, definition in SPECIES_DEFINITIONS.items():
+        trait_values = (
+            (rule.dominant, rule.recessive) for rule in definition.traits
+        )
+        for values in product(*trait_values):
+            traits = tuple(
+                sorted(
+                    (rule.name, value)
+                    for rule, value in zip(
+                        definition.traits,
+                        values,
+                        strict=True,
+                    )
+                )
+            )
+            keys.append((species, traits))
+    return tuple(keys)
+
+
+def _official_genotype_keys() -> tuple[GenotypeKey, ...]:
+    keys: list[GenotypeKey] = []
+    for species, definition in SPECIES_DEFINITIONS.items():
+        allele_pairs = tuple(
+            (gene * 2, f"{gene}{gene.lower()}", gene.lower() * 2)
+            for gene in (rule.gene for rule in definition.traits)
+        )
+        for pairs in product(*allele_pairs):
+            keys.append((species, "".join(pairs)))
+    return tuple(keys)

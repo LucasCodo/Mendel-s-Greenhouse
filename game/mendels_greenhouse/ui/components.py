@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import pyxel
 
+from mendels_greenhouse.ui.fonts import draw_text, fit_text, text_width
 from mendels_greenhouse.ui.palette import PyxelColor
 
 
@@ -165,10 +166,11 @@ def draw_button(  # noqa: PLR0915
             PyxelColor.PARCHMENT,
         )
 
-    text_x = rect.x + max((rect.width - len(label) * 4) // 2, 2)
-    text_y = rect.y + offset + rect.height // 2 - 2
-    pyxel.text(text_x + 1, text_y + 1, label, PyxelColor.UI_DARK)
-    pyxel.text(text_x, text_y, label, text)
+    label = fit_text(label, rect.width - 8)
+    text_x = rect.x + max((rect.width - text_width(label)) // 2, 2)
+    text_y = rect.y + offset + (rect.height - 8) // 2
+    draw_text(text_x + 1, text_y + 1, label, PyxelColor.UI_DARK)
+    draw_text(text_x, text_y, label, text)
 
 
 def draw_rounded_panel(
@@ -287,4 +289,31 @@ def draw_panel(rect: Rect, title: str | None = None) -> None:
         rect, PyxelColor.PARCHMENT, PyxelColor.FRAME, PyxelColor.UI_DARK
     )
     if title is not None:
-        pyxel.text(rect.x + 6, rect.y + 6, title, PyxelColor.UI_DARK)
+        draw_text(rect.x + 6, rect.y + 6, title, PyxelColor.UI_DARK)
+
+
+def draw_rounded_rect(
+    rect: Rect,
+    fill_color: int,
+    border_color: int,
+) -> None:
+    """Draw a small rectangle with rounded corners (radius 2)."""
+    x, y, w, h = rect.x, rect.y, rect.width, rect.height
+    # Fill
+    pyxel.rect(x + 2, y, w - 4, 1, fill_color)
+    pyxel.rect(x + 1, y + 1, w - 2, 1, fill_color)
+    pyxel.rect(x, y + 2, w, h - 4, fill_color)
+    pyxel.rect(x + 1, y + h - 2, w - 2, 1, fill_color)
+    pyxel.rect(x + 2, y + h - 1, w - 4, 1, fill_color)
+
+    # Border
+    pyxel.line(x + 2, y, x + w - 3, y, border_color)
+    pyxel.line(x + 2, y + h - 1, x + w - 3, y + h - 1, border_color)
+    pyxel.line(x, y + 2, x, y + h - 3, border_color)
+    pyxel.line(x + w - 1, y + 2, x + w - 1, y + h - 3, border_color)
+
+    # Diagonal corners
+    pyxel.pset(x + 1, y + 1, border_color)
+    pyxel.pset(x + w - 2, y + 1, border_color)
+    pyxel.pset(x + 1, y + h - 2, border_color)
+    pyxel.pset(x + w - 2, y + h - 2, border_color)

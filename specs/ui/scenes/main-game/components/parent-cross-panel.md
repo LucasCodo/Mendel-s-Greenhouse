@@ -30,7 +30,7 @@ Each parent card should show:
 
 - Plant/pod preview.
 - Genotype label when analyzer level allows it.
-- Phenotype labels.
+- One phenotype label for each tracked gene/allele pair.
 - Selection state.
 - Species compatibility state.
 
@@ -45,8 +45,16 @@ Each parent card should show:
 ## Current Runtime Treatment
 
 - Both parent summaries share one unified parchment-and-wood panel.
+- The panel begins after the wider analyzer and shares its horizontal bounds
+  with the Germination Bed.
 - Parent A and Parent B use mirrored layouts with plant preview, genotype field,
   and stacked phenotype labels.
+- The phenotype stack must grow with species complexity: 2 labels for Mendel
+  Pea, 3 for Snapdragon, 4 for Corn, 5 for Tomato, and 6 for Orchid.
+- Genotype fields must show every allele letter, including all 12 letters for
+  six-gene Orchid specimens, without truncation or overflow.
+- Parent cards, phenotype stacks, the Cross button, and the helper line occupy
+  separate vertical bands without overlap.
 - Locked genotype information remains shown as an unknown placeholder.
 - A high-contrast cross symbol separates the parents.
 - The primary cross button is centered below the parent pair, followed by one

@@ -13,13 +13,19 @@ Detailed scene decomposition and the official visual target live in
 +------------------------------------------------------------+
 | Collection                         Discovered: X/Y         |
 +----------------+-------------------+-----------------------+
-| Species        | Entry Grid        | Entry Details         |
-| Phenotypes     | [Card][Card]      | Phenotype             |
-| Genotypes      | [????][Card]      | Genotype              |
-| Specimens      |                   | Generation: F2        |
-|                |                   | First discovered      |
+| Species        | Sticker Album Grid                 | |
+| Phenotypes     | [Card][????][Card][????]       [|] | |
+| Genotypes      | [????][Card][????][Card]       [|] | |
+| Specimens      | [Card][????][????][Card]       [|] | |
+|                |                          Scroll [|] | |
 +----------------+-------------------+-----------------------+
 ```
+
+The active category uses a fixed card grid that includes every official slot,
+whether discovered or hidden. A vertical scrollbar on the right side of the
+album supports mouse-wheel scrolling, scrollbar clicks, and keyboard
+navigation. Hidden slots preserve their numbered position but do not reveal
+their exact genetic content.
 
 ## Entry Data
 
