@@ -6,6 +6,7 @@ from mendels_greenhouse.core.contracts import (
     generate_next_contract,
 )
 from mendels_greenhouse.core.genetics import Plant
+from mendels_greenhouse.core.i18n import set_language
 from mendels_greenhouse.core.save_data import (
     SaveMetadata,
     state_from_save_data,
@@ -250,6 +251,49 @@ def test_species_shop_card_handles_all_unlocked_species() -> None:
     scene.state = state
 
     assert scene._species_card_data() == ("Species", "All unlocked", "DONE")
+
+
+def test_dynamic_species_and_upgrade_text_uses_i18n_placeholders() -> None:
+    set_language("pt-BR")
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.selected_shop_item = "analyzer"
+
+    assert "Sequenciamento genetico" in scene._shop_details()[0]
+
+    scene.selected_shop_item = "species"
+    assert scene._shop_details()[0] == "Desbloqueie Boca-de-leao."
+    assert scene._status_text("Unlocked Orchid.") == "Orquidea desbloqueado."
+
+
+def test_contract_titles_translate_dynamic_i18n_placeholders() -> None:
+    set_language("pt-BR")
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    state.active_contract = PhenotypeContract(
+        title="",
+        target_count=2,
+        reward_credits=100,
+        species="Orchid",
+        trait_requirements={"flower color": "violet"},
+    )
+
+    assert scene._contract_title() == "Entregue 2 Orquidea violeta"
+
+    state.active_contract = PhenotypeContract(
+        title="",
+        target_count=1,
+        reward_credits=100,
+        kind="probability",
+        resolution_mode="statistical",
+        species="Tomato",
+        trait_requirements={"maturation": "early"},
+        min_probability=0.25,
+    )
+
+    assert scene._contract_title() == "Produza pelo menos 25% precoce"
 
 
 def test_shop_purchase_requires_confirmation_before_spending() -> None:

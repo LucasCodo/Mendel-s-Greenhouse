@@ -12,6 +12,9 @@ from mendels_greenhouse.ui.fonts import (
     draw_text,
     fit_text,
 )
+from mendels_greenhouse.ui.game_components.plant_info import (
+    localized_trait_name,
+)
 from mendels_greenhouse.ui.game_components.shared import (
     DrawContext,
     draw_modal_scrim,
@@ -227,7 +230,7 @@ def _draw_parent_picker_details(
         draw_text(
             x,
             y,
-            fit_text(context.translate(name.title()), width),
+            fit_text(localized_trait_name(name, context.translate), width),
             PyxelColor.UI_DARK,
         )
         draw_text(

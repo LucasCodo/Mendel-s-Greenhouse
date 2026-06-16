@@ -21,6 +21,8 @@ from mendels_greenhouse.ui.palette import PyxelColor
 
 PlantPreview = Callable[[int, int, Plant, bool], None]
 
+PHENOTYPE_VALUE_COLOR = PyxelColor.UI_DARK
+
 
 @dataclass(frozen=True)
 class SpecimenOverlayData:
@@ -91,7 +93,7 @@ def draw_specimen_overlay(
         translate("Phenotype"),
         data.trait_lines,
         details_width,
-        PyxelColor.LEAF_HIGHLIGHT,
+        PHENOTYPE_VALUE_COLOR,
     )
     next_detail_y = _draw_detail_row(
         details_x,

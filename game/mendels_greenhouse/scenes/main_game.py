@@ -326,6 +326,7 @@ I18N_MARKERS = (
     gettext_noop("Analyzer upgraded to level {level}."),
     gettext_noop("Adds a {genes}-gene plant species."),
     gettext_noop("All currently specified species are unlocked."),
+    gettext_noop("All unlocked"),
     gettext_noop("All specified species are unlocked."),
     gettext_noop("Back to game"),
     gettext_noop("Basic controls"),
@@ -353,6 +354,8 @@ I18N_MARKERS = (
     gettext_noop("Generating offspring..."),
     gettext_noop("Genotype already stored."),
     gettext_noop("Genetic Analyzer is already fully upgraded."),
+    gettext_noop("Genetic Sequencing"),
+    gettext_noop("Genetic Simulator"),
     gettext_noop("Genotypes"),
     gettext_noop("Genotypes found: {count}"),
     gettext_noop("Generated offspring register here."),
@@ -391,6 +394,7 @@ I18N_MARKERS = (
     gettext_noop("Matches"),
     gettext_noop("Max capacity"),
     gettext_noop("Max level"),
+    gettext_noop("Mendel Pea"),
     gettext_noop("Mendel Pea unlocked."),
     gettext_noop("Missing"),
     gettext_noop("More slots let you store more offspring."),
@@ -410,6 +414,11 @@ I18N_MARKERS = (
     gettext_noop("PARENT B"),
     gettext_noop("Phenotypes"),
     gettext_noop("Phenotypes found: {count}"),
+    gettext_noop("Probability"),
+    gettext_noop("Probabilistic Analysis"),
+    gettext_noop("Produce a 9:3:3:1 phenotype ratio"),
+    gettext_noop("Produce at least {percentage}% {trait}"),
+    gettext_noop("Recessive allele"),
     gettext_noop(
         "Pick two parent plants, cross them, then inspect offspring."
     ),
@@ -427,6 +436,7 @@ I18N_MARKERS = (
     gettext_noop("Species"),
     gettext_noop("Species found: {count}"),
     gettext_noop("Species unlock is not priced."),
+    gettext_noop("Snapdragon"),
     gettext_noop("Spend credits on progression"),
     gettext_noop("Stored plant in slot {slot}."),
     gettext_noop("Stored plant in slot {slot}. +{credits} credits."),
@@ -443,6 +453,7 @@ I18N_MARKERS = (
     gettext_noop("CONFIRM RESET"),
     gettext_noop("CANCEL"),
     gettext_noop("Tester money code enabled."),
+    gettext_noop("TBD"),
     gettext_noop("The goal"),
     gettext_noop("Unlock {species}."),
     gettext_noop("Unlock greenhouse slot {slot}."),
@@ -462,10 +473,54 @@ I18N_MARKERS = (
     gettext_noop("Matching harvest specimens are rescued first."),
     gettext_noop("Validate the whole generated batch."),
     gettext_noop("No valid stored cross found."),
+    gettext_noop("aroma"),
+    gettext_noop("blooming time"),
+    gettext_noop("ear size"),
+    gettext_noop("early"),
+    gettext_noop("few-petal"),
+    gettext_noop("few-row"),
+    gettext_noop("flower color"),
+    gettext_noop("flower shape"),
+    gettext_noop("flower size"),
+    gettext_noop("fragrant"),
+    gettext_noop("fruit color"),
+    gettext_noop("fruit shape"),
+    gettext_noop("fruit size"),
     gettext_noop("green"),
+    gettext_noop("kernel color"),
+    gettext_noop("large"),
+    gettext_noop("late"),
+    gettext_noop("maturation"),
+    gettext_noop("many-petal"),
+    gettext_noop("many-row"),
+    gettext_noop("narrow"),
+    gettext_noop("neutral"),
+    gettext_noop("pear-shaped"),
+    gettext_noop("petal count"),
+    gettext_noop("petal shape"),
+    gettext_noop("plant height"),
+    gettext_noop("purple"),
+    gettext_noop("red"),
+    gettext_noop("resistance"),
+    gettext_noop("resistant"),
+    gettext_noop("round"),
+    gettext_noop("row count"),
+    gettext_noop("seed color"),
+    gettext_noop("seed texture"),
+    gettext_noop("short"),
+    gettext_noop("small"),
     gettext_noop("smooth"),
+    gettext_noop("star"),
+    gettext_noop("susceptible"),
+    gettext_noop("tall"),
+    gettext_noop("violet"),
+    gettext_noop("white"),
+    gettext_noop("wide"),
     gettext_noop("wrinkled"),
     gettext_noop("yellow"),
+    gettext_noop("Corn"),
+    gettext_noop("Orchid"),
+    gettext_noop("Tomato"),
     gettext_noop("{name} - discovered"),
     gettext_noop("{found}/{total} found"),
 )
@@ -1539,7 +1594,7 @@ class MainGameScene:
                 self._t(
                     "Upgrade to level {level}: {name}.",
                     level=next_level,
-                    name=name,
+                    name=self._t(name),
                 ),
                 self._t("Unlocks deeper genetic information."),
                 self._t("Cost: {cost} credits.", cost=cost),
@@ -1550,11 +1605,11 @@ class MainGameScene:
         genes, cost = data
         cost_label = "TBD" if cost is None else cost
         return [
-            self._t("Unlock {species}.", species=species_name),
+            self._t("Unlock {species}.", species=self._t(species_name)),
             self._t("Adds a {genes}-gene plant species.", genes=genes),
             self._t("Adds dominant and recessive founders."),
             self._t("Requires two empty garden slots."),
-            self._t("Cost: {cost} credits.", cost=cost_label),
+            self._t("Cost: {cost} credits.", cost=self._t(str(cost_label))),
         ]
 
     def _buy_selected_shop_item(self) -> bool:
@@ -1931,16 +1986,29 @@ class MainGameScene:
                 "Deliver {target} {traits} {species}",
                 target=contract.target_count,
                 traits=values,
-                species=contract.species,
+                species=self._t(contract.species),
             )
         if contract.kind == "genotype":
             return self._t(
                 "Deliver {target} {genotype} {species}",
                 target=contract.target_count,
                 genotype=contract.genotype,
-                species=contract.species,
+                species=self._t(contract.species),
             )
-        return contract.title
+        if contract.ratio is not None:
+            return self._t("Produce a 9:3:3:1 phenotype ratio")
+        if (
+            contract.min_probability is not None
+            and contract.trait_requirements
+        ):
+            trait = next(iter(contract.trait_requirements.values()))
+            percentage = int(contract.min_probability * 100)
+            return self._t(
+                "Produce at least {percentage}% {trait}",
+                percentage=percentage,
+                trait=self._trait(trait),
+            )
+        return self._t(contract.title)
 
     def _contract_instruction(self) -> str:
         contract = self.state.active_contract
@@ -1988,7 +2056,7 @@ class MainGameScene:
             )
         if message.startswith("Unlocked ") and message.endswith("."):
             species = message.removeprefix("Unlocked ").removesuffix(".")
-            return self._t("Unlocked {species}.", species=species)
+            return self._t("Unlocked {species}.", species=self._t(species))
         return self._t(message)
 
     def _t(self, text: str, **kwargs: object) -> str:

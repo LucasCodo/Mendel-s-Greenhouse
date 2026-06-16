@@ -10,7 +10,10 @@ from mendels_greenhouse.ui.game_components.germination_bed import (
     germination_cell_rect,
     germination_layout,
 )
-from mendels_greenhouse.ui.game_components.plant_info import plant_trait_lines
+from mendels_greenhouse.ui.game_components.plant_info import (
+    localized_trait_name,
+    plant_trait_lines,
+)
 
 __all__ = [
     "BedGeometry",
@@ -19,5 +22,6 @@ __all__ = [
     "contract_progress_width",
     "germination_cell_rect",
     "germination_layout",
+    "localized_trait_name",
     "plant_trait_lines",
 ]
