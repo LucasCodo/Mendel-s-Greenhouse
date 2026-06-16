@@ -1,5 +1,8 @@
 """Tests for MVP state, storage, and contract services."""
 
+import sys
+from types import SimpleNamespace
+
 from mendels_greenhouse.core.contracts import (
     PhenotypeContract,
     create_tutorial_contract,
@@ -578,3 +581,82 @@ def test_save_service_scopes_files_by_profile_and_slot(tmp_path) -> None:
     assert loaded_a[0].credits == 10
     assert loaded_b[0].credits == 99
     assert profile_a.save_path != profile_b.save_path
+
+
+def test_save_service_uses_browser_storage_on_web(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    storage_data = {}
+
+    def get_item(key: str) -> str | None:
+        return storage_data.get(key)
+
+    def set_item(key: str, value: str) -> None:
+        storage_data[key] = value
+
+    browser_storage = SimpleNamespace(
+        getItem=get_item,
+        setItem=set_item,
+    )
+
+    monkeypatch.setattr(sys, "platform", "emscripten")
+    monkeypatch.setitem(
+        sys.modules,
+        "js",
+        SimpleNamespace(localStorage=browser_storage),
+    )
+    service = SaveService(
+        root_dir=tmp_path,
+        identity=SaveIdentity(profile_id="web-profile", slot_id="slot-1"),
+    )
+    state = GameState.create_initial()
+    state.credits = 77
+
+    service.save(
+        state,
+        language="pt-BR",
+        settings={"language": "pt-BR", "music_volume": 4},
+    )
+
+    reloaded_service = SaveService(
+        root_dir=tmp_path,
+        identity=SaveIdentity(profile_id="web-profile", slot_id="slot-1"),
+    )
+    loaded = reloaded_service.load()
+
+    assert loaded is not None
+    loaded_state, loaded_settings = loaded
+    assert loaded_state.credits == 77
+    assert loaded_settings["music_volume"] == 4
+    assert list(storage_data) == [
+        "mendels-greenhouse:save:web-profile:slot-1",
+    ]
+
+
+def test_save_service_ignores_empty_browser_storage(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    def get_item(_key: str) -> str:
+        return "undefined"
+
+    def set_item(_key: str, _value: str) -> None:
+        return None
+
+    browser_storage = SimpleNamespace(
+        getItem=get_item,
+        setItem=set_item,
+    )
+    monkeypatch.setattr(sys, "platform", "emscripten")
+    monkeypatch.setitem(
+        sys.modules,
+        "js",
+        SimpleNamespace(localStorage=browser_storage),
+    )
+    service = SaveService(
+        root_dir=tmp_path,
+        identity=SaveIdentity(profile_id="web-profile", slot_id="slot-1"),
+    )
+
+    assert service.load() is None

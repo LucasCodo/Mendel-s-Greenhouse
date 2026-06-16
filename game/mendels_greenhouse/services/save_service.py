@@ -1,6 +1,8 @@
-"""File-backed profile-scoped autosave service."""
+"""Profile-scoped autosave service."""
 
+import importlib
 import json
+import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Self
@@ -18,6 +20,7 @@ DEFAULT_PROFILE_ID = "local"
 DEFAULT_SLOT_ID = "slot-1"
 APP_AUTHOR = "LucasCodo"
 APP_NAME = "MendelsGreenhouse"
+WEB_STORAGE_PREFIX = "mendels-greenhouse:save"
 
 
 @dataclass(frozen=True)
@@ -63,12 +66,10 @@ class SaveService:
 
     def load(self) -> tuple[GameState, dict[str, Any]] | None:
         """Load only the active profile and slot."""
-        path = self.save_path
-        if not path.exists():
+        payload = self._load_payload()
+        if payload is None:
             return None
 
-        with path.open("r", encoding="utf-8") as file:
-            payload = json.load(file)
         return state_from_save_data(payload), payload.get("settings", {})
 
     def save(
@@ -78,9 +79,8 @@ class SaveService:
         language: str,
         settings: dict[str, Any] | None = None,
     ) -> None:
-        """Write the active save through atomic replacement."""
-        path = self.save_path
-        created_at = _existing_created_at(path)
+        """Write the active save to the current runtime storage."""
+        created_at = self._existing_created_at()
         payload = state_to_save_data(
             state,
             SaveMetadata(
@@ -91,6 +91,25 @@ class SaveService:
                 created_at=created_at,
             ),
         )
+        self._write_payload(payload)
+
+    def _load_payload(self) -> dict[str, Any] | None:
+        if _is_web_runtime():
+            return _web_load_payload(self._web_storage_key())
+
+        path = self.save_path
+        if not path.exists():
+            return None
+
+        with path.open("r", encoding="utf-8") as file:
+            return json.load(file)
+
+    def _write_payload(self, payload: dict[str, Any]) -> None:
+        if _is_web_runtime():
+            _web_save_payload(self._web_storage_key(), payload)
+            return
+
+        path = self.save_path
         path.parent.mkdir(parents=True, exist_ok=True)
         temporary_path = path.with_suffix(".tmp")
         with temporary_path.open("w", encoding="utf-8") as file:
@@ -98,19 +117,55 @@ class SaveService:
             file.write("\n")
         temporary_path.replace(path)
 
+    def _existing_created_at(self) -> str | None:
+        try:
+            payload = self._load_payload()
+        except (OSError, json.JSONDecodeError):
+            return None
+        if payload is None:
+            return None
+        created_at = payload.get("created_at")
+        if isinstance(created_at, str):
+            return created_at
+        return None
 
-def _existing_created_at(path: Path) -> str | None:
-    if not path.exists():
+    def _web_storage_key(self) -> str:
+        return ":".join(
+            (
+                WEB_STORAGE_PREFIX,
+                _safe_path_part(self.identity.profile_id),
+                _safe_path_part(self.identity.slot_id),
+            ),
+        )
+
+
+def _is_web_runtime() -> bool:
+    return sys.platform == "emscripten"
+
+
+def _web_storage() -> Any:
+    js = importlib.import_module("js")
+    return js.localStorage
+
+
+def _web_load_payload(key: str) -> dict[str, Any] | None:
+    saved = _web_storage().getItem(key)
+    if saved is None:
+        return None
+    saved_text = str(saved)
+    if saved_text in {"", "None", "null", "undefined"}:
         return None
     try:
-        with path.open("r", encoding="utf-8") as file:
-            payload = json.load(file)
-    except (OSError, json.JSONDecodeError):
+        payload = json.loads(saved_text)
+    except json.JSONDecodeError:
         return None
-    created_at = payload.get("created_at")
-    if isinstance(created_at, str):
-        return created_at
+    if isinstance(payload, dict):
+        return payload
     return None
+
+
+def _web_save_payload(key: str, payload: dict[str, Any]) -> None:
+    _web_storage().setItem(key, json.dumps(payload, sort_keys=True))
 
 
 def _safe_path_part(value: str) -> str:
