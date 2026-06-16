@@ -1,11 +1,15 @@
 """Tests for MVP state, storage, and contract services."""
 
+import sys
+from types import SimpleNamespace
+
 from mendels_greenhouse.core.contracts import (
     PhenotypeContract,
     create_tutorial_contract,
     generate_next_contract,
 )
 from mendels_greenhouse.core.genetics import Plant
+from mendels_greenhouse.core.i18n import set_language
 from mendels_greenhouse.core.save_data import (
     SaveMetadata,
     state_from_save_data,
@@ -250,6 +254,49 @@ def test_species_shop_card_handles_all_unlocked_species() -> None:
     scene.state = state
 
     assert scene._species_card_data() == ("Species", "All unlocked", "DONE")
+
+
+def test_dynamic_species_and_upgrade_text_uses_i18n_placeholders() -> None:
+    set_language("pt-BR")
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.selected_shop_item = "analyzer"
+
+    assert "Sequenciamento genetico" in scene._shop_details()[0]
+
+    scene.selected_shop_item = "species"
+    assert scene._shop_details()[0] == "Desbloqueie Boca-de-leao."
+    assert scene._status_text("Unlocked Orchid.") == "Orquidea desbloqueado."
+
+
+def test_contract_titles_translate_dynamic_i18n_placeholders() -> None:
+    set_language("pt-BR")
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    state.active_contract = PhenotypeContract(
+        title="",
+        target_count=2,
+        reward_credits=100,
+        species="Orchid",
+        trait_requirements={"flower color": "violet"},
+    )
+
+    assert scene._contract_title() == "Entregue 2 Orquidea violeta"
+
+    state.active_contract = PhenotypeContract(
+        title="",
+        target_count=1,
+        reward_credits=100,
+        kind="probability",
+        resolution_mode="statistical",
+        species="Tomato",
+        trait_requirements={"maturation": "early"},
+        min_probability=0.25,
+    )
+
+    assert scene._contract_title() == "Produza pelo menos 25% precoce"
 
 
 def test_shop_purchase_requires_confirmation_before_spending() -> None:
@@ -534,3 +581,82 @@ def test_save_service_scopes_files_by_profile_and_slot(tmp_path) -> None:
     assert loaded_a[0].credits == 10
     assert loaded_b[0].credits == 99
     assert profile_a.save_path != profile_b.save_path
+
+
+def test_save_service_uses_browser_storage_on_web(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    storage_data = {}
+
+    def get_item(key: str) -> str | None:
+        return storage_data.get(key)
+
+    def set_item(key: str, value: str) -> None:
+        storage_data[key] = value
+
+    browser_storage = SimpleNamespace(
+        getItem=get_item,
+        setItem=set_item,
+    )
+
+    monkeypatch.setattr(sys, "platform", "emscripten")
+    monkeypatch.setitem(
+        sys.modules,
+        "js",
+        SimpleNamespace(localStorage=browser_storage),
+    )
+    service = SaveService(
+        root_dir=tmp_path,
+        identity=SaveIdentity(profile_id="web-profile", slot_id="slot-1"),
+    )
+    state = GameState.create_initial()
+    state.credits = 77
+
+    service.save(
+        state,
+        language="pt-BR",
+        settings={"language": "pt-BR", "music_volume": 4},
+    )
+
+    reloaded_service = SaveService(
+        root_dir=tmp_path,
+        identity=SaveIdentity(profile_id="web-profile", slot_id="slot-1"),
+    )
+    loaded = reloaded_service.load()
+
+    assert loaded is not None
+    loaded_state, loaded_settings = loaded
+    assert loaded_state.credits == 77
+    assert loaded_settings["music_volume"] == 4
+    assert list(storage_data) == [
+        "mendels-greenhouse:save:web-profile:slot-1",
+    ]
+
+
+def test_save_service_ignores_empty_browser_storage(
+    monkeypatch,
+    tmp_path,
+) -> None:
+    def get_item(_key: str) -> str:
+        return "undefined"
+
+    def set_item(_key: str, _value: str) -> None:
+        return None
+
+    browser_storage = SimpleNamespace(
+        getItem=get_item,
+        setItem=set_item,
+    )
+    monkeypatch.setattr(sys, "platform", "emscripten")
+    monkeypatch.setitem(
+        sys.modules,
+        "js",
+        SimpleNamespace(localStorage=browser_storage),
+    )
+    service = SaveService(
+        root_dir=tmp_path,
+        identity=SaveIdentity(profile_id="web-profile", slot_id="slot-1"),
+    )
+
+    assert service.load() is None

@@ -26,6 +26,7 @@ from mendels_greenhouse.ui.game_components.main_game import (
     PARENT_B_CARD,
     PARENT_CROSS_PANEL,
     parent_cross_panel,
+    specimen_overlay,
 )
 from mendels_greenhouse.ui.game_components.overlays import runtime
 from mendels_greenhouse.ui.game_components.overlays.runtime import (
@@ -155,6 +156,25 @@ def test_parent_cross_panel_shows_one_phenotype_per_gene(
     assert labels == tuple(plant.phenotype.traits.values())
 
 
+def test_parent_cross_panel_translates_phenotype_labels() -> None:
+    plant = Plant("AABBCCDDEEFF", species="Orchid")
+    translations = {
+        "violet": "violeta",
+        "large": "grande",
+        "many-petal": "muitas petalas",
+        "fragrant": "perfumada",
+        "star": "estrela",
+        "early": "precoce",
+    }
+
+    labels = parent_cross_panel.phenotype_labels(
+        plant,
+        trait=translations.__getitem__,
+    )
+
+    assert labels == tuple(translations.values())
+
+
 def test_parent_cross_panel_fits_orchid_content_above_actions() -> None:
     plant = Plant("AABBCCDDEEFF", species="Orchid")
 
@@ -193,13 +213,101 @@ def test_orchid_detail_surfaces_receive_all_six_traits() -> None:
     lines = plant_trait_lines(plant, translate=lambda text: text)
 
     assert lines == [
-        "Flower Color: violet",
-        "Flower Size: large",
-        "Petal Count: many-petal",
+        "Flower color: violet",
+        "Flower size: large",
+        "Petal count: many-petal",
         "Aroma: fragrant",
-        "Flower Shape: star",
-        "Blooming Time: early",
+        "Flower shape: star",
+        "Blooming time: early",
     ]
+
+
+def test_orchid_detail_surfaces_translate_trait_names() -> None:
+    plant = Plant("AABBCCDDEEFF", species="Orchid")
+    translations = {
+        "flower color": "cor da flor",
+        "flower size": "tamanho da flor",
+        "petal count": "qtd. petalas",
+        "aroma": "aroma",
+        "flower shape": "forma da flor",
+        "blooming time": "floracao",
+        "violet": "violeta",
+        "large": "grande",
+        "many-petal": "muitas petalas",
+        "fragrant": "perfumada",
+        "star": "estrela",
+        "early": "precoce",
+    }
+
+    lines = plant_trait_lines(plant, translate=translations.__getitem__)
+
+    assert lines == [
+        "Cor da flor: violeta",
+        "Tamanho da flor: grande",
+        "Qtd. petalas: muitas petalas",
+        "Aroma: perfumada",
+        "Forma da flor: estrela",
+        "Floracao: precoce",
+    ]
+
+
+def test_specimen_overlay_uses_readable_phenotype_text_color() -> None:
+    data = specimen_overlay.SpecimenOverlayData(
+        panel=Rect(0, 0, 320, 240),
+        store_button=Rect(20, 200, 120, 24),
+        discard_button=Rect(160, 200, 120, 24),
+        close_button=Rect(288, 8, 24, 24),
+        plant=Plant("AABBCCDDEEFF", species="Orchid"),
+        can_store=True,
+        visible_genotype="AABBCCDDEEFF",
+        trait_lines=["Flower Color: violet"],
+    )
+    context = DrawContext(translate=lambda text: text, display_font=None)
+
+    with (
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "draw_modal_scrim",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "draw_panel",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "draw_rounded_panel",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "draw_text",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "draw_button",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "_draw_preview_atmosphere",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "_draw_discard_button",
+        ),
+        patch(
+            "mendels_greenhouse.ui.game_components.main_game.specimen_overlay."
+            "_draw_detail_row",
+            side_effect=[96, 136, 176],
+        ) as draw_detail_row,
+    ):
+        specimen_overlay.draw_specimen_overlay(
+            context,
+            data,
+            plant_preview=Mock(),
+        )
+
+    assert draw_detail_row.call_args_list[0].args[5] == (
+        specimen_overlay.PHENOTYPE_VALUE_COLOR
+    )
 
 
 def test_garden_actions_leave_space_for_six_trait_lines() -> None:
