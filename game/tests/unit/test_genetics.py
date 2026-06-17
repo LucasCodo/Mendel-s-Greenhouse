@@ -12,6 +12,7 @@ from mendels_greenhouse.core.genetics import (
     expected_phenotype_probabilities,
     founder_genotypes,
     gametes,
+    punnett_square,
 )
 
 
@@ -100,6 +101,14 @@ def test_expected_phenotype_probabilities_group_genotypes() -> None:
         3 / 16,
         1 / 16,
     ]
+
+
+def test_punnett_square_uses_parent_gamete_combinations() -> None:
+    square = punnett_square(Plant("AaBb"), Plant("AABB"))
+
+    assert square.parent_a_gametes == ("AB", "Ab", "aB", "ab")
+    assert square.parent_b_gametes == ("AB",)
+    assert square.cells == (("AABB", "AABb", "AaBB", "AaBb"),)
 
 
 def test_phenotype_uses_dominant_allele_when_present() -> None:

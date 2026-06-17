@@ -3,6 +3,8 @@
 import sys
 from types import SimpleNamespace
 
+import pyxel
+
 from mendels_greenhouse.core.contracts import (
     PhenotypeContract,
     create_tutorial_contract,
@@ -23,6 +25,11 @@ from mendels_greenhouse.services.breeding_service import (
 from mendels_greenhouse.services.greenhouse_service import GreenhouseService
 from mendels_greenhouse.services.save_service import SaveIdentity, SaveService
 from mendels_greenhouse.state.game_state import GameState
+from mendels_greenhouse.ui.game_components.main_game import (
+    ANALYZER_VIEW_BUTTONS,
+    ANALYZER_VIEW_PUNNETT,
+    ANALYZER_VIEW_TRAITS,
+)
 
 
 def test_initial_state_matches_official_mvp_setup() -> None:
@@ -426,6 +433,10 @@ def test_analyzer_reports_follow_unlocked_experiment_levels() -> None:
         "A: AB Ab aB ab",
         "B: AB Ab aB ab",
     ]
+    assert scene._analyzer_allele_lines() == [
+        "A A: Aa  B A: Aa",
+        "A B: Bb  B B: Bb",
+    ]
 
     state.analyzer_level = 3
     assert sorted(scene._probability_lines()) == [
@@ -434,6 +445,48 @@ def test_analyzer_reports_follow_unlocked_experiment_levels() -> None:
         "yellow / smooth: 56%",
         "yellow / wrinkled: 19%",
     ]
+    assert scene._punnett_columns() == ["AB", "Ab", "aB", "ab"]
+    assert scene._punnett_rows() == [
+        ("AB", ["AABB", "AABb", "AaBB", "AaBb"]),
+        ("Ab", ["AABb", "AAbb", "AaBb", "Aabb"]),
+        ("aB", ["AaBB", "AaBb", "aaBB", "aaBb"]),
+        ("ab", ["AaBb", "Aabb", "aaBb", "aabb"]),
+    ]
+
+
+def test_punnett_square_is_hidden_before_probability_level() -> None:
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+
+    assert scene._punnett_columns() == []
+    assert scene._punnett_rows() == []
+
+
+def test_analyzer_view_buttons_respect_unlock_levels(monkeypatch) -> None:
+    state = GameState.create_initial()
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene.analyzer_view = ANALYZER_VIEW_TRAITS
+    scene._play_sound = lambda _sound_index: None
+    scene._t = lambda text, **kwargs: text.format(**kwargs)
+    button = ANALYZER_VIEW_BUTTONS[2]
+    monkeypatch.setattr(pyxel, "mouse_x", button.x + 1)
+    monkeypatch.setattr(pyxel, "mouse_y", button.y + 1)
+    monkeypatch.setattr(
+        pyxel,
+        "btnp",
+        lambda key: key == pyxel.MOUSE_BUTTON_LEFT,
+    )
+
+    assert scene._update_analyzer_view_buttons()
+    assert scene.analyzer_view == ANALYZER_VIEW_TRAITS
+    assert state.status_message == "Analyzer L3 required."
+
+    state.analyzer_level = 3
+    assert scene._update_analyzer_view_buttons()
+    assert scene.analyzer_view == ANALYZER_VIEW_PUNNETT
+    assert state.status_message == "Punnett"
 
 
 def test_level_four_analyzer_finds_best_stored_contract_cross() -> None:
@@ -441,8 +494,14 @@ def test_level_four_analyzer_finds_best_stored_contract_cross() -> None:
     state.analyzer_level = 4
     scene = MainGameScene.__new__(MainGameScene)
     scene.state = state
+    scene._trait = lambda value: value
+    scene._t = lambda text, **kwargs: text.format(**kwargs)
 
-    assert scene._best_contract_cross() == "1 x 2: 100%"
+    assert scene._best_contract_cross_lines() == [
+        "Plant 1: AABB yellow / smooth",
+        "Plant 2: aabb green / wrinkled",
+        "Chance: 100%",
+    ]
 
 
 def test_analyzer_compacts_large_gamete_sets() -> None:

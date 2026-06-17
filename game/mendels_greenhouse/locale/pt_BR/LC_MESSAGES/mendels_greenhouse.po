@@ -497,6 +497,37 @@ msgstr "Probabilidade"
 msgid "Probabilistic Analysis"
 msgstr "Analise probabilistica"
 
+#: mendels_greenhouse/scenes/main_game.py:427
+#: mendels_greenhouse/ui/game_components/main_game/analyzer_panel.py:441
+msgid "Punnett square"
+msgstr "Quadro de Punnett"
+
+#: mendels_greenhouse/scenes/main_game.py:428
+msgid "Traits"
+msgstr "Tracos"
+
+#: mendels_greenhouse/scenes/main_game.py:429
+msgid "Genes"
+msgstr "Genes"
+
+#: mendels_greenhouse/scenes/main_game.py:430
+msgid "Punnett"
+msgstr "Punnett"
+
+#: mendels_greenhouse/scenes/main_game.py:431
+msgid "Sim"
+msgstr "Sim"
+
+#: mendels_greenhouse/scenes/main_game.py:432
+#: mendels_greenhouse/ui/game_components/main_game/analyzer_panel.py:406
+msgid "Visible traits"
+msgstr "Tracos visiveis"
+
+#: mendels_greenhouse/scenes/main_game.py:433
+#: mendels_greenhouse/ui/game_components/main_game/analyzer_panel.py:423
+msgid "Alleles"
+msgstr "Alelos"
+
 #: mendels_greenhouse/scenes/main_game.py:419
 #: mendels_greenhouse/scenes/main_game.py:1999
 msgid "Produce a 9:3:3:1 phenotype ratio"
@@ -724,6 +755,16 @@ msgstr "O nivel 2 do analisador revela os genotipos exatos."
 #: mendels_greenhouse/ui/game_components/main_game/analyzer_panel.py:323
 msgid "Best stored cross"
 msgstr "Melhor cruzamento armazenado"
+
+#: mendels_greenhouse/scenes/main_game.py:479
+#, python-brace-format
+msgid "Plant {slot}: {genotype}"
+msgstr "Planta {slot}: {genotype}"
+
+#: mendels_greenhouse/scenes/main_game.py:480
+#, python-brace-format
+msgid "Chance: {percentage}%"
+msgstr "Chance: {percentage}%"
 
 #: mendels_greenhouse/scenes/main_game.py:472
 msgid "are rescued first."
