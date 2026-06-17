@@ -21,6 +21,8 @@ The Tutorial Screen provides onboarding with minimal text and visual examples.
 - Keep text short.
 - Let the player act quickly.
 - Repeat core patterns through gameplay.
+- Use the [Mendel Guide character](../characters/mendel-guide.md) for short
+  contextual prompts when a personal guide improves clarity.
 
 ## Layout
 
@@ -49,3 +51,5 @@ The Tutorial Screen provides onboarding with minimal text and visual examples.
 - Do not expose advanced probability before the player reaches analyzer level 3.
 - Do not require reading long paragraphs.
 - Tutorial examples must use official content from [../../content/content-bible.md](../../content/content-bible.md).
+- Mendel Guide prompts must be dismissible and must not cover the required
+  interaction target.

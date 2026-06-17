@@ -15,12 +15,18 @@ status: draft
 
 Provides short contextual teaching text without interrupting the main loop.
 
+The panel may include the
+[Mendel Guide character](../../../characters/mendel-guide.md) as a portrait or
+small guide icon when the prompt is part of onboarding or contextual teaching.
+
 ## Content Rules
 
 - Keep text short.
 - Use the current action context.
 - Do not reveal locked analyzer information.
 - Prefer one concrete genetics idea at a time.
+- Keep guide messages dismissible and available through click or keyboard
+  focus, not hover only.
 
 ## Example
 

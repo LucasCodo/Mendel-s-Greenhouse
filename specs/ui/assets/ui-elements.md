@@ -17,6 +17,8 @@ This document lists reusable UI art assets and layout elements required for the 
 | Reward popup frame | Displays rewards | small, large |
 | Discovery popup frame | Displays discoveries | phenotype, genotype, species |
 | Tooltip panel | Context help | short text, icon + text |
+| Mendel Guide portrait | Tutorial and contextual guidance | neutral, pointing, pleased, concerned |
+| Mendel Guide icon | Reopen or identify contextual help | normal, attention |
 | Modal panel | Confirmation | confirm, warning, reward |
 
 ## Resolution Guidance
@@ -53,6 +55,8 @@ Required high-polish UI asset groups:
 | Logo plaque | 96 x 48 | Botanical frame, readable title |
 | Resource frame | 80 x 24 | Supports icon + number |
 | Top navigation icon | 64 x 64 | Guide, Garden, Shop, Settings |
+| Mendel Guide portrait | 64 x 64 or 96 x 96 | Contextual tutorial helper |
+| Mendel Guide icon | 32 x 32 or 48 x 48 | Help recall control |
 | Contract panel | Runtime generated | Parchment surface, progress bar area |
 | Parent panel | 128 x 96 | Plant preview plus trait fields |
 | Probability panel | 96 x 128 | Pie chart and allele legend |
