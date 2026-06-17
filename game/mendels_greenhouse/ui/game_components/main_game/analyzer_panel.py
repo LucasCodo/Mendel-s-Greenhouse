@@ -11,6 +11,34 @@ from mendels_greenhouse.ui.palette import PyxelColor
 
 ANALYZER_PANEL = Rect(10, 68, 170, 280)
 ANALYZER_SCREEN = Rect(34, 82, 138, 252)
+ANALYZER_VIEW_TRAITS = "traits"
+ANALYZER_VIEW_GENES = "genes"
+ANALYZER_VIEW_PUNNETT = "punnett"
+ANALYZER_VIEW_SIMULATOR = "simulator"
+ANALYZER_VIEW_ORDER = (
+    ANALYZER_VIEW_TRAITS,
+    ANALYZER_VIEW_GENES,
+    ANALYZER_VIEW_PUNNETT,
+    ANALYZER_VIEW_SIMULATOR,
+)
+ANALYZER_VIEW_BUTTONS = (
+    Rect(38, 98, 30, 12),
+    Rect(71, 98, 30, 12),
+    Rect(104, 98, 30, 12),
+    Rect(137, 98, 30, 12),
+)
+ANALYZER_VIEW_LABELS = {
+    ANALYZER_VIEW_TRAITS: "Traits",
+    ANALYZER_VIEW_GENES: "Genes",
+    ANALYZER_VIEW_PUNNETT: "Punnett",
+    ANALYZER_VIEW_SIMULATOR: "Sim",
+}
+ANALYZER_VIEW_REQUIRED_LEVEL = {
+    ANALYZER_VIEW_TRAITS: 1,
+    ANALYZER_VIEW_GENES: 2,
+    ANALYZER_VIEW_PUNNETT: 3,
+    ANALYZER_VIEW_SIMULATOR: 4,
+}
 
 
 @dataclass(frozen=True)
@@ -24,11 +52,15 @@ class AnalyzerPanelData:
     simulator_level: int
     phenotype_lines: list[str]
     genotype_lines: list[str]
+    allele_lines: list[str]
     gamete_lines: list[str]
     probability_lines: list[str]
-    best_cross: str | None
+    punnett_columns: list[str]
+    punnett_rows: list[tuple[str, list[str]]]
+    best_cross_lines: list[str]
     max_probability_y: int
     view_level: int
+    active_view: str
 
 
 def draw_analyzer_panel(
@@ -272,68 +304,27 @@ def _draw_crt_screen(
         PyxelColor.ACCENT,
     )
     pyxel.line(sx + 4, sy + 13, sx + sw - 5, sy + 13, PyxelColor.LEAF_SHADOW)
+    _draw_view_buttons(context, data)
 
     # Screen Display Logic
     if not data.has_parent_pair:
         draw_text(
             sx + 6,
-            sy + 22,
+            sy + 36,
             fit_text(translate("Select parents"), sw - 12),
             PyxelColor.LEAF_HIGHLIGHT,
         )
     else:
-        y = sy + 20
-        y = _draw_report_section(
-            Rect(sx, y, sw, 0),
-            translate("Phenotype"),
-            data.phenotype_lines,
-        )
-        if data.view_level >= data.genotype_level:
-            y = _draw_report_section(
-                Rect(sx, y + 2, sw, 0),
-                translate("Genotype"),
-                data.genotype_lines,
-            )
-        if data.view_level >= data.probability_level:
-            y = _draw_report_section(
-                Rect(sx, y + 2, sw, 0),
-                translate("Gametes"),
-                data.gamete_lines,
-            )
-            _draw_report_section(
-                Rect(sx, y + 2, sw, 0),
-                translate("Expected outcomes"),
-                data.probability_lines,
-                max_lines=6,
-            )
-
-        # Level 4 Simulator preview
-        if data.view_level >= data.simulator_level:
-            summary_y = sy + sh - 54
-            pyxel.line(
-                sx + 4,
-                summary_y,
-                sx + sw - 5,
-                summary_y,
-                PyxelColor.LEAF_SHADOW,
-            )
-            draw_text(
-                sx + 6,
-                summary_y + 5,
-                fit_text(translate("Best stored cross"), sw - 12),
-                PyxelColor.ACCENT,
-            )
-            best = (
-                data.best_cross
-                if data.best_cross is not None
-                else translate("No valid stored cross found.")
-            )
-            draw_text(
-                sx + 6,
-                summary_y + 17,
-                fit_text(best, sw - 12),
-                PyxelColor.WHITE_PETAL,
-            )
+        content = Rect(sx, sy + 34, sw, sh - 52)
+        active_view = _visible_view(data)
+        if active_view == ANALYZER_VIEW_GENES:
+            _draw_genes_view(content, context, data)
+        elif active_view == ANALYZER_VIEW_PUNNETT:
+            _draw_punnett_view(content, context, data)
+        elif active_view == ANALYZER_VIEW_SIMULATOR:
+            _draw_simulator_view(content, context, data)
+        else:
+            _draw_traits_view(content, context, data)
     online = data.analyzer_level >= data.probability_level
     status = translate("ONLINE") if online else translate("STANDBY")
     status_color = (
@@ -349,6 +340,150 @@ def _draw_crt_screen(
     )
     draw_text(sx + 6, status_y, status, status_color)
     pyxel.circ(sx + sw - 9, status_y + 3, 2, status_color)
+
+
+def _draw_view_buttons(context: DrawContext, data: AnalyzerPanelData) -> None:
+    translate = context.translate
+    active_view = _visible_view(data)
+    for button, view in zip(
+        ANALYZER_VIEW_BUTTONS,
+        ANALYZER_VIEW_ORDER,
+        strict=True,
+    ):
+        required = ANALYZER_VIEW_REQUIRED_LEVEL[view]
+        enabled = data.view_level >= required
+        active = view == active_view
+        fill = PyxelColor.LEAF_SHADOW if enabled else PyxelColor.METAL_DARK
+        if active:
+            fill = PyxelColor.ACCENT
+        pyxel.rect(button.x, button.y, button.width, button.height, fill)
+        pyxel.rectb(
+            button.x,
+            button.y,
+            button.width,
+            button.height,
+            PyxelColor.UI_DARK,
+        )
+        label = translate(ANALYZER_VIEW_LABELS[view]).upper()
+        color = PyxelColor.UI_DARK if active else PyxelColor.WHITE_PETAL
+        if not enabled:
+            color = PyxelColor.TEXT_MUTED
+        draw_text(
+            button.x + 2,
+            button.y + 3,
+            fit_text(label, button.width - 4),
+            color,
+        )
+
+
+def _visible_view(data: AnalyzerPanelData) -> str:
+    required = ANALYZER_VIEW_REQUIRED_LEVEL.get(data.active_view, 1)
+    if data.view_level >= required:
+        return data.active_view
+    if data.view_level >= data.simulator_level:
+        return ANALYZER_VIEW_SIMULATOR
+    if data.view_level >= data.probability_level:
+        return ANALYZER_VIEW_PUNNETT
+    if data.view_level >= data.genotype_level:
+        return ANALYZER_VIEW_GENES
+    return ANALYZER_VIEW_TRAITS
+
+
+def _draw_traits_view(
+    rect: Rect,
+    context: DrawContext,
+    data: AnalyzerPanelData,
+) -> None:
+    y = _draw_report_section(
+        rect,
+        context.translate("Phenotype"),
+        data.phenotype_lines,
+        max_lines=4,
+    )
+    draw_text(
+        rect.x + 6,
+        y + 4,
+        fit_text(context.translate("Visible traits"), rect.width - 12),
+        PyxelColor.TEXT_MUTED,
+    )
+
+
+def _draw_genes_view(
+    rect: Rect,
+    context: DrawContext,
+    data: AnalyzerPanelData,
+) -> None:
+    y = _draw_report_section(
+        rect,
+        context.translate("Genotype"),
+        data.genotype_lines,
+    )
+    _draw_report_section(
+        Rect(rect.x, y + 2, rect.width, 0),
+        context.translate("Alleles"),
+        data.allele_lines,
+        max_lines=6,
+    )
+
+
+def _draw_punnett_view(
+    rect: Rect,
+    context: DrawContext,
+    data: AnalyzerPanelData,
+) -> None:
+    y = _draw_report_section(
+        rect,
+        context.translate("Gametes"),
+        data.gamete_lines,
+    )
+    y = _draw_punnett_square(
+        Rect(rect.x + 6, y + 2, rect.width - 12, 0),
+        context.translate("Punnett square"),
+        data.punnett_columns,
+        data.punnett_rows,
+    )
+    _draw_report_section(
+        Rect(rect.x, y + 2, rect.width, 0),
+        context.translate("Expected outcomes"),
+        data.probability_lines,
+        max_lines=4,
+    )
+
+
+def _draw_simulator_view(
+    rect: Rect,
+    context: DrawContext,
+    data: AnalyzerPanelData,
+) -> None:
+    y = _draw_report_section(
+        rect,
+        context.translate("Expected outcomes"),
+        data.probability_lines,
+        max_lines=5,
+    )
+    pyxel.line(
+        rect.x + 4,
+        y + 4,
+        rect.x + rect.width - 5,
+        y + 4,
+        PyxelColor.LEAF_SHADOW,
+    )
+    draw_text(
+        rect.x + 6,
+        y + 10,
+        fit_text(context.translate("Best stored cross"), rect.width - 12),
+        PyxelColor.ACCENT,
+    )
+    lines = data.best_cross_lines or [
+        context.translate("No valid stored cross found."),
+    ]
+    for line_index, line in enumerate(lines[:4]):
+        draw_text(
+            rect.x + 6,
+            y + 22 + line_index * 10,
+            fit_text(line, rect.width - 12),
+            PyxelColor.WHITE_PETAL,
+        )
 
 
 def _draw_report_section(
@@ -374,3 +509,54 @@ def _draw_report_section(
         )
         y += 9
     return y
+
+
+def _draw_punnett_square(
+    rect: Rect,
+    title: str,
+    columns: list[str],
+    rows: list[tuple[str, list[str]]],
+) -> int:
+    draw_text(
+        rect.x,
+        rect.y,
+        fit_text(title.upper(), rect.width),
+        PyxelColor.ACCENT,
+    )
+    if not columns or not rows:
+        return rect.y + 10
+
+    label_w = 18
+    cell_w = max(18, (rect.width - label_w) // max(len(columns), 1))
+    cell_h = 11
+    grid_x = rect.x
+    grid_y = rect.y + 10
+
+    for col_index, column in enumerate(columns):
+        x = grid_x + label_w + col_index * cell_w
+        draw_text(
+            x + 2, grid_y, fit_text(column, cell_w - 3), PyxelColor.ACCENT
+        )
+
+    for row_index, (row_label, cells) in enumerate(rows):
+        y = grid_y + cell_h + row_index * cell_h
+        draw_text(
+            grid_x,
+            y + 2,
+            fit_text(row_label, label_w - 2),
+            PyxelColor.ACCENT,
+        )
+        for col_index, cell in enumerate(cells):
+            x = grid_x + label_w + col_index * cell_w
+            pyxel.rect(
+                x, y, cell_w - 1, cell_h - 1, PyxelColor.DEEP_GLASS_NAVY
+            )
+            pyxel.rectb(x, y, cell_w - 1, cell_h - 1, PyxelColor.LEAF_SHADOW)
+            draw_text(
+                x + 2,
+                y + 2,
+                fit_text(cell, cell_w - 3),
+                PyxelColor.SUCCESS_LIME,
+            )
+
+    return grid_y + cell_h + len(rows) * cell_h + 2

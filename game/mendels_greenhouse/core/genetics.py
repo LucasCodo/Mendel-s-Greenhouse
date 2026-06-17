@@ -117,6 +117,15 @@ class CrossbreedingDistribution:
         }
 
 
+@dataclass(frozen=True)
+class PunnettSquare:
+    """Read-only Punnett square generated from parent gametes."""
+
+    parent_a_gametes: tuple[str, ...]
+    parent_b_gametes: tuple[str, ...]
+    cells: tuple[tuple[str, ...], ...]
+
+
 def expected_phenotype_probabilities(
     parent_a: Plant,
     parent_b: Plant,
@@ -202,6 +211,28 @@ def combine_gametes(gamete_a: str, gamete_b: str) -> str:
             raise ValueError(message)
         pairs.append("".join(alleles))
     return "".join(pairs)
+
+
+def punnett_square(parent_a: Plant, parent_b: Plant) -> PunnettSquare:
+    """Return the genotype matrix for all gamete combinations."""
+    if parent_a.species != parent_b.species:
+        message = "Parents must belong to the same species."
+        raise ValueError(message)
+
+    parent_a_gametes = gametes(parent_a)
+    parent_b_gametes = gametes(parent_b)
+    cells = tuple(
+        tuple(
+            combine_gametes(gamete_a, gamete_b)
+            for gamete_a in parent_a_gametes
+        )
+        for gamete_b in parent_b_gametes
+    )
+    return PunnettSquare(
+        parent_a_gametes=parent_a_gametes,
+        parent_b_gametes=parent_b_gametes,
+        cells=cells,
+    )
 
 
 def expected_distribution(

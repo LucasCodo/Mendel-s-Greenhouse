@@ -5,7 +5,7 @@ tags:
 type: decision
 project: mendels-greenhouse
 status: active
-updated: 2026-05-31
+updated: 2026-06-16
 ---
 
 # Decisions
@@ -184,6 +184,18 @@ panel. Hovering over a Germination Bed specimen does not open or update
 inspection UI. Clicking a visible occupied cell opens the overlay with a large
 preview, analyzer-appropriate details, and Store/Discard actions. The main
 layout does not reserve a permanent specimen side panel.
+
+## 2026-06-16: Mendel Guide Tutorial Character
+
+Mendel's Greenhouse should include a pixel-art Mendel Guide character as a
+contextual tutorial mentor. The guide delivers short onboarding prompts,
+action-oriented hints, and feedback through the help panel or tutorial prompts
+without changing gameplay rules, genetic outcomes, rewards, analyzer unlocks,
+or progression.
+
+The formal specification lives in
+`specs/ui/characters/mendel-guide.md`. Guide text must remain localizable and
+must not reveal analyzer-locked information early.
 
 ## 2026-05-30: Premium Pixel-Art Interface Target
 
