@@ -354,6 +354,11 @@ Unlocking a new plant species requires two empty greenhouse slots. The unlock
 immediately occupies those slots with the species' fully dominant and fully
 recessive founder plants, such as `AABBCC` and `aabbcc` for Snapdragon.
 
+The founder plants are registered as discovered plants when the species is
+unlocked. This makes the species immediately eligible for future contract
+generation when its reachable phenotypes or genotypes satisfy analyzer-level
+and validity requirements.
+
 ## 2026-06-04: Unique Stored Genotypes
 
 The greenhouse stores at most one plant for each genotype. Attempts to store a

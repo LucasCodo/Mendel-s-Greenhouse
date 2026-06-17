@@ -387,6 +387,9 @@ msgstr "Proporcao diibrida 9:3:3:1"
 msgid "LOCK"
 msgstr "BLOQ"
 
+msgid "NO SLOTS"
+msgstr "SEM ESPACO"
+
 #: mendels_greenhouse/scenes/main_game.py:393
 msgid "Locked"
 msgstr "Bloqueado"

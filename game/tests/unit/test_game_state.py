@@ -139,6 +139,19 @@ def test_greenhouse_rejects_duplicate_genotype_storage() -> None:
     assert state.greenhouse.plant_at(2) is None
 
 
+def test_greenhouse_treats_out_of_capacity_slots_as_locked() -> None:
+    state = GameState.create_initial()
+
+    assert state.greenhouse.plant_at(state.greenhouse.capacity) is None
+    assert not state.greenhouse.can_discard(state.greenhouse.capacity)
+    assert state.greenhouse.discard(state.greenhouse.capacity) is None
+    assert state.greenhouse.remove(state.greenhouse.capacity) is None
+    assert state.greenhouse.plant_at(-1) is None
+
+    assert state.greenhouse.used_slots == 2
+    assert state.greenhouse.plant_at(0) == Plant("AABB")
+
+
 def test_store_selected_offspring_rejects_duplicate_genotype() -> None:
     state = GameState.create_initial()
     state.current_batch = [Plant("AABB")]
@@ -231,6 +244,7 @@ def test_species_unlock_requires_two_free_greenhouse_slots() -> None:
     assert state.credits == 3000
     assert "Snapdragon" not in state.unlocked_species
     assert state.status_message == "Requires two empty garden slots."
+    assert scene._species_card_data() == ("Snapdragon", "3000 CR", "NO SLOTS")
 
 
 def test_species_unlock_adds_dominant_and_recessive_founders() -> None:
@@ -242,7 +256,7 @@ def test_species_unlock_adds_dominant_and_recessive_founders() -> None:
 
     assert scene._buy_species_unlock()
 
-    assert state.credits == 200
+    assert state.credits == 340
     assert "Snapdragon" in state.unlocked_species
     assert state.greenhouse.plant_at(2) == Plant(
         "AABBCC",
@@ -252,6 +266,32 @@ def test_species_unlock_adds_dominant_and_recessive_founders() -> None:
         "aabbcc",
         species="Snapdragon",
     )
+    assert ("Snapdragon", "AABBCC") in state.collection.genotypes
+    assert ("Snapdragon", "aabbcc") in state.collection.genotypes
+
+
+def test_unlocked_species_can_generate_new_contracts() -> None:
+    state = GameState.create_initial()
+    state.credits = 3000
+    scene = MainGameScene.__new__(MainGameScene)
+    scene.state = state
+    scene._play_sound = lambda _sound_index: None
+
+    assert scene._buy_species_unlock()
+
+    contract = generate_next_contract(
+        analyzer_level=state.analyzer_level,
+        collection=state.collection,
+        greenhouse=state.greenhouse,
+        completed_contracts=1,
+    )
+
+    assert contract.species == "Snapdragon"
+    assert contract.trait_requirements == {
+        "flower color": "red",
+        "petal shape": "wide",
+        "plant height": "tall",
+    }
 
 
 def test_species_shop_card_handles_all_unlocked_species() -> None:
