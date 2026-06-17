@@ -387,6 +387,9 @@ msgstr "9:3:3:1 dihybrid ratio"
 msgid "LOCK"
 msgstr "LOCK"
 
+msgid "NO SLOTS"
+msgstr "NO SLOTS"
+
 #: mendels_greenhouse/scenes/main_game.py:393
 msgid "Locked"
 msgstr "Locked"

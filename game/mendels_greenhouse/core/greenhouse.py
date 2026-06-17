@@ -36,6 +36,8 @@ class Greenhouse:
 
     def plant_at(self, index: int) -> Plant | None:
         """Return the plant stored at a slot."""
+        if index < 0 or index >= self.capacity:
+            return None
         return self.slots[index]
 
     def first_empty_slot(self) -> int | None:
@@ -66,6 +68,8 @@ class Greenhouse:
 
     def remove(self, index: int) -> Plant | None:
         """Remove and return a plant from a slot."""
+        if index < 0 or index >= self.capacity:
+            return None
         plant = self.slots[index]
         self.slots[index] = None
         return plant

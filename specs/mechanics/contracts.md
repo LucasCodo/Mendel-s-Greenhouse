@@ -109,6 +109,12 @@ Contract complexity scales with:
 - Greenhouse capacity.
 - Previous contract success.
 
+Contracts are not limited to Mendel Pea. When a new species is unlocked, its
+fully dominant and fully recessive founder plants are added to the greenhouse
+and registered as discovered content. From the next contract generation onward,
+that species' reachable phenotype and genotype objectives may be selected,
+subject to analyzer level and validity criteria.
+
 ## Validity Criteria
 
 A generated contract is valid only if:

@@ -412,6 +412,7 @@ I18N_MARKERS = (
     gettext_noop("No completed contract to claim."),
     gettext_noop("No revealed plant to store."),
     gettext_noop("No selected specimen to store."),
+    gettext_noop("NO SLOTS"),
     gettext_noop("No specimens to harvest."),
     gettext_noop("Not enough credits."),
     gettext_noop("Offspring discarded."),
@@ -1683,7 +1684,7 @@ class MainGameScene:
             self.state.greenhouse.free_slots
             < SPECIES_UNLOCK_REQUIRED_FREE_SLOTS
         ):
-            return (species_name, f"{cost} CR", "LOCK")
+            return (species_name, f"{cost} CR", "NO SLOTS")
         return (species_name, f"{cost} CR", self._afford_label(cost))
 
     def _shop_details(self) -> list[str]:
@@ -1783,15 +1784,27 @@ class MainGameScene:
         if self.state.collection.register_species(species_name):
             self.state.credits += DISCOVERY_REWARDS["species"]
         dominant, recessive = founder_genotypes(genes)
-        self.state.greenhouse.store(
+        founders = (
             Plant(dominant, species=species_name),
-        )
-        self.state.greenhouse.store(
             Plant(recessive, species=species_name),
         )
+        for founder in founders:
+            self.state.greenhouse.store(founder)
+            self.state.credits += self._register_founder_discoveries(founder)
         self.state.status_message = f"Unlocked {species_name}."
         self._play_sound(3)
         return True
+
+    def _register_founder_discoveries(self, founder: Plant) -> int:
+        before_genotypes = len(self.state.collection.genotypes)
+        before_phenotypes = len(self.state.collection.phenotypes)
+        self.state.collection.register_plant(founder)
+        reward = 0
+        if len(self.state.collection.genotypes) > before_genotypes:
+            reward += DISCOVERY_REWARDS["genotype"]
+        if len(self.state.collection.phenotypes) > before_phenotypes:
+            reward += DISCOVERY_REWARDS["phenotype"]
+        return reward
 
     def _selected_shop_available(self) -> bool:
         _title, cost_text, status = self._shop_card_data(
