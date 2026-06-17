@@ -103,6 +103,7 @@ Asset sizes must be large enough for the game to look polished while staying com
 | Parent card plant sprites | 64 x 64 | 96 x 96 or 128 x 128 | 256 x 256 |
 | Analyzer plant preview | 96 x 96 | 128 x 128 | 256 x 256 |
 | Discovery popup plant | 96 x 96 | 128 x 128 | 256 x 256 |
+| Character portrait | 64 x 64 | 64 x 64 or 96 x 96 | 128 x 128 |
 | Background tiles | 16 x 16 | 32 x 32 or 64 x 64 | 256 x 256 |
 | Background compositions | 256 x 160 | 640 x 360 | 640 x 360 |
 | UI panel pieces | 16 x 16 | 32 x 32 or 64 x 64 | 256 x 256 |

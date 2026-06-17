@@ -24,6 +24,17 @@ def test_portuguese_catalog_translates_runtime_text() -> None:
     assert t("{found}/{total} found", found=3, total=9) == ("3/9 encontradas")
     assert t("Generation") == "Geracao"
     assert t("Gametes") == "Gametas"
+    assert t("Punnett square") == "Quadro de Punnett"
+    assert t("Traits") == "Tracos"
+    assert t("Genes") == "Genes"
+    assert t("Punnett") == "Punnett"
+    assert t("Sim") == "Sim"
+    assert t("Visible traits") == "Tracos visiveis"
+    assert t("Alleles") == "Alelos"
+    assert t("Plant {slot}: {genotype}", slot=3, genotype="AaBb") == (
+        "Planta 3: AaBb"
+    )
+    assert t("Chance: {percentage}%", percentage=25) == "Chance: 25%"
     assert t("Expected outcomes") == "Resultados esperados"
     assert t("ONLINE") == "ATIVO"
     assert t("Slots: {used}/{capacity}", used=3, capacity=12) == (

@@ -21,6 +21,8 @@ from mendels_greenhouse.core.genetics import (
     expected_phenotype_probabilities,
     founder_genotypes,
     gametes,
+    genotype_pairs,
+    punnett_square,
 )
 from mendels_greenhouse.core.i18n import gettext_noop, set_language, t
 from mendels_greenhouse.services.breeding_service import BreedingService
@@ -75,6 +77,11 @@ from mendels_greenhouse.ui.game_components.knowledge import (
     selected_knowledge_stage,
 )
 from mendels_greenhouse.ui.game_components.main_game import (
+    ANALYZER_VIEW_BUTTONS,
+    ANALYZER_VIEW_LABELS,
+    ANALYZER_VIEW_ORDER,
+    ANALYZER_VIEW_REQUIRED_LEVEL,
+    ANALYZER_VIEW_TRAITS,
     CROSS_BUTTON,
     PARENT_A_CARD,
     PARENT_B_CARD,
@@ -266,6 +273,7 @@ ANALYZER_PROBABILITY_LEVEL = 3
 ANALYZER_SIMULATOR_LEVEL = 4
 ANALYZER_FULL_GAMETE_LIMIT = 4
 ANALYZER_COMPACT_GAMETE_COUNT = 2
+ANALYZER_PUNNETT_GAMETE_LIMIT = 4
 SEED_STAGE_FRAMES = 15
 SEEDLING_STAGE_FRAMES = 30
 GERMINATION_SETTLE_FRAMES = 90
@@ -416,6 +424,13 @@ I18N_MARKERS = (
     gettext_noop("Phenotypes found: {count}"),
     gettext_noop("Probability"),
     gettext_noop("Probabilistic Analysis"),
+    gettext_noop("Punnett square"),
+    gettext_noop("Traits"),
+    gettext_noop("Genes"),
+    gettext_noop("Punnett"),
+    gettext_noop("Sim"),
+    gettext_noop("Visible traits"),
+    gettext_noop("Alleles"),
     gettext_noop("Produce a 9:3:3:1 phenotype ratio"),
     gettext_noop("Produce at least {percentage}% {trait}"),
     gettext_noop("Recessive allele"),
@@ -469,6 +484,8 @@ I18N_MARKERS = (
     gettext_noop("Yellow smooth peas are requested first."),
     gettext_noop("Analyzer level 2 reveals exact genotypes."),
     gettext_noop("Best stored cross"),
+    gettext_noop("Plant {slot}: {genotype}"),
+    gettext_noop("Chance: {percentage}%"),
     gettext_noop("are rescued first."),
     gettext_noop("Matching harvest specimens are rescued first."),
     gettext_noop("Validate the whole generated batch."),
@@ -612,6 +629,7 @@ class MainGameScene:
         self.selected_knowledge = "Phenotype"
         self.selected_greenhouse_slot = 0
         self.selected_shop_item = "slot"
+        self.analyzer_view = ANALYZER_VIEW_TRAITS
         self.tester_code_buffer = ""
         self._apply_audio_settings()
 
@@ -648,9 +666,32 @@ class MainGameScene:
 
     def _update_main_game(self) -> None:
         """Handle main crossbreeding screen controls."""
+        if self._update_analyzer_view_buttons():
+            return
         self._handle_breeding_buttons()
         self._update_germination_bed_selection()
         self._track_reveal_frames()
+
+    def _update_analyzer_view_buttons(self) -> bool:
+        for button, view in zip(
+            ANALYZER_VIEW_BUTTONS,
+            ANALYZER_VIEW_ORDER,
+            strict=True,
+        ):
+            if not clicked(button):
+                continue
+            self._play_sound(0)
+            required = ANALYZER_VIEW_REQUIRED_LEVEL[view]
+            if self.state.analyzer_level < required:
+                self.state.status_message = self._t(
+                    "Analyzer L{level} required.",
+                    level=required,
+                )
+                return True
+            self.analyzer_view = view
+            self.state.status_message = self._t(ANALYZER_VIEW_LABELS[view])
+            return True
+        return False
 
     def _update_tester_code(self) -> None:
         for character, key in TESTER_CODE_KEYS.items():
@@ -789,11 +830,19 @@ class MainGameScene:
                 simulator_level=ANALYZER_SIMULATOR_LEVEL,
                 phenotype_lines=self._analyzer_phenotype_lines(),
                 genotype_lines=self._analyzer_genotype_lines(),
+                allele_lines=self._analyzer_allele_lines(),
                 gamete_lines=self._analyzer_gamete_lines(),
                 probability_lines=self._probability_lines(),
-                best_cross=self._best_contract_cross(),
+                punnett_columns=self._punnett_columns(),
+                punnett_rows=self._punnett_rows(),
+                best_cross_lines=self._best_contract_cross_lines(),
                 max_probability_y=PROBABILITY_PANEL_MAX_Y,
                 view_level=self.state.analyzer_level,
+                active_view=getattr(
+                    self,
+                    "analyzer_view",
+                    ANALYZER_VIEW_TRAITS,
+                ),
             ),
         )
         draw_parent_cross_panel(
@@ -1157,6 +1206,18 @@ class MainGameScene:
             f"B: {parent_b.genotype}",
         ]
 
+    def _analyzer_allele_lines(self) -> list[str]:
+        parent_a = self.state.parent_a
+        parent_b = self.state.parent_b
+        if parent_a is None or parent_b is None:
+            return []
+        parent_a_pairs = genotype_pairs(parent_a.genotype)
+        parent_b_pairs = genotype_pairs(parent_b.genotype)
+        return [
+            f"A {gene}: {pair_a}  B {gene}: {parent_b_pairs[gene]}"
+            for gene, pair_a in parent_a_pairs.items()
+        ]
+
     def _analyzer_gamete_lines(self) -> list[str]:
         parent_a = self.state.parent_a
         parent_b = self.state.parent_b
@@ -1167,6 +1228,40 @@ class MainGameScene:
             f"B: {self._compact_gametes(gametes(parent_b))}",
         ]
 
+    def _punnett_columns(self) -> list[str]:
+        parent_a = self.state.parent_a
+        parent_b = self.state.parent_b
+        if (
+            parent_a is None
+            or parent_b is None
+            or self.state.analyzer_level < ANALYZER_PROBABILITY_LEVEL
+        ):
+            return []
+        square = punnett_square(parent_a, parent_b)
+        return list(square.parent_a_gametes[:ANALYZER_PUNNETT_GAMETE_LIMIT])
+
+    def _punnett_rows(self) -> list[tuple[str, list[str]]]:
+        parent_a = self.state.parent_a
+        parent_b = self.state.parent_b
+        if (
+            parent_a is None
+            or parent_b is None
+            or self.state.analyzer_level < ANALYZER_PROBABILITY_LEVEL
+        ):
+            return []
+        square = punnett_square(parent_a, parent_b)
+        return [
+            (
+                row_label,
+                list(row[:ANALYZER_PUNNETT_GAMETE_LIMIT]),
+            )
+            for row_label, row in zip(
+                square.parent_b_gametes[:ANALYZER_PUNNETT_GAMETE_LIMIT],
+                square.cells[:ANALYZER_PUNNETT_GAMETE_LIMIT],
+                strict=True,
+            )
+        ]
+
     @staticmethod
     def _compact_gametes(values: tuple[str, ...]) -> str:
         if len(values) <= ANALYZER_FULL_GAMETE_LIMIT:
@@ -1175,14 +1270,14 @@ class MainGameScene:
         remaining = len(values) - ANALYZER_COMPACT_GAMETE_COUNT
         return f"{visible} +{remaining}"
 
-    def _best_contract_cross(self) -> str | None:
+    def _best_contract_cross_lines(self) -> list[str]:
         """Return the stored parent pair with the best active-contract odds."""
         stored = [
             (index, plant)
             for index, plant in enumerate(self.state.greenhouse.slots)
             if plant is not None
         ]
-        best_label: str | None = None
+        best_pair: tuple[int, Plant, int, Plant] | None = None
         best_score = -1.0
         for index_a, parent_a in stored:
             for index_b, parent_b in stored:
@@ -1192,10 +1287,28 @@ class MainGameScene:
                 if score <= best_score:
                     continue
                 best_score = score
-                best_label = (
-                    f"{index_a + 1} x {index_b + 1}: {int(score * 100)}%"
-                )
-        return best_label
+                best_pair = (index_a, parent_a, index_b, parent_b)
+        if best_pair is None:
+            return []
+        index_a, parent_a, index_b, parent_b = best_pair
+        return [
+            self._best_cross_parent_line(index_a, parent_a),
+            self._best_cross_parent_line(index_b, parent_b),
+            self._t("Chance: {percentage}%", percentage=int(best_score * 100)),
+        ]
+
+    def _best_cross_parent_line(self, index: int, plant: Plant) -> str:
+        phenotype = " / ".join(
+            self._trait(value) for value in plant.phenotype.traits.values()
+        )
+        return (
+            self._t(
+                "Plant {slot}: {genotype}",
+                slot=index + 1,
+                genotype=plant.genotype,
+            )
+            + f" {phenotype}"
+        )
 
     def _contract_cross_score(self, parent_a: Plant, parent_b: Plant) -> float:
         contract = self.state.active_contract
@@ -1906,6 +2019,7 @@ class MainGameScene:
         self.selected_knowledge = "Phenotype"
         self.selected_greenhouse_slot = 0
         self.selected_shop_item = "slot"
+        self.analyzer_view = ANALYZER_VIEW_TRAITS
         self._reveal_frames.clear()
         self.germination_started_frame = None
         self.state.status_message = "Progress reset."
